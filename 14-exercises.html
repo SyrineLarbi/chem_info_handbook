@@ -1,0 +1,959 @@
+<title>The Nine Exercises</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 14</p>
+  <p class="rail-sub">The nine exercises</p>
+  <span class="rail-vol">Phase 4</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+  <a href="#how"><span class="n">—</span>How to run one</a>
+  <a href="#story"><span class="n">—</span>The running scenario</a>
+
+  <div class="rail-group">I · Building the dataset</div>
+  <a href="#e1"><span class="n">01</span>The curation pipeline</a>
+  <a href="#e2"><span class="n">02</span>Descriptor selection</a>
+
+  <div class="rail-group">II · Building the model</div>
+  <a href="#e3"><span class="n">03</span>QSAR, validated properly</a>
+  <a href="#e4"><span class="n">04</span>The ADMET cascade</a>
+
+  <div class="rail-group">III · Using it</div>
+  <a href="#e5"><span class="n">05</span>Screening triage</a>
+  <a href="#e6"><span class="n">06</span>Activity cliffs</a>
+  <a href="#e7"><span class="n">07</span>Series profiling</a>
+
+  <div class="rail-group">IV · When it breaks</div>
+  <a href="#e8"><span class="n">08</span>Failure investigation</a>
+
+  <div class="rail-group">V · The whole thing</div>
+  <a href="#e9"><span class="n">09</span>The reaction platform</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#common"><span class="n">—</span>The mistakes that recur</a>
+  <a href="#plan"><span class="n">—</span>The order to do them in</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 14 of 17 · phase 4</p>
+  <h1>The nine exercises. <span class="thin">Where reading turns into evidence.</span></h1>
+  <p class="lede">Nine tasks written the way they arrive at work: a stakeholder with a deadline, data
+  that is wrong in several ways at once, and a trap planted in each one. Every exercise here carries
+  its brief, the traps, <strong>the moves the worked solution makes</strong>, the mistakes that get
+  people in trouble, and what a senior scientist checks when you present it.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · Volumes 01–13</span>
+    <span><b>Produces</b> · artefacts, not notes</span>
+    <span><b>Time</b> · 40–50 hours</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<div class="vol here"><span class="vn">Vol 14 · here</span><b>Exercises</b></div>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<header class="mod" id="how">
+  <span class="mn">Before you start</span>
+  <h2>How to run one</h2>
+</header>
+
+<div class="proj">
+  <span class="tag">These are not tutorial exercises</span>
+  <p>A tutorial exercise says: <em>"load this clean CSV, train a random forest, report accuracy."</em></p>
+  <p>These say: <em>"three different CROs ran screens for us over two years and their exports are a
+  mess. The VP wants a predictive model by Thursday. The last contractor used random splits and it
+  failed in prospective validation. Do not repeat that."</em></p>
+  <p><strong>The mess is the exercise.</strong> What is being tested is whether you notice the trap
+  before you notice the task.</p>
+</div>
+
+<div class="sheet">
+  <div class="cap">The four rules that make them worth the time</div>
+<pre><code>1. READ THE SCENARIO FIRST, AND ANSWER THE STAKEHOLDER'S
+   ACTUAL QUESTION.
+   "A predictive model for potency" is not a specification.
+   Noticing that is half the skill being tested.
+
+2. SPEND TWO HOURS BEFORE LOOKING AT THE SOLUTION.
+   The difference between your approach and the solution IS the
+   lesson. Reading first destroys it permanently.
+
+3. READ THE MISTAKES SECTION EVEN IF YOU SUCCEEDED.
+   You cannot discover all of them by accident in four hours,
+   and knowing what not to do is half the job.
+
+4. ⭐ WRITE FOUR SENTENCES AT THE END.
+   what the question was · what you did · what the number was ·
+   WHAT YOU TRIED THAT DID NOT WORK.
+
+   That last clause is what makes an interview answer sound like
+   experience instead of a tutorial — and it only exists if you
+   write it down while the work is fresh.</code></pre>
+</div>
+
+<header class="mod" id="story">
+  <span class="mn">Context</span>
+  <h2>The running scenario</h2>
+</header>
+
+<p>Exercises 01–08 form one continuous story, which is deliberate: real projects are not a sequence of
+unrelated tasks, and the mistakes you make in exercise 01 come back to hurt you in exercise 08.</p>
+
+<pre class="ascii">
+  NOVAPHARMA — a mid-size oncology biotech, 1,200 people.
+  A new CDK4/6 kinase programme. Eighteen months, in nine tasks.
+
+  01  three CROs dumped two years of assay data on you  -&gt; curate it
+  02  the modelling team needs features                 -&gt; choose them
+  03  you present your first model                      -&gt; it is
+                                                           challenged
+  04  screening produced 5,000 hits                     -&gt; filter them
+  05  a co-crystal structure arrives                    -&gt; design a
+                                                           screen
+  06  a chemist made 80 analogues and the SAR is chaos  -&gt; explain it
+  07  four chemical series compete for funding          -&gt; profile them
+  08  six months later the deployed model is wrong      -&gt; find out why
+
+  THE CAST
+    Dr Elena Vasquez   team lead — asks for datasets and decisions
+    Dr James Okoro     modelling lead — the one who challenges your
+                       validation, and the hardest to satisfy
+    Dr Sarah Kim       computational lead — screening campaigns
+    Dr David Chen      head of screening — wants it fast
+    Dr Aisha Patel     medicinal chemistry — the person whose bench
+                       time you are spending
+
+  ⭐ THE POINT OF THE CAST: every deliverable in this field goes to
+     a PERSON with a goal, not into a vacuum. Half of what separates
+     a senior from a junior is knowing who is going to read it.
+</pre>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>Building the dataset</h2>
+</header>
+
+<header class="mod" id="e1">
+  <span class="mn">Exercise 01 · 5–6 hours</span>
+  <h2>The chemical data curation pipeline</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The brief</span>
+    <p>Three CROs, two years, one new CDK4/6 programme. Their exports disagree about everything. Produce
+    a clean, deduplicated, unit-consistent dataset the modelling team can use — <strong>and an audit
+    trail.</strong></p></div>
+  <div class="b"><span class="k">What the solution does, in order</span>
+<pre><code>1  PARSE and log failures. Never drop a row silently.
+2  STRIP SALTS before anything else. "drug.HCl" and "drug"
+   are one compound, and canonicalising first hides that.
+3  CANONICALISE, then key on InChIKey — not on the SMILES
+   string, which differs for identical molecules.
+4  SEPARATE BY ASSAY TYPE. IC50, Ki and EC50 into different
+   columns. They are not the same measurement.
+5  CONVERT to pIC50 = -log10(molar).
+6  AGGREGATE duplicates with the GEOMETRIC mean.
+7  FLAG censored values ("&gt;10000") rather than casting them.
+8  APPLY the purity threshold — and record how many it removed.
+9  WRITE THE LOG: every rule, and the row count it touched.</code></pre></div>
+  <div class="b junior"><span class="k">The five mistakes</span>
+    <p>Deduplicating on SMILES instead of InChIKey · <strong>arithmetic instead of geometric mean</strong> ·
+    canonicalising before stripping salts · mixing activity units · dropping low-purity compounds without
+    saying so.</p></div>
+  <div class="b check"><span class="k">What a senior checks</span>
+    <p>The log, before the dataset. Then: how many rows did each rule remove, and does the total
+    reconcile with the input count?</p></div>
+</div>
+
+<details class="try">
+  <summary>Try it · Three labs measured the same compound: 10 nM, 100 nM and 10,000 nM. What single number goes in your dataset?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>214 nM — the geometric mean</strong>, which you get by averaging in pIC<sub>50</sub> space.</p>
+<pre><code>ARITHMETIC MEAN, in nM
+    (10 + 100 + 10000) / 3  =  3,370 nM
+    ⚠ one bad measurement has swallowed the other two
+
+GEOMETRIC MEAN, via pIC50
+    pIC50 =  8.0,  7.0,  5.0
+    mean  =  6.67   -&gt;   214 nM
+    ✓ balanced, and it is what "average potency" actually means</code></pre>
+    <p>The reason is that activity is <strong>logarithmically distributed</strong>. A tenfold error is
+    the same size of mistake whether it happens at 10 nM or at 10 µM, and only the log scale treats it
+    that way. Arithmetic averaging in nM lets your weakest measurement decide the answer.</p>
+    <p>And the deeper habit: <strong>if three labs disagree by a factor of 1,000, the disagreement is
+    itself the finding.</strong> Averaging it away hides the fact that one of those assays is probably
+    not measuring what the others are. Flag it before you average it.</p>
+  </div>
+</details>
+
+<header class="mod" id="e2">
+  <span class="mn">Exercise 02 · 4–5 hours</span>
+  <h2>Molecular descriptor selection</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The brief</span>
+    <p>~3,200 clean compounds from exercise 01. The modelling lead wants a descriptor matrix, and is
+    explicit that dumping 2,000 RDKit descriptors into a CSV is not an acceptable answer — the last
+    person who did that produced a model that memorised the training set.</p></div>
+  <div class="b"><span class="k">What the solution does</span>
+    <ul>
+      <li>Drop constant and near-constant descriptors — useless on <em>this</em> set regardless of fame.</li>
+      <li>Drop one of each highly correlated pair. MW, heavy-atom count and molar refractivity are close to one descriptor wearing three hats.</li>
+      <li><strong>Scale before any distance-based step</strong>, and fit the scaler inside the fold.</li>
+      <li>Justify the surviving set on chemistry, then document every choice.</li>
+    </ul></div>
+  <div class="b junior"><span class="k">The trap most people fall into</span>
+    <p><strong>Selecting descriptors by their correlation with the target.</strong> It feels like
+    feature selection and it is leakage: you looked at the answers to choose the questions, and your
+    test score is now optimistic by an amount you cannot measure.</p></div>
+  <div class="b check"><span class="k">What a senior checks</span>
+    <p>"Why these descriptors?" A good answer mentions chemistry. A weak one mentions only variance.
+    And: "does molecular weight belong in this model at all?" — often it does not, because it
+    correlates with potency for reasons that have nothing to do with binding.</p></div>
+</div>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>Building the model</h2>
+</header>
+
+<header class="mod" id="e3">
+  <span class="mn">Exercise 03 · 6–8 hours</span>
+  <h2>QSAR, validated properly</h2>
+</header>
+
+<div class="proj">
+  <span class="tag">The most important exercise in the course</span>
+  <p>You are three minutes into presenting your first model when Dr Okoro stops you: <em>"You used
+  random 80/20 splits? Let me tell you what happened at my last company. A junior modeller built a
+  beautiful QSAR model for a JAK2 project. R² = 0.92 on the test set…"</em></p>
+  <p>Everything in this exercise is about the gap between a number that is <em>correct</em> and a
+  number that is <em>predictive of your experience</em>.</p>
+</div>
+
+<div class="sen">
+  <div class="b knows"><span class="k">What the solution requires</span>
+    <ul>
+      <li><strong>A scaffold split</strong>, with the train/test scaffold overlap printed and equal to zero.</li>
+      <li>Both numbers reported — random <em>and</em> scaffold — and the gap between them named as the deception factor.</li>
+      <li>An applicability domain, with error plotted against distance from the training set.</li>
+      <li>A <strong>Ridge baseline</strong>, so "the random forest helped" is a measurement rather than an assumption.</li>
+      <li>Hyperparameters tuned inside the training set only.</li>
+      <li>Alignment with the OECD validation principles.</li>
+    </ul></div>
+  <div class="b junior"><span class="k">The five mistakes</span>
+    <p>Random splits reported as the headline · no applicability domain · comparing models on R² alone ·
+    <strong>tuning on the test set</strong> · and a scaffold split that still leaks because the
+    scaffolds were computed after some other grouping.</p></div>
+  <div class="b check"><span class="k">What a senior checks</span>
+<pre><code>1 "Print the train/test scaffold overlap." If it is &gt; 0,
+  the split is wrong, and every number after it is wrong.
+2 "Show me the R2 gap." If it is &lt; 0.05, either your
+  scaffold diversity is low or you have very few scaffolds —
+  so the split is not testing what you think.
+3 "Is there a trend between AD distance and error?"
+  There SHOULD be. If not, your AD measure is not measuring.
+4 "Does RF actually beat Ridge by a meaningful margin?"
+  If not, the non-linear SAR is weak: you need more data,
+  not a fancier model.
+5 "Pick the 10 test compounds the model is most confident
+  about. Those are our synthesis priorities." ⭐ The model
+  only matters if it changes what gets made.</code></pre></div>
+</div>
+
+<details class="try">
+  <summary>Try it · Your scaffold split gives R² = 0.41 and the random split gave 0.82. Which do you report, and how do you survive the meeting?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>Report 0.41 as the headline and 0.82 beside it — and do not argue about statistics.
+    Reframe it as a question about what the model is for.</strong></p>
+    <p>"Both numbers are correct, and they answer different questions. The 0.82 says how well we
+    predict <em>more compounds from series we already know</em>. The 0.41 says how well we predict
+    <em>a new series</em>. Since we are going to use this on new chemistry, 0.41 is the number that
+    predicts our experience."</p>
+    <p>Then make the cost concrete: <strong>"if we report 0.82 and it performs at 0.41, the chemists
+    lose trust in the model and stop using it — and we will not get that back."</strong></p>
+    <p>And say what the gap tells you, because it is genuinely informative rather than merely
+    embarrassing: <strong>a large gap means the model is learning series membership rather than
+    chemistry.</strong> That is a finding about your dataset's diversity, and it points at the fix —
+    more scaffolds, not more compounds.</p>
+  </div>
+</details>
+
+<header class="mod" id="e4">
+  <span class="mn">Exercise 04 · 5–6 hours</span>
+  <h2>The ADMET filtering cascade</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The brief</span>
+    <p>50,000 compounds were docked; the top 5,000 arrive on your desk. Docking says nothing about
+    whether these survive in a living system. Build the cascade that takes 5,000 down to something a
+    chemistry team can act on.</p></div>
+  <div class="b"><span class="k">The arithmetic that must be in your head</span>
+<pre><code>Six filters, each passing 70%:
+
+    0.70 ^ 6  =  0.118      -&gt;  you keep 12%
+
+Every filter looked reasonable in isolation. Together they
+discarded 88% — and because each model has error, a real
+fraction of what you discarded was fine.
+
+⭐ ORDER MATTERS: cheap and reliable filters first, expensive
+   and uncertain ones last. You want to spend compute only on
+   compounds that already survived the certain tests.</code></pre></div>
+  <div class="b junior"><span class="k">The five mistakes</span>
+    <p>Filters in the wrong order · binary pass/fail instead of ranked scoring · <strong>ignoring
+    hERG</strong>, which is the one that kills programmes late · not reporting the funnel · optimising
+    for potency alone.</p></div>
+  <div class="b check"><span class="k">The senior habit</span>
+    <p><strong>Flag and rank rather than hard-filter.</strong> A compound failing one soft criterion
+    should be ranked lower, not deleted — a hard cutoff applied to an uncertain prediction throws away
+    real molecules and leaves no record that it happened. And always hand over the funnel with counts
+    at every stage.</p></div>
+</div>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>Using it</h2>
+</header>
+
+<header class="mod" id="e5">
+  <span class="mn">Exercise 05 · 6–8 hours</span>
+  <h2>Virtual screening triage</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The brief</span>
+    <p>A CDK4/6 co-crystal structure at 1.9 Å has just been solved, and there is a commercial agreement
+    for 100,000 purchasable compounds with three-week delivery. The head of screening wants to move
+    fast. Design the campaign.</p></div>
+  <div class="b"><span class="k">What the solution does</span>
+    <ul>
+      <li>Uses <strong>several query molecules</strong>, not one — a single query finds a single neighbourhood.</li>
+      <li>Uses more than one fingerprint type, because they disagree about what "similar" means.</li>
+      <li><strong>Clusters before selecting</strong>, so the shortlist is not a hundred costumes on one molecule.</li>
+      <li>Checks purchasability and actual availability before anything is proposed.</li>
+      <li>Visualises chemical space coverage to show what the screen did <em>not</em> reach.</li>
+    </ul></div>
+  <div class="b check"><span class="k">The deliverable</span>
+    <p>A shortlist with a one-line rationale per compound, a funnel with counts, and a coverage plot.
+    The funnel is what gets you asked back.</p></div>
+</div>
+
+<header class="mod" id="e6">
+  <span class="mn">Exercise 06 · 4–5 hours</span>
+  <h2>Activity cliff analysis</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The brief</span>
+    <p>A medicinal chemist has spent three months making 80 analogues of your best hit, and the SAR
+    "makes no sense". Explain it. <strong>This is the exercise where a cheminformatician is most
+    obviously useful to a chemist</strong>, and it is mostly a communication task.</p></div>
+  <div class="b"><span class="k">The method</span>
+<pre><code>SALI — Structure-Activity Landscape Index
+
+    SALI(i,j) = | pIC50_i - pIC50_j |  /  ( 1 - sim(i,j) )
+                 ^^^^^^^^^^^^^^^^^^      ^^^^^^^^^^^^^^^^
+                 how different the        how SIMILAR the
+                 activity is              structures are
+
+  Both big  -&gt;  a cliff. Near-identical molecules, wildly
+                different potency.
+
+  ⚠ THE DENOMINATOR EXPLODES as similarity approaches 1, so
+    two nearly identical molecules give an enormous SALI from
+    a small activity difference. Normalise, and set a minimum
+    activity difference before you believe any of it.</code></pre></div>
+  <div class="b junior"><span class="k">The five mistakes</span>
+    <p>Euclidean distance instead of Tanimoto · unnormalised SALI · <strong>mistaking assay noise for a
+    cliff</strong> — a 3-fold difference inside 2-fold assay error is nothing · reporting cliffs with no
+    med-chem guidance · ignoring stereochemistry, where the "identical" pair is actually two different
+    molecules.</p></div>
+  <div class="b check"><span class="k">The communication test</span>
+    <p>"Replacing the meta-fluorine with a chlorine costs 50-fold, and here are three more pairs showing
+    the same thing — that pocket is small" is useful. "Tanimoto 0.94 with ΔpIC<sub>50</sub> 1.7" is not.
+    <strong>Same finding, and only one of them changes what gets synthesised.</strong></p></div>
+</div>
+
+<details class="try">
+  <summary>Try it · You find a pair at Tanimoto 0.97 with a 4-fold potency difference and a huge SALI. Is it a cliff?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>Almost certainly not. It is probably assay noise with a small denominator.</strong></p>
+    <p>Two checks settle it:</p>
+<pre><code>1  WHAT IS THE ASSAY'S OWN VARIABILITY?
+   Most cell-based IC50 assays repeat to within 2-3 fold.
+   A 4-fold difference is barely outside the noise, and a
+   single measurement each side is not evidence.
+
+2  WHAT IS THE DENOMINATOR DOING?
+   sim = 0.97  -&gt;  1 - sim = 0.03
+   SALI = 0.6 / 0.03 = 20      &lt;- looks dramatic
+   The number is large because you divided by 0.03, not
+   because the chemistry is interesting.</code></pre>
+    <p>The rule: <strong>set a minimum activity difference — conventionally around 10-fold, or one
+    pIC<sub>50</sub> unit — before a pair is allowed to be called a cliff at all</strong>, and check it
+    has been measured more than once. Then rank the survivors by SALI.</p>
+    <p>Reporting noise as a cliff is worse than reporting nothing, because a chemist may go and make
+    compounds based on it.</p>
+  </div>
+</details>
+
+<header class="mod" id="e7">
+  <span class="mn">Exercise 07 · 5–7 hours</span>
+  <h2>Chemical series profiling</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The brief</span>
+    <p>Eighteen months in, four series — pyrimidine, quinazoline, benzimidazole, indole — with 50–80
+    compounds each, every one championed by a different chemist. The project leader needs a selection
+    decision. <strong>You are being asked to help end somebody's project</strong>, which is why the
+    presentation matters as much as the analysis.</p></div>
+  <div class="b"><span class="k">The five mistakes</span>
+    <p>Comparing means without looking at distributions · ignoring within-series variance · <strong>the
+    arithmetic mean of pIC<sub>50</sub> again</strong> · ignoring correlations between properties · and
+    making a recommendation without stating the trade-offs explicitly.</p></div>
+  <div class="b"><span class="k">What the analysis must show</span>
+    <p>The distributions, not the averages — a series with a lower mean but a much better <em>best</em>
+    compound is often the right bet, and a mean hides that entirely. Then multi-parameter profiles
+    across potency, ADMET and synthesisability, with the trade-offs named.</p></div>
+  <div class="b check"><span class="k">The artefact</span>
+    <p>A running Streamlit dashboard with structures drawn, applicability-domain flags on every
+    prediction, and export to the format the team already uses. <strong>This is the most
+    portfolio-friendly exercise in the set</strong>, because it is the only one a non-specialist can
+    see working.</p></div>
+</div>
+
+<header class="part" id="part4">
+  <span class="pn">Part IV</span>
+  <h2>When it breaks</h2>
+</header>
+
+<header class="mod" id="e8">
+  <span class="mn">Exercise 08 · 4–5 hours</span>
+  <h2>The model failure investigation</h2>
+</header>
+
+<div class="proj">
+  <span class="tag">The exercise closest to a senior person's actual week</span>
+  <p>Six months ago you deployed the CDK4/6 model — random forest, scaffold split, RMSE 0.6, considered
+  reliable. The team has been using it to prioritise synthesis. This morning the head of medicinal
+  chemistry emails: <em>"We have a serious problem."</em></p>
+  <p>No new model is required. This is debugging.</p>
+</div>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The order that finds it fastest</span>
+<pre><code>1 HAS THE INPUT CHANGED?
+  Applicability-domain coverage of recent submissions versus
+  training. ⭐ Fastest signal, and usually the answer.
+2 HAS THE SCAFFOLD SHIFTED?
+  Did the project move from hit finding into lead
+  optimisation, or start a new series?
+3 HAS THE ASSAY CHANGED?
+  New cell line or readout — the labels moved, not the
+  molecules.
+4 HAS THE PIPELINE CHANGED?
+  An RDKit version bump can alter descriptors silently.
+5 ONLY THEN suspect the model itself.</code></pre></div>
+  <div class="b"><span class="k">The answer, in this case</span>
+    <p><strong>A triazine scaffold that was not in the training data at all.</strong> The model was
+    never wrong about the chemistry it knew; it was asked about chemistry it had never seen, and it
+    answered anyway — because that is what a model without an enforced applicability domain does.</p></div>
+  <div class="b junior"><span class="k">The five mistakes</span>
+    <p>Blaming the model before checking the data · not verifying the experimental results are
+    themselves correct · retraining before understanding the failure · <strong>having no
+    applicability-domain monitoring in production</strong> · and blaming the users.</p></div>
+  <div class="b check"><span class="k">The artefact</span>
+    <p>A root-cause document: symptom, cause, evidence, fix, and <strong>what monitoring would have
+    caught it weeks earlier</strong>. That last section is the one that demonstrates seniority, and it
+    is the one most people leave out.</p></div>
+</div>
+
+<details class="try">
+  <summary>Try it · The deployed model's RMSE has doubled. Before you look at the model, what three numbers do you pull?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+<pre><code>1  AD COVERAGE OF RECENT SUBMISSIONS
+   What fraction of the last 60 days' predictions fell
+   INSIDE the training distribution? If that has collapsed,
+   you have your answer and the model is blameless.
+
+2  SCAFFOLD NOVELTY RATE
+   How many recent compounds carry a Murcko scaffold absent
+   from training? A new series entering the programme is the
+   single most common cause.
+
+3  ERROR SPLIT: INSIDE AD vs OUTSIDE AD
+   If inside-AD error is unchanged and outside-AD error
+   exploded, the model still works — it is being MISUSED,
+   which is a governance fix rather than a modelling one.</code></pre>
+    <p>All three are about <strong>the inputs, not the model</strong>, and that ordering is the whole
+    lesson. A model does not degrade on its own; the world it is being asked about moves.</p>
+    <p>The fourth thing to check, before retraining anything: <strong>are the new experimental numbers
+    themselves right?</strong> A changed assay protocol produces exactly this symptom, and retraining
+    on bad labels makes it permanent.</p>
+  </div>
+</details>
+
+<header class="part" id="part5">
+  <span class="pn">Part V</span>
+  <h2>The whole thing at once</h2>
+</header>
+
+<header class="mod" id="e9">
+  <span class="mn">Exercise 09 · the end-to-end project</span>
+  <h2>A reaction intelligence platform</h2>
+</header>
+
+<div class="proj">
+  <span class="tag">The one that consolidates everything</span>
+  <p>Build a platform over organic reaction data: parse and store reactions, classify them against
+  named-reaction SMARTS templates, predict outcomes, and serve it. It touches every volume —
+  representations, RDKit, descriptors, curation, modelling, retrosynthesis and the service layer.</p>
+  <p><strong>Do it in thin vertical slices.</strong> One reaction class parsed, classified, predicted
+  and served end to end before you start the second. The temptation is to perfect the parser first;
+  resist it, because you only learn what the parser needs by having something downstream that consumes
+  its output.</p>
+</div>
+
+<header class="mod" id="common">
+  <span class="mn">Reference</span>
+  <h2>The mistakes that recur across exercises</h2>
+</header>
+
+<p>Forty-odd mistakes are catalogued across the nine briefs. These are the ones that appear in more
+than one, which makes them habits rather than slips.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:30%">The habit</th><th style="width:18%">Appears in</th><th>Why it keeps happening</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Arithmetic mean of a log quantity</strong></td><td>01, 07</td><td>Averaging pIC<sub>50</sub> or IC<sub>50</sub> without thinking about the scale. Activity is logarithmic; arithmetic means let the weakest measurement decide.</td></tr>
+    <tr><td><strong>Looking at the target before splitting</strong></td><td>02, 03</td><td>Feature selection, scaling and imputation done on the full dataset. It feels like preparation and it is leakage.</td></tr>
+    <tr><td><strong>No applicability domain</strong></td><td>03, 04, 08</td><td>The model answers every question it is asked. Without an AD, nothing distinguishes an answer from an extrapolation.</td></tr>
+    <tr><td><strong>Hard filters on uncertain predictions</strong></td><td>04, 05</td><td>Each filter looks reasonable; the product of six of them discards most of your library, including real compounds.</td></tr>
+    <tr><td><strong>Top-N without clustering</strong></td><td>05, 07</td><td>The top 100 by any score are usually near-duplicates. You buy one molecule a hundred times.</td></tr>
+    <tr><td><strong>Reporting numbers, not decisions</strong></td><td>06, 07, 08</td><td>Tanimoto and ΔpIC<sub>50</sub> are not sentences a chemist can act on. The analysis is only finished when it names what to do differently.</td></tr>
+    <tr><td><strong>Blaming the model</strong></td><td>03, 08</td><td>Almost always the data, the split, the units or the inputs. Suspect the model last.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="plan">
+  <span class="mn">Reference</span>
+  <h2>The order to do them in</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:18%">If you have</th><th style="width:26%">Do these</th><th>Because</th></tr></thead>
+  <tbody>
+    <tr><td><strong>One weekend</strong></td><td>03, then 06</td><td>Proper validation is this field's screening question, and activity cliffs most change how you read your own results.</td></tr>
+    <tr><td><strong>A week</strong></td><td>01 → 03 → 06 → 08</td><td>Curation, validation, cliffs, debugging — the four that map onto the most real working time.</td></tr>
+    <tr><td><strong>Two weeks</strong></td><td>01 through 08, in order</td><td>They are one continuous story, and the mistakes in 01 are what break the model in 08. Done in order, that lands as an experience rather than a warning.</td></tr>
+    <tr><td><strong>A month</strong></td><td>All nine, then Volume 15's capstones</td><td>The exercises build the skills; the capstones are the artefacts that get you interviews.</td></tr>
+    <tr><td><strong>Interviewing soon</strong></td><td>03 and 08 only</td><td>"How would you validate a QSAR model?" and "a deployed model started failing — what do you do?" are the two questions most likely to decide the outcome.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 15 · The capstones and the field insights</h4><p>Three portfolio projects with their full specifications, and the seven foundational ideas the whole field rests on.</p></div>
+  <div class="card"><h4>The source material</h4><p><code>exercises/</code> — nine briefs and a README, 8,605 lines — carrying the full scenarios, the reproducible synthetic data generators, the complete worked solutions, and the "what a senior scientist would check" reviews summarised here.</p></div>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

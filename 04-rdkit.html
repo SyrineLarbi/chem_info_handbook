@@ -1,0 +1,941 @@
+<title>RDKit, the Core Library</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 04</p>
+  <p class="rail-sub">RDKit, the core library</p>
+  <span class="rail-vol">Phase 1</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+
+  <div class="rail-group">I · The Mol object</div>
+  <a href="#l1"><span class="n">01</span>What a Mol actually is</a>
+  <a href="#l2"><span class="n">02</span>Atoms and bonds</a>
+  <a href="#l3"><span class="n">03</span>Sanitisation</a>
+
+  <div class="rail-group">II · Reading and writing</div>
+  <a href="#l4"><span class="n">04</span>In and out of every format</a>
+  <a href="#l5"><span class="n">05</span>Reading files at scale</a>
+
+  <div class="rail-group">III · Doing things to molecules</div>
+  <a href="#l6"><span class="n">06</span>Substructure search</a>
+  <a href="#l7"><span class="n">07</span>Editing and stripping</a>
+  <a href="#l8"><span class="n">08</span>Scaffolds</a>
+  <a href="#l9"><span class="n">09</span>Reactions</a>
+  <a href="#l10"><span class="n">10</span>Drawing</a>
+
+  <a href="#lrg"><span class="n">11</span>R-group decomposition</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#gotchas"><span class="n">—</span>Ten gotchas</a>
+  <a href="#vids"><span class="n">—</span>Watch these</a>
+  <a href="#chk"><span class="n">—</span>Checkpoint</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 04 of 17 · phase 1</p>
+  <h1>RDKit. <span class="thin">The one tool you cannot avoid.</span></h1>
+  <p class="lede">Every pipeline in this course runs through RDKit. It is open source, it is what
+  industry uses, and it is the reference implementation for most of what you learned in Volume 03.
+  This volume teaches the object model and the ten operations you will use daily — not the API
+  surface, which is enormous and searchable.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · Volumes 01–03</span>
+    <span><b>Teaches</b> · the Mol object and ten operations</span>
+    <span><b>Time</b> · 8–10 hours</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<div class="vol here"><span class="vn">Vol 04 · here</span><b>RDKit</b></div>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<div class="obj">
+  <span class="cap">By the end of this volume you will be able to</span>
+  <ul>
+    <li>Explain what a <code>Mol</code> object holds, and why atom indices are the currency of everything.</li>
+    <li>Read a 100,000-compound SDF without exhausting memory, and count what failed.</li>
+    <li>Find a substructure, replace it, and strip a salt — the three edits you do most.</li>
+    <li>Extract the Murcko scaffold of a molecule, which Volume 08 needs for honest train/test splits.</li>
+    <li>Recognise the ten mistakes that cost every beginner a day each.</li>
+  </ul>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>The Mol object</h2>
+</header>
+
+<header class="mod" id="l1">
+  <span class="mn">Lesson 01</span>
+  <h2>What a Mol actually is</h2>
+</header>
+
+<p>A <code>Mol</code> is <strong>a graph with chemistry attached</strong>. Concretely it holds:</p>
+
+<pre class="ascii">
+  Mol
+   |
+   +-- ATOMS          an ordered list. Each has an INDEX (0, 1, 2, ...)
+   |                  element, charge, aromatic flag, implicit H count,
+   |                  chirality, isotope, and arbitrary properties you attach
+   |
+   +-- BONDS          each joins two atom indices; has a type (single/double/
+   |                  triple/aromatic) and its own stereo information
+   |
+   +-- RING INFO      computed during sanitisation, not stored in the input
+   |
+   +-- CONFORMERS     zero or more sets of 3D coordinates. A Mol from SMILES
+   |                  has NONE until you generate them.
+   |
+   +-- PROPERTIES     name/value pairs. This is where SDF data fields land.
+
+  ⭐ THE ATOM INDEX IS THE KEY TO EVERYTHING.
+     Substructure matches return indices. Fingerprint bits map back to
+     indices. Atom attribution in a neural network returns indices.
+     Learn to think in them.
+</pre>
+
+<div class="warn">
+  <span class="tag">Atom indices are stable within a Mol, not across Mols</span>
+  <p>Atom 3 of one molecule has nothing to do with atom 3 of another. More subtly: <strong>parse the
+  same molecule from two different SMILES strings and you get two different index orders</strong>,
+  because the index follows the order the string was written. If you need indices to be comparable,
+  canonicalise first — then the ordering is deterministic.</p>
+</div>
+
+<header class="mod" id="l2">
+  <span class="mn">Lesson 02</span>
+  <h2>Atoms and bonds — iterating over a molecule</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · walking aspirin atom by atom</span>
+  <div class="body">
+<pre><code>from rdkit import Chem
+
+mol = Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)O")
+
+for atom in mol.GetAtoms():
+    print(atom.GetIdx(),              # 0, 1, 2, ...
+          atom.GetSymbol(),           # 'C', 'O'
+          atom.GetIsAromatic(),       # True inside the ring
+          atom.GetDegree(),           # number of heavy-atom neighbours
+          atom.GetTotalNumHs())       # implicit + explicit hydrogens
+
+  0 C False 1 3        &lt;-- the methyl carbon: one neighbour, three H
+  1 C False 3 0        &lt;-- the carbonyl carbon: three neighbours, no H
+  2 O False 1 0        &lt;-- the =O
+  3 O False 2 0        &lt;-- the ester oxygen
+  4 c True  3 0        &lt;-- ring starts; aromatic, no H (it carries the ester)
+  5 c True  2 1        &lt;-- aromatic CH
+  ...
+
+# bonds
+for bond in mol.GetBonds():
+    print(bond.GetBeginAtomIdx(), bond.GetEndAtomIdx(),
+          bond.GetBondType())         # SINGLE, DOUBLE, AROMATIC
+
+# neighbours of a specific atom
+for nbr in mol.GetAtomWithIdx(1).GetNeighbors():
+    print(nbr.GetIdx(), nbr.GetSymbol())</code></pre>
+    <p><strong>Read the <code>GetTotalNumHs()</code> column.</strong> Atom 0 reports 3 hydrogens even
+    though none appeared in the SMILES — they are implicit, inferred from valence. This is why the
+    atom count was 13 and not 21 back in Volume 02, and it is the source of a whole class of bugs
+    covered in the gotchas below.</p>
+  </div>
+</div>
+
+<header class="mod" id="l3">
+  <span class="mn">Lesson 03</span>
+  <h2>Sanitisation — the step you did not ask for</h2>
+</header>
+
+<p>When <code>MolFromSmiles</code> runs, it does not simply parse. It then <strong>sanitises</strong>,
+and understanding that step explains most surprising behaviour.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:30%">Sanitisation does</th><th>Which means</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Valence checking</strong></td><td>An impossible molecule is rejected — this is why you get <code>None</code> rather than a broken object.</td></tr>
+    <tr><td><strong>Aromaticity perception</strong></td><td>Rings are analysed and flagged aromatic. This is why Kekulé and aromatic input converge (Volume 03, Lesson 02).</td></tr>
+    <tr><td><strong>Ring information</strong></td><td>The smallest set of rings is computed. <code>GetRingInfo()</code> does not work before this.</td></tr>
+    <tr><td><strong>Implicit hydrogen counts</strong></td><td>Filled in from valence rules. Everything about H counts depends on it.</td></tr>
+    <tr><td><strong>Stereochemistry assignment</strong></td><td>Chiral tags are resolved into a consistent internal form.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="tag">When you need to turn it off</span>
+  <p>Occasionally you need a molecule that <em>fails</em> valence rules — an intermediate, a fragment
+  with an open valence, a badly drawn record you want to inspect rather than discard. Then:</p>
+<pre><code>mol = Chem.MolFromSmiles(smi, sanitize=False)
+mol.UpdatePropertyCache(strict=False)     # minimal setup so it is usable
+Chem.SanitizeMol(mol, Chem.SanitizeFlags.SANITIZE_ALL ^
+                      Chem.SanitizeFlags.SANITIZE_PROPERTIES)   # selective</code></pre>
+  <p>Use this rarely and deliberately. An unsanitised Mol will silently misbehave in fingerprinting
+  and descriptor code that assumes ring info exists.</p>
+</div>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>Reading and writing</h2>
+</header>
+
+<header class="mod" id="l4">
+  <span class="mn">Lesson 04</span>
+  <h2>In and out of every format</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">The conversion table, as code</div>
+<pre><code>from rdkit import Chem
+
+# ---- IN ----
+Chem.MolFromSmiles("CCO")              # SMILES  -> Mol
+Chem.MolFromSmarts("C(=O)[OH]")        # SMARTS  -> query Mol  (NOT for real molecules)
+Chem.MolFromMolFile("x.mol")           # MOL     -> Mol
+Chem.MolFromMolBlock(block_string)     # MOL text in memory
+Chem.MolFromInchi("InChI=1S/C2H6O/...")
+Chem.MolFromPDBFile("protein.pdb")
+
+# ---- OUT ----
+Chem.MolToSmiles(mol)                  # ALWAYS canonical
+Chem.MolToInchi(mol)
+Chem.MolToInchiKey(mol)                # the 27-char database key
+Chem.MolToMolBlock(mol)                # needs coordinates to be useful
+
+# ---- THE ONE-LINE IDIOM YOU WILL USE CONSTANTLY ----
+canonical = Chem.MolToSmiles(Chem.MolFromSmiles(raw_smiles))</code></pre>
+</div>
+
+<div class="bad">
+  <span class="tag">MolFromSmarts is not MolFromSmiles</span>
+  <p>A Mol built from SMARTS is a <strong>query</strong>. It has no implicit hydrogens, no sanitised
+  aromaticity, and no valid chemistry. Passing one to a descriptor function returns nonsense rather
+  than an error. Use it only as the second argument to a substructure call — and name the variable
+  <code>pattern</code> or <code>query</code> so you never confuse the two.</p>
+</div>
+
+<header class="mod" id="l5">
+  <span class="mn">Lesson 05</span>
+  <h2>Reading files at scale</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · a 100,000-compound SDF, safely</span>
+  <div class="body">
+<pre><code>from rdkit import Chem
+
+# SDMolSupplier is LAZY — it does not load the file into memory.
+supplier = Chem.SDMolSupplier("screening_library.sdf")
+
+good, failed = [], 0
+for i, mol in enumerate(supplier):
+    if mol is None:                  # &lt;-- the record failed to parse
+        failed += 1
+        continue
+    good.append(mol)
+
+print(f"{len(good)} parsed, {failed} failed, {i+1} records total")
+
+# the data fields from the SDF are on the molecule:
+print(good[0].GetPropsAsDict())
+#   {'compound_id': 'CHEMBL25', 'IC50_nM': 120.0, 'assay_id': '...'}
+print(good[0].GetProp("compound_id"))</code></pre>
+    <p><strong>Three things in that snippet are load-bearing:</strong></p>
+    <ul>
+      <li><code>SDMolSupplier</code> is an iterator. Calling <code>list(supplier)</code> on a large
+      file loads every molecule at once and can exhaust memory — iterate instead.</li>
+      <li><strong>The <code>None</code> check is not optional.</strong> Real vendor SDFs contain
+      broken records. Counting them is how you notice the file is 8% junk.</li>
+      <li><code>GetPropsAsDict()</code> on the first record before writing any other code, so you see
+      what the field names actually are. They are never what the email said.</li>
+    </ul>
+    <p>For gzipped files use <code>Chem.ForwardSDMolSupplier(gzip.open(path))</code> — forward-only,
+    no random access, but it streams.</p>
+  </div>
+</div>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>Doing things to molecules</h2>
+</header>
+
+<header class="mod" id="l6">
+  <span class="mn">Lesson 06</span>
+  <h2>Substructure search</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">The three calls</div>
+<pre><code>pattern = Chem.MolFromSmarts("c1ccccc1")          # any benzene ring
+
+mol.HasSubstructMatch(pattern)      # -> True/False        (fast; use for filtering)
+mol.GetSubstructMatch(pattern)      # -> (4,5,6,7,8,9)     FIRST match, as atom indices
+mol.GetSubstructMatches(pattern)    # -> ((4,5,...), ...)  ALL matches
+
+# filtering a library — the most common use in practice
+has_ring = [m for m in mols if m.HasSubstructMatch(pattern)]</code></pre>
+</div>
+
+<div class="warn">
+  <span class="tag">The symmetry surprise</span>
+  <p><code>GetSubstructMatches</code> on a symmetric pattern returns <strong>many matches for what
+  looks like one</strong> — benzene against benzene gives 12, one for each way of mapping the ring
+  onto itself. If you are counting occurrences of a group, pass
+  <code>uniquify=True</code> (the default) and still sanity-check the number, or count distinct
+  matched atom <em>sets</em> rather than matches.</p>
+</div>
+
+<header class="mod" id="l7">
+  <span class="mn">Lesson 07</span>
+  <h2>Editing molecules — and stripping salts</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · the desalting you will run on every dataset</span>
+  <div class="body">
+    <p class="q">Vendor data is full of salts: <code>CC(=O)O.[Na+]</code> is the sodium salt of
+    acetic acid. For modelling you almost always want the organic part alone.</p>
+<pre><code>from rdkit.Chem.MolStandardize import rdMolStandardize
+
+remover = rdMolStandardize.LargestFragmentChooser()
+
+for smi in ["CC(=O)[O-].[Na+]",              # sodium acetate
+            "CC(=O)Oc1ccccc1C(=O)O",         # aspirin, no salt
+            "c1ccccc1N.Cl"]:                 # aniline hydrochloride
+    mol = Chem.MolFromSmiles(smi)
+    clean = remover.choose(mol)
+    print(smi, "->", Chem.MolToSmiles(clean))
+
+  CC(=O)[O-].[Na+]         -> CC(=O)[O-]
+  CC(=O)Oc1ccccc1C(=O)O    -> CC(=O)Oc1ccccc1C(=O)O
+  c1ccccc1N.Cl             -> Nc1ccccc1</code></pre>
+    <p><strong>Note the first result still carries a negative charge.</strong> Largest-fragment
+    selection removes the counterion but does not neutralise what is left. A full standardisation
+    adds an uncharging step:</p>
+<pre><code>uncharger = rdMolStandardize.Uncharger()
+clean = uncharger.uncharge(remover.choose(mol))     # -> CC(=O)O</code></pre>
+    <p>Volume 06 assembles these into the complete curation pipeline, in the right order, with the
+    decisions that go with them.</p>
+  </div>
+</div>
+
+<details class="try">
+  <summary>Try it · <code>LargestFragmentChooser</code> is a heuristic. Name a case where "the largest fragment" is the wrong answer.</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>A co-crystal or a salt where the counterion is bigger than the active molecule.</strong>
+    A small amine paired with a large organic acid — or a drug formulated as a salt of something like
+    pamoic acid — gets the wrong half kept.</p>
+    <p><strong>The second case:</strong> genuine multi-component actives. Some drugs <em>are</em> two
+    molecules, and discarding one changes what the row means.</p>
+    <p>The practical defence is not a better heuristic — it is <strong>counting how many rows changed
+    and inspecting a sample by eye.</strong> If 40% of your dataset was altered by desalting,
+    something other than salt-stripping is happening and you want to know what before you train
+    on it.</p>
+  </div>
+</details>
+
+<header class="mod" id="l8">
+  <span class="mn">Lesson 08</span>
+  <h2>Scaffolds — the concept Volume 08 depends on</h2>
+</header>
+
+<p>A <strong>Murcko scaffold</strong> is what remains when you strip every side chain and keep the
+ring systems plus the linkers joining them. It is the field's standard answer to "what family is this
+molecule from?"</p>
+
+<div class="wex">
+  <span class="cap">Worked example · scaffolds of the course molecules</span>
+  <div class="body">
+<pre><code>from rdkit.Chem.Scaffolds import MurckoScaffold
+
+for name, smi in [("aspirin",     "CC(=O)Oc1ccccc1C(=O)O"),
+                  ("paracetamol", "CC(=O)Nc1ccc(O)cc1"),
+                  ("caffeine",    "Cn1cnc2c1c(=O)n(C)c(=O)n2C")]:
+    mol = Chem.MolFromSmiles(smi)
+    scaf = MurckoScaffold.GetScaffoldForMol(mol)
+    print(f"{name:14s} -> {Chem.MolToSmiles(scaf)}")
+
+  aspirin        -> c1ccccc1
+  paracetamol    -> c1ccccc1
+  caffeine       -> O=c1[nH]cnc2[nH]cnc12   (its fused ring core)</code></pre>
+    <p><strong>Aspirin and paracetamol share a scaffold.</strong> That is the point — they are both
+    "a benzene ring with things on it", so a model that has seen one has seen something structurally
+    related to the other. Putting one in training and the other in test does not test generalisation.
+    Volume 08 turns this observation into the scaffold split.</p>
+    <p>It also shows the limitation: <code>c1ccccc1</code> is such a common scaffold that it groups
+    together molecules with nothing else in common. Scaffold splitting is a useful discipline, not a
+    perfect one.</p>
+  </div>
+</div>
+
+<header class="mod" id="l9">
+  <span class="mn">Lesson 09</span>
+  <h2>Reactions — transforming molecules by rule</h2>
+</header>
+
+<p>RDKit can apply a reaction written in <strong>SMARTS reaction notation</strong>
+(<code>reactants&gt;&gt;products</code>) to generate products. This is the machinery behind
+enumerating analogues and behind retrosynthesis in Volume 11.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · esterification, applied</span>
+  <div class="body">
+<pre><code>from rdkit.Chem import AllChem
+
+# "an acid plus an alcohol gives an ester"
+rxn = AllChem.ReactionFromSmarts(
+    "[C:1](=[O:2])[OH].[OH][C:3]&gt;&gt;[C:1](=[O:2])O[C:3]")
+
+acid    = Chem.MolFromSmiles("CC(=O)O")      # acetic acid
+alcohol = Chem.MolFromSmiles("CCO")          # ethanol
+
+products = rxn.RunReactants((acid, alcohol))
+for p in products:
+    print(Chem.MolToSmiles(p[0]))            # CCOC(C)=O   (ethyl acetate)</code></pre>
+    <p><strong>The numbers are atom maps.</strong> <code>[C:1]</code> on the left and
+    <code>[C:1]</code> on the right are the same atom — that is how RDKit knows which atoms survive
+    the transformation and carry their substituents along. Without the maps, the reaction cannot be
+    applied to a real molecule.</p>
+    <p><strong>Two cautions.</strong> <code>RunReactants</code> returns a tuple of tuples, because one
+    reaction may match several places and each match may give several products — always iterate.
+    And the products come back unsanitised, so call <code>Chem.SanitizeMol</code> before using
+    them for anything.</p>
+  </div>
+</div>
+
+<header class="mod" id="l10">
+  <span class="mn">Lesson 10</span>
+  <h2>Drawing</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">Three things worth knowing</div>
+<pre><code># 1. INSIDE A NOTEBOOK — import once, then molecules render automatically
+from rdkit.Chem.Draw import IPythonConsole
+mol                                  # just evaluating it draws it
+
+# 2. A GRID OF MOLECULES — the single most useful call in the library
+from rdkit.Chem import Draw
+Draw.MolsToGridImage(mols[:12],
+                     molsPerRow=4,
+                     subImgSize=(250, 200),
+                     legends=[m.GetProp("_Name") for m in mols[:12]])
+
+# 3. HIGHLIGHTING A MATCH — showing WHY a filter fired
+pattern = Chem.MolFromSmarts("C(=O)[OH]")
+hit = mol.GetSubstructMatch(pattern)
+Draw.MolToImage(mol, highlightAtoms=hit)</code></pre>
+</div>
+
+<div class="good">
+  <span class="tag">Why the grid image matters more than it seems</span>
+  <p><strong>Looking at molecules is the debugging method of this field.</strong> A distribution plot
+  tells you something is wrong; a grid of the twelve worst-predicted compounds tells you
+  <em>what</em> — that they are all the same series, or all contain a group your descriptors miss, or
+  that four of them are the same compound drawn differently. Build the habit of drawing the outliers
+  before theorising about them.</p>
+</div>
+
+<header class="mod" id="gotchas">
+  <span class="mn">Reference</span>
+  <h2>Ten gotchas, each worth a day</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:6%">#</th><th style="width:34%">The mistake</th><th>What actually happens</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Not checking <code>MolFromSmiles</code> for <code>None</code></td><td><code>AttributeError</code> far from the cause, or silently lost rows.</td></tr>
+    <tr><td>2</td><td>Comparing input SMILES strings directly</td><td>Duplicates survive. Always canonicalise first.</td></tr>
+    <tr><td>3</td><td>Expecting <code>GetNumAtoms()</code> to include hydrogens</td><td>It counts heavy atoms. Use <code>Chem.AddHs(mol)</code> first if you need them.</td></tr>
+    <tr><td>4</td><td>Generating 3D coordinates without adding hydrogens</td><td>The geometry is wrong. <code>AddHs</code> <em>before</em> <code>EmbedMolecule</code>, always.</td></tr>
+    <tr><td>5</td><td>Using <code>MolFromSmarts</code> output as a real molecule</td><td>Descriptors return nonsense, with no error.</td></tr>
+    <tr><td>6</td><td>Assuming atom indices match between two parses</td><td>They follow input order. Canonicalise if you need stability.</td></tr>
+    <tr><td>7</td><td><code>list(SDMolSupplier(...))</code> on a large file</td><td>Memory exhaustion. Iterate.</td></tr>
+    <tr><td>8</td><td>Forgetting that <code>RunReactants</code> returns unsanitised products</td><td>Downstream calls misbehave in ways that look like data problems.</td></tr>
+    <tr><td>9</td><td>Trusting <code>GetSubstructMatches</code> counts on symmetric patterns</td><td>Twelve matches for one benzene ring.</td></tr>
+    <tr><td>10</td><td>Silencing RDKit's warning log</td><td>You stop seeing "could not sanitise" messages that were telling you the file is bad. Capture them instead: <code>RDLogger.logger().setLevel(RDLogger.ERROR)</code> only after you have read them once.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="vids">
+  <span class="mn">Reference</span>
+  <h2>Watch alongside this volume</h2>
+</header>
+
+<div class="vids">
+  <a class="vid" href="https://www.youtube.com/watch?v=9Z9XM9xamDU" target="_blank" rel="noopener">
+    <span class="src">YouTube</span>
+    <b>Chemistry with Python — an Introduction to RDKit</b>
+    <p>Project setup, reading SMILES, and the basic molecule operations, demonstrated live. The
+    closest thing to a screencast companion for this volume.</p>
+  </a>
+  <a class="vid" href="https://www.youtube.com/watch?v=10BQTL99z_E" target="_blank" rel="noopener">
+    <span class="src">YouTube · course introduction</span>
+    <b>RDKit: Cheminformatics &amp; Drug Discovery in Python (Course Intro)</b>
+    <p>Orientation to the library's scope — useful for seeing what exists beyond the ten operations
+    this volume selects.</p>
+  </a>
+</div>
+
+<div class="note">
+  <span class="tag">Better than any video, for this one</span>
+  <p>The <strong>RDKit Getting Started in Python</strong> documentation and <strong>Greg Landrum's
+  RDKit blog</strong> are the real references — the library's maintainer writes up the subtle
+  behaviour, and the blog is where the answers to "why did it do that?" actually live. Volume 17 lists
+  both.</p>
+</div>
+
+<header class="mod" id="lrg">
+  <span class="mn">Lesson 11</span>
+  <h2>R-group decomposition — the table chemists actually want</h2>
+</header>
+
+<p>A medicinal chemistry series is one core with things hung off it. R-group decomposition splits every
+molecule in the series into that shared core plus its substituents, which turns a list of SMILES into
+the table a chemist reasons with.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · from a list of molecules to an SAR table</span>
+  <div class="body">
+<pre><code>from rdkit.Chem import rdRGroupDecomposition as rgd
+
+core = Chem.MolFromSmarts("c1ccc2[nH]ccc2c1")     # the shared scaffold
+groups, unmatched = rgd.RGroupDecompose([core], mols, asSmiles=True)
+
+WHAT COMES BACK
+
+   Core              R1        R2      pIC50
+   ---------------------------------------------
+   indole core       -CH3      -H       6.2
+   indole core       -CH2CH3   -H       6.4
+   indole core       -CF3      -H       7.9      <- fluorine helps
+   indole core       -CH3      -OMe     6.1
+   indole core       -CF3      -OMe     7.8      <- and it is additive
+
+⭐ WHY THIS IS THE MOST USEFUL OUTPUT IN MEDICINAL CHEMISTRY
+   A model says "predicted 7.4". This table says "-CF3 at R1 is
+   worth about 1.5 log units, and R2 does almost nothing." The
+   second is a sentence a chemist can act on tomorrow, and it
+   needed no model at all.
+
+⚠ THE PART THAT GOES WRONG
+   `unmatched` is not an error list to ignore — it is the
+   molecules that do not contain your core. Either your core
+   is drawn too specifically, or the series is not one series.
+   Both are findings. Always print len(unmatched).</code></pre>
+  </div>
+</div>
+
+<div class="chk" id="chk">
+  <span class="cap">Checkpoint · you should now be able to</span>
+  <ul>
+    <li>Say what sanitisation does, and name two things that do not work before it has run.</li>
+    <li>Read a 100k SDF, count parse failures, and print the data fields of the first record.</li>
+    <li>Write the three-line desalt, and say when its heuristic is wrong.</li>
+    <li>Get the Murcko scaffold of a molecule and explain why aspirin and paracetamol share one.</li>
+    <li>Name four of the ten gotchas without looking.</li>
+  </ul>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 05 · Descriptors and fingerprints</h4><p>Turning a Mol into numbers — the step that makes machine learning possible, and the choice that most affects whether the model works.</p></div>
+  <div class="card"><h4>The source material</h4><p><code>phase-1-foundations/05-rdkit-core-mastery.md</code> — 2,432 lines, the fullest single file in the knowledge base, with the wider API coverage this volume deliberately omits.</p></div>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

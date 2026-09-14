@@ -1,0 +1,956 @@
+<title>How a Molecule Becomes Data</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 03</p>
+  <p class="rail-sub">How a molecule becomes data</p>
+  <span class="rail-vol">Phase 1</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+
+  <div class="rail-group">I · SMILES</div>
+  <a href="#l1"><span class="n">01</span>The five rules</a>
+  <a href="#l2"><span class="n">02</span>Aromaticity</a>
+  <a href="#l3"><span class="n">03</span>Charges and brackets</a>
+  <a href="#l4"><span class="n">04</span>Stereochemistry</a>
+  <a href="#l5"><span class="n">05</span>Canonical SMILES</a>
+
+  <div class="rail-group">II · Searching structures</div>
+  <a href="#l6"><span class="n">06</span>SMARTS, the pattern language</a>
+
+  <div class="rail-group">III · The other formats</div>
+  <a href="#l7"><span class="n">07</span>InChI and the InChIKey</a>
+  <a href="#l8"><span class="n">08</span>MOL, SDF and PDB</a>
+  <a href="#l9"><span class="n">09</span>Which to use when</a>
+
+  <div class="rail-group">IV · Where it gets hard</div>
+  <a href="#l10"><span class="n">10</span>The tautomer problem</a>
+  <a href="#l11"><span class="n">11</span>2D, 3D and conformers</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#chk"><span class="n">—</span>Checkpoint</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 03 of 17 · phase 1</p>
+  <h1>How a molecule becomes data. <span class="thin">The notation everything else is built on.</span></h1>
+  <p class="lede">Before you can compute anything about a molecule you have to write it down in a way
+  a computer can read without ambiguity. That turns out to be the deepest problem in the field —
+  because the same substance can be written many ways, and two of your rows being "the same
+  molecule" is a question with a surprisingly slippery answer.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · Volumes 01–02</span>
+    <span><b>Teaches</b> · SMILES, SMARTS, InChI, SDF</span>
+    <span><b>Time</b> · 6–8 hours</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<div class="vol here"><span class="vn">Vol 03 · here</span><b>Molecules as data</b></div>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<div class="obj">
+  <span class="cap">By the end of this volume you will be able to</span>
+  <ul>
+    <li>Read a SMILES string out loud and say what it contains — rings, branches, functional groups.</li>
+    <li>Explain why <span class="mol">OCC</span> and <span class="mol">CCO</span> are the same molecule, and why that is a problem you must actively solve.</li>
+    <li>Write a SMARTS pattern to find a substructure, and say how it differs from SMILES.</li>
+    <li>Choose correctly between SMILES, InChIKey and SDF for a given job — including which one to use as a database key.</li>
+    <li>Say what a tautomer is and why it makes "are these the same compound?" genuinely hard.</li>
+  </ul>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>SMILES</h2>
+  <p class="lede">Five lessons. By the end you will read them fluently enough to debug data, which is
+  the actual skill being taught.</p>
+</header>
+
+<header class="mod" id="l1">
+  <span class="mn">Lesson 01</span>
+  <h2>The five rules that cover 90% of SMILES</h2>
+</header>
+
+<p>SMILES — <em>Simplified Molecular Input Line Entry System</em> — writes a molecular graph as a line
+of text by walking the atoms and recording what it passes. Five rules cover nearly everything:</p>
+
+<div class="sheet">
+  <div class="cap">The five rules</div>
+<pre><code>1. ATOMS ARE LETTERS
+   C N O S P F Cl Br I      written bare — the "organic subset"
+   anything else            in square brackets: [Na+] [Fe] [Si]
+   HYDROGENS ARE INVISIBLE  — assumed to fill each atom's remaining valence
+
+2. BONDS ARE SYMBOLS BETWEEN THEM
+   (nothing)  single        CC        ethane
+   =          double        C=C       ethene
+   #          triple        C#C       ethyne
+   :          aromatic      rarely written by hand — implied by lowercase
+
+3. BRANCHES GO IN ROUND BRACKETS
+   CC(C)C          isobutane — a chain of C, with a C hanging off the second
+   CC(=O)O         acetic acid — the (=O) branches off, then the walk continues to O
+
+4. RINGS ARE MATCHED DIGITS
+   C1CCCCC1        cyclohexane — the atom labelled 1 bonds to the atom that closes 1
+   the digit is a LABEL, not a count, and is reused freely once closed
+
+5. DOTS SEPARATE DISCONNECTED PIECES
+   [Na+].[Cl-]     sodium chloride — two species, one string
+   CC(=O)O.O       acetic acid with a water of crystallisation
+
+⭐ EVERYTHING ELSE — aromaticity, charge, stereochemistry — IS AN
+   ELABORATION OF THESE FIVE.</code></pre>
+</div>
+
+<div class="wex">
+  <span class="cap">Worked example · building caffeine up from nothing</span>
+  <div class="body">
+    <p class="q">Caffeine is <span class="mol">Cn1cnc2c1c(=O)n(C)c(=O)n2C</span> — the point where
+    beginners give up. Walk it slowly and it is just the five rules.</p>
+<pre><code>Cn1cnc2c1c(=O)n(C)c(=O)n2C
+
+C           a methyl carbon, hanging off what comes next
+n1          an aromatic NITROGEN, opening ring 1
+c n c2      aromatic carbon, nitrogen, then a carbon that ALSO opens ring 2
+                -> this atom is in two rings at once: the rings are FUSED
+c1          closes ring 1 back to the n1 atom
+c(=O)       aromatic carbon carrying a double-bonded oxygen  (a C=O)
+n(C)        aromatic nitrogen with a methyl branch
+c(=O)       another C=O
+n2          closes ring 2
+C           a final methyl on that nitrogen
+
+RESULT: two fused rings, four nitrogens, three methyls, two C=O groups.
+        Which is caffeine.</code></pre>
+    <p><strong>The one genuinely new idea is the fused ring.</strong> An atom that opens two ring
+    numbers belongs to two rings — that is how SMILES expresses a fused system without any special
+    syntax. Once you see <code>c2...c1...n2</code> as "open 2, close 1, close 2" the string stops
+    being intimidating.</p>
+  </div>
+</div>
+
+<header class="mod" id="l2">
+  <span class="mn">Lesson 02</span>
+  <h2>Aromaticity — why some letters are lowercase</h2>
+</header>
+
+<p>You will see benzene written two ways, and both are valid:</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:24%">Written</th><th style="width:26%">Called</th><th>What it says</th></tr></thead>
+  <tbody>
+    <tr><td><span class="mol">c1ccccc1</span></td><td>Aromatic form</td><td>"These six atoms are aromatic." The bonds are neither single nor double — the electrons are delocalised around the ring.</td></tr>
+    <tr><td><span class="mol">C1=CC=CC=C1</span></td><td>Kekulé form</td><td>"Alternating single and double bonds." A specific, and slightly fictional, picture of the same ring.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p><strong>Both parse to the same molecule in RDKit</strong>, because on reading it runs a step called
+<em>sanitisation</em> that includes perceiving aromaticity — it works out which rings are aromatic and
+marks them, regardless of how you wrote it. This is why your typed SMILES often comes back looking
+different.</p>
+
+<div class="warn">
+  <span class="tag">Where this becomes a real problem</span>
+  <p><strong>Different toolkits perceive aromaticity differently.</strong> RDKit, Open Babel and
+  commercial toolkits use different models, and they disagree on edge cases — certain fused rings,
+  some charged heterocycles. A molecule round-tripped through two toolkits can come back as a
+  different string, and any comparison you do by string then fails.</p>
+  <p><strong>The defence:</strong> pick one toolkit for canonicalisation, do it once at ingestion, and
+  store the result. Never compare SMILES produced by different tools. Lesson 05 is the mechanism.</p>
+</div>
+
+<header class="mod" id="l3">
+  <span class="mn">Lesson 03</span>
+  <h2>Charges, brackets and explicit hydrogens</h2>
+</header>
+
+<p>Square brackets mean <em>"I am specifying this atom exactly — do not infer."</em> Inside them,
+everything becomes explicit:</p>
+
+<div class="sheet">
+  <div class="cap">Reading a bracket atom</div>
+<pre><code>[C@@H](N)(C)C=O          a bracket atom carries, in order:
+
+  isotope   element   chirality   H count   charge
+    13         C         @@         H1        +
+   [13C@@H+]   — all optional, all in that order
+
+EXAMPLES YOU WILL ACTUALLY MEET:
+  [NH4+]      ammonium — nitrogen, 4 hydrogens, +1 charge
+  [O-]        an oxygen carrying a negative charge
+  [nH]        an aromatic nitrogen with an explicit hydrogen on it
+                 ** this one matters enormously — see below **
+  [Na+].[Cl-] a salt, as two disconnected charged pieces
+  [13C]       carbon-13, an isotope label</code></pre>
+</div>
+
+<div class="bad">
+  <span class="tag">The <code>[nH]</code> trap</span>
+  <p>In an aromatic ring, a nitrogen may or may not carry a hydrogen, and the two are
+  <strong>different molecules</strong>. Pyrrole is <span class="mol">c1cc[nH]c1</span>; pyridine is
+  <span class="mol">c1ccncc1</span>. Write <code>n</code> where you meant <code>[nH]</code> and the
+  valence does not work out — RDKit returns <code>None</code>, and the error message does not say "you
+  forgot a hydrogen".</p>
+  <p>This is the most common reason a hand-typed heterocycle fails to parse. If a five-membered
+  aromatic ring with a nitrogen will not parse, try <code>[nH]</code> first.</p>
+</div>
+
+<header class="mod" id="l4">
+  <span class="mn">Lesson 04</span>
+  <h2>Stereochemistry — the same graph, different molecules</h2>
+</header>
+
+<p>Two molecules can have identical atoms and identical bonds and still be different substances,
+because the atoms are arranged differently <em>in space</em>. This is not a technicality: it is the
+difference between a drug and a poison, and getting it wrong in a dataset is a real error.</p>
+
+<div class="sen">
+  <div class="b knows"><span class="k">Tetrahedral chirality — <code>@</code> and <code>@@</code></span>
+    <p>A carbon with four different groups can be arranged two ways that are mirror images and not
+    superimposable — like your left and right hands. SMILES writes these as <code>@</code> and
+    <code>@@</code>.</p>
+    <p><span class="mol">N[C@@H](C)C(=O)O</span> and <span class="mol">N[C@H](C)C(=O)O</span> are the
+    two forms of alanine. Same atoms, same bonds, mirror images.</p></div>
+  <div class="b"><span class="k">Double bond geometry — <code>/</code> and <code>\</code></span>
+    <p>Groups on a double bond cannot rotate past each other, so they are fixed on the same side
+    (<em>cis</em>) or opposite sides (<em>trans</em>).</p>
+    <p><span class="mol">F/C=C/F</span> is trans; <span class="mol">F/C=C\F</span> is cis. The slashes
+    describe the bonds <em>around</em> the double bond, not the double bond itself — which is why they
+    look confusing, and why they come in pairs.</p></div>
+  <div class="b junior"><span class="k">Why this hurts in practice</span>
+    <p><strong>Public datasets are inconsistent about stereochemistry.</strong> The same compound
+    appears with full stereo in one source, flat in another. If you deduplicate by SMILES, the flat
+    and stereo forms count as different compounds. If you strip stereo to make them match, you merge
+    two genuinely different substances — with different activities — into one row.</p>
+    <p>There is no universally right answer. There is only <strong>a decision, recorded</strong>:
+    either keep stereo and accept duplicates, or strip it consistently across the whole dataset and
+    document that you did.</p></div>
+  <div class="b check"><span class="k">The one to remember</span>
+    <p><strong>Thalidomide.</strong> One mirror image treated morning sickness; the other caused severe
+    birth defects. It is the field's standing reminder that <code>@</code> versus <code>@@</code> is
+    not a formatting detail.</p></div>
+</div>
+
+<header class="mod" id="l5">
+  <span class="mn">Lesson 05</span>
+  <h2>Canonical SMILES — the one that makes comparison possible</h2>
+</header>
+
+<p>Here is the problem in one line. All of these are ethanol:</p>
+
+<div class="wex">
+  <span class="cap">Worked example · one molecule, many strings</span>
+  <div class="body">
+<pre><code>CCO        OCC        C(C)O       [CH3][CH2][OH]
+
+Four valid SMILES. One substance. If you dedupe your dataset by string
+comparison, you keep all four and your "3,000 unique compounds" is a lie.
+
+THE FIX — canonicalisation:
+
+  from rdkit import Chem
+
+  for s in ["CCO", "OCC", "C(C)O", "[CH3][CH2][OH]"]:
+      print(s, "->", Chem.MolToSmiles(Chem.MolFromSmiles(s)))
+
+  CCO              -> CCO
+  OCC              -> CCO
+  C(C)O            -> CCO
+  [CH3][CH2][OH]   -> CCO        &lt;-- all four now identical</code></pre>
+    <p><strong>What happened:</strong> the string was parsed into a graph, and the graph was written
+    back out using a deterministic algorithm that always starts in the same place and walks in the
+    same order. The output is the <em>canonical</em> SMILES. Two molecules are the same if and only
+    if their canonical SMILES match.</p>
+    <p><strong>The standing rule from here on:</strong> canonicalise at ingestion, store the canonical
+    form, and compare only canonical forms. Never compare raw input strings.</p>
+  </div>
+</div>
+
+<div class="note">
+  <span class="tag">The caveat that matters</span>
+  <p>Canonical SMILES is canonical <strong>within one toolkit and one version</strong>. RDKit's
+  canonical form is not Open Babel's, and RDKit has changed its algorithm between major versions.
+  So canonical SMILES is an excellent <em>working</em> key inside one project and a poor
+  <em>durable</em> key across projects and years. For that you want the InChIKey — Lesson 07.</p>
+</div>
+
+<details class="try">
+  <summary>Try it · You inherit a dataset of 5,000 rows claiming 5,000 unique compounds. What three checks tell you the real number, in order of how much they will find?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <ol>
+      <li><strong>Canonicalise and count uniques.</strong> Parse every SMILES, write it back with
+      <code>MolToSmiles</code>, count distinct. This alone often removes 2–10% on data assembled from
+      several sources.</li>
+      <li><strong>Strip salts and count again.</strong> <code>CC(=O)O.[Na+]</code> and
+      <code>CC(=O)O</code> are the sodium salt and the free acid — different strings, and for most
+      modelling purposes the same compound. Volume 06 covers the standardisation that handles this.</li>
+      <li><strong>Canonicalise tautomers and count again.</strong> The subtlest and last, because it
+      is the one with genuine judgement in it — see Lesson 10.</li>
+    </ol>
+    <p>Report all four numbers: raw rows, unique canonical, unique after desalting, unique after
+    tautomer canonicalisation. <strong>The gap between the first and the last is a fact about your
+    dataset that anyone using the model needs to know</strong>, and quoting only the raw count is how
+    people accidentally overstate the size of their training data.</p>
+  </div>
+</details>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>Searching structures</h2>
+</header>
+
+<header class="mod" id="l6">
+  <span class="mn">Lesson 06</span>
+  <h2>SMARTS — the pattern language</h2>
+</header>
+
+<p>SMILES describes <em>a molecule</em>. SMARTS describes <em>a class of molecules</em>. The
+relationship is exactly that of a string to a regular expression, and the analogy holds all the way
+down.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:26%">SMARTS</th><th style="width:30%">Matches</th><th>Used for</th></tr></thead>
+  <tbody>
+    <tr><td><code>[OH]</code></td><td>Any oxygen with a hydrogen on it</td><td>Finding alcohols and acids</td></tr>
+    <tr><td><code>c1ccccc1</code></td><td>Any benzene ring, anywhere in a molecule</td><td>Substructure filtering</td></tr>
+    <tr><td><code>[C,N]</code></td><td>Carbon <em>or</em> nitrogen — comma is OR</td><td>Loosening a pattern</td></tr>
+    <tr><td><code>[!C]</code></td><td>Anything that is not carbon</td><td>Finding heteroatoms</td></tr>
+    <tr><td><code>[#6]</code></td><td>Any carbon, aromatic or not, by atomic number</td><td>Avoiding the aromatic/aliphatic trap</td></tr>
+    <tr><td><code>[CX4]</code></td><td>A carbon with exactly four connections</td><td>Specifying saturation</td></tr>
+    <tr><td><code>[R]</code> / <code>[!R]</code></td><td>An atom in a ring / not in a ring</td><td>Distinguishing chain from ring positions</td></tr>
+    <tr><td><code>C(=O)[OH]</code></td><td>A carboxylic acid group</td><td>The most-used pattern in the field</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="wex">
+  <span class="cap">Worked example · finding every carboxylic acid</span>
+  <div class="body">
+<pre><code>from rdkit import Chem
+
+pattern = Chem.MolFromSmarts("C(=O)[OH]")          # note: FromSmarts, not FromSmiles
+
+for name, smi in [("aspirin",     "CC(=O)Oc1ccccc1C(=O)O"),
+                  ("paracetamol", "CC(=O)Nc1ccc(O)cc1"),
+                  ("caffeine",    "Cn1cnc2c1c(=O)n(C)c(=O)n2C")]:
+    mol = Chem.MolFromSmiles(smi)
+    print(name, mol.HasSubstructMatch(pattern))
+
+  aspirin      True         &lt;-- it has the acid
+  paracetamol  False        &lt;-- it has an OH, but on a ring, not an acid
+  caffeine     False
+
+# WHERE it matched, as atom indices:
+mol = Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)O")
+print(mol.GetSubstructMatches(pattern))     # ((8, 9, 10),)</code></pre>
+    <p><strong>Look at the paracetamol row.</strong> It contains an <code>-OH</code>, so a careless
+    pattern of just <code>[OH]</code> would have matched it. The pattern <code>C(=O)[OH]</code>
+    requires the OH to sit on a carbon that also carries a double-bonded oxygen — which is what makes
+    it an acid rather than an alcohol. <strong>Precision in the pattern is the whole skill</strong>,
+    and a too-loose SMARTS silently over-filters your library.</p>
+  </div>
+</div>
+
+<div class="note">
+  <span class="tag">Where you will meet SMARTS in anger</span>
+  <p>Three places: <strong>PAINS filters</strong> (patterns for compounds that give false positives in
+  assays — Volume 06), <strong>reaction encoding</strong> for retrosynthesis (Volume 11), and
+  <strong>functional-group counting</strong> as model features. You will mostly use published SMARTS
+  sets rather than writing your own, but you need to read them well enough to know what they exclude.</p>
+</div>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>The other formats</h2>
+</header>
+
+<header class="mod" id="l7">
+  <span class="mn">Lesson 07</span>
+  <h2>InChI and the InChIKey</h2>
+</header>
+
+<p>InChI — <em>International Chemical Identifier</em> — was designed by IUPAC to solve the problem
+canonical SMILES only half solves: <strong>one substance, one string, produced by anyone, anywhere,
+forever.</strong> It is generated by a single reference implementation, so there is no
+toolkit-disagreement problem.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · aspirin's three identifiers</span>
+  <div class="body">
+<pre><code>SMILES (canonical, RDKit)
+  CC(=O)Oc1ccccc1C(=O)O
+  readable · toolkit-dependent · good working key
+
+InChI
+  InChI=1S/C9H8O4/c1-6(10)13-8-5-3-2-4-7(8)9(11)12/h2-5H,1H3,(H,11,12)
+  unreadable · layered (formula / connections / hydrogens) · fully standard
+
+InChIKey
+  BSYNRYMUTXBXSQ-UHFFFAOYSA-N
+  a fixed-length HASH of the InChI, 27 characters:
+
+  BSYNRYMUTXBXSQ - UHFFFAOYSA - N
+  |________|       |________|   |
+  the skeleton     stereo and    protonation
+  (connectivity)   other layers  flag
+
+⭐ WHY THE SPLIT MATTERS: two molecules that differ ONLY in
+   stereochemistry share the first 14 characters and differ after
+   the hyphen. So you can search for "the same skeleton, any
+   stereoisomer" with a prefix match.</code></pre>
+    <p><strong>What to use it for:</strong> the InChIKey is the right <em>database key</em> and the
+    right thing to search a supplier catalogue or PubChem with. It is not human-readable and cannot be
+    converted back into a structure, so you store it <em>alongside</em> the SMILES, never instead
+    of it.</p>
+  </div>
+</div>
+
+<div class="warn">
+  <span class="tag">What InChI does not solve</span>
+  <p>InChI standardises the <em>representation</em>, not the <em>chemistry</em>. Two tautomers of one
+  compound can still produce different InChIKeys, and drawing choices a chemist made still propagate.
+  Standard InChI applies some tautomer normalisation, but it does not handle every case — so the
+  tautomer problem in Lesson 10 survives InChI, and you still need the curation step.</p>
+</div>
+
+<header class="mod" id="l8">
+  <span class="mn">Lesson 08</span>
+  <h2>MOL, SDF and PDB — the file formats</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:14%">Format</th><th style="width:30%">Holds</th><th>Where it comes from</th></tr></thead>
+  <tbody>
+    <tr><td><strong>MOL</strong></td><td>One molecule: an atom block with coordinates, a bond block, charges.</td><td>The classic single-structure format. Has 2D or 3D coordinates.</td></tr>
+    <tr><td><strong>SDF</strong></td><td>Many MOL blocks separated by <code>$$$$</code>, <strong>each with arbitrary named data fields</strong>.</td><td>How real datasets arrive. Vendor catalogues, ChEMBL exports, screening results.</td></tr>
+    <tr><td><strong>PDB</strong></td><td>Protein 3D structures — one line per atom, plus metadata.</td><td>The Protein Data Bank. Volume 12 lives in this format.</td></tr>
+    <tr><td><strong>PDBQT</strong></td><td>PDB plus partial charges and atom types.</td><td>What AutoDock Vina eats. Volume 12.</td></tr>
+    <tr><td><strong>Mol2</strong></td><td>Similar to MOL, with richer atom typing.</td><td>Older docking and modelling tools.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="sheet">
+  <div class="cap">What an SDF record actually looks like</div>
+<pre><code>  aspirin
+       RDKit          2D
+   13 13  0  0  0  0  0  0  0  0999 V2000     &lt;-- 13 atoms, 13 bonds
+      1.2990   -0.7500    0.0000 C   0  0      &lt;-- x  y  z  element
+      ... one line per atom ...
+    1  2  1  0                                 &lt;-- atom1 atom2 bondtype
+      ... one line per bond ...
+  M  END
+  &gt;  &lt;compound_id&gt;                             &lt;-- DATA FIELDS start here
+  CHEMBL25
+
+  &gt;  &lt;IC50_nM&gt;
+  120
+
+  &gt;  &lt;assay_id&gt;
+  CHEMBL829584
+
+  $$$$                                         &lt;-- end of record; next one follows</code></pre>
+</div>
+
+<div class="good">
+  <span class="tag">Why SDF matters more than it looks</span>
+  <p><strong>The data fields are the reason SDF is still everywhere.</strong> A CSV of SMILES loses
+  the 3D coordinates and the per-compound metadata; an SDF carries the structure, the conformation
+  and any number of named properties in one file. When someone sends you "the screening results", it
+  will be an SDF, and the fields will be inconsistently named. Read them with
+  <code>Chem.SDMolSupplier</code> and inspect <code>mol.GetPropsAsDict()</code> on the first record
+  before assuming anything.</p>
+</div>
+
+<header class="mod" id="l9">
+  <span class="mn">Lesson 09</span>
+  <h2>Which to use when — the decision table</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:34%">If you need to…</th><th style="width:22%">Use</th><th>Because</th></tr></thead>
+  <tbody>
+    <tr><td>Store compounds in a database table</td><td><strong>Canonical SMILES + InChIKey</strong></td><td>SMILES to work with, InChIKey as the stable key and for cross-referencing.</td></tr>
+    <tr><td>Deduplicate within one project</td><td><strong>Canonical SMILES</strong></td><td>Fast, readable, and you control the toolkit version.</td></tr>
+    <tr><td>Match against PubChem or a supplier</td><td><strong>InChIKey</strong></td><td>It is what everyone else indexes on. Prefix-match for stereo-insensitive lookup.</td></tr>
+    <tr><td>Search for a substructure</td><td><strong>SMARTS</strong></td><td>It is the only one of these that expresses a pattern rather than a molecule.</td></tr>
+    <tr><td>Exchange structures with 3D coordinates or metadata</td><td><strong>SDF</strong></td><td>Only format here that carries conformation <em>and</em> arbitrary fields.</td></tr>
+    <tr><td>Work with a protein</td><td><strong>PDB</strong></td><td>SMILES cannot usefully express a 3,000-residue protein.</td></tr>
+    <tr><td>Feed a machine-learning model</td><td><strong>Canonical SMILES</strong>, then featurise</td><td>Volume 05 turns it into descriptors or fingerprints from there.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="part" id="part4">
+  <span class="pn">Part IV</span>
+  <h2>Where it gets hard</h2>
+</header>
+
+<header class="mod" id="l10">
+  <span class="mn">Lesson 10</span>
+  <h2>The tautomer problem</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">What a tautomer is</span>
+    <p><strong>Two structures that interconvert by moving a hydrogen and shifting a double bond</strong>,
+    fast enough that in solution you have a mixture of both rather than two separable substances.</p>
+    <p>The classic case: a keto form <code>CC(=O)CC(=O)C</code> and its enol form
+    <code>CC(O)=CC(=O)C</code>. Different graphs. Different SMILES. Different InChIKeys. Arguably the
+    same compound sitting in a bottle.</p></div>
+  <div class="b"><span class="k">Why it breaks things</span>
+    <ul>
+      <li><strong>Deduplication fails.</strong> The same compound from two sources, drawn as two tautomers, counts twice — with two possibly-different activity values.</li>
+      <li><strong>Fingerprints differ.</strong> The bonds differ, so the fragments differ, so the model sees two unrelated molecules.</li>
+      <li><strong>Substructure searches miss.</strong> A SMARTS written for the keto form does not match a record stored as the enol.</li>
+    </ul></div>
+  <div class="b junior"><span class="k">Why it cannot simply be solved</span>
+    <p>Because <strong>which tautomer dominates depends on conditions</strong> — solvent, pH,
+    temperature — and on the protein it is binding to. There is no universally correct single answer,
+    only a consistent convention.</p></div>
+  <div class="b check"><span class="k">What you actually do</span>
+    <p>Pick a <strong>canonical tautomer</strong> using a documented algorithm — RDKit's
+    <code>MolStandardize.rdMolStandardize.TautomerEnumerator</code> has a <code>Canonicalize</code>
+    method — apply it to every molecule at ingestion, and <strong>record that you did, with the RDKit
+    version</strong>. The goal is not chemical truth. It is that identical compounds land on identical
+    representations, consistently, across your whole dataset. Volume 06 puts this in the pipeline.</p></div>
+</div>
+
+<header class="mod" id="l11">
+  <span class="mn">Lesson 11</span>
+  <h2>2D, 3D and conformers</h2>
+</header>
+
+<p>A SMILES has no coordinates at all — it is pure connectivity. Everything spatial has to be
+generated, and there are two very different levels of "spatial":</p>
+
+<div class="grid3">
+  <div class="card"><h4>No coordinates</h4><p>What a SMILES gives you. Enough for descriptors, fingerprints, substructure search and most machine learning. <strong>Most of this course lives here.</strong></p></div>
+  <div class="card"><h4>2D coordinates</h4><p>A flat drawing, generated for display. <code>AllChem.Compute2DCoords(mol)</code>. Aesthetic, not physical — never use them as features.</p></div>
+  <div class="card"><h4>3D conformers</h4><p>Real spatial positions, generated by embedding and then energy-minimising. Needed for docking and shape comparison. Slow, and <em>not unique</em>.</p></div>
+</div>
+
+<div class="warn">
+  <span class="tag">The conformer subtlety worth understanding early</span>
+  <p><strong>A flexible molecule has no single 3D structure.</strong> A molecule with eight rotatable
+  bonds has an enormous number of accessible shapes, and the one that binds to a protein is often not
+  the lowest-energy one in isolation. So "generate the 3D structure" is not a well-posed request —
+  you generate an <em>ensemble</em> of conformers and work with the ensemble.</p>
+  <p>This is why docking is hard (Volume 12), why 3D descriptors are used more cautiously than 2D
+  ones, and why a surprising amount of successful cheminformatics ignores 3D entirely.</p>
+</div>
+
+<div class="chk" id="chk">
+  <span class="cap">Checkpoint · you should now be able to</span>
+  <ul>
+    <li>Read <span class="mol">Cn1cnc2c1c(=O)n(C)c(=O)n2C</span> and identify the two fused rings.</li>
+    <li>Say why <span class="mol">CCO</span> and <span class="mol">OCC</span> must be canonicalised before any comparison.</li>
+    <li>Explain the difference between SMILES and SMARTS, and give one pattern you would use.</li>
+    <li>Say which identifier you would use as a database key, and why not canonical SMILES.</li>
+    <li>Explain to a colleague why "we have 5,000 unique compounds" might be wrong four different ways.</li>
+    <li>Say what a tautomer is and why the fix is a convention rather than an answer.</li>
+  </ul>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 04 · RDKit</h4><p>The library that does everything in this volume, taught properly — molecules as objects, substructure search, transformations, drawing, reactions.</p></div>
+  <div class="card"><h4>The source material</h4><p><code>phase-1-foundations/04-molecular-representations.md</code> — 1,806 lines, with the full SMILES grammar and more format detail than this volume carries.</p></div>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

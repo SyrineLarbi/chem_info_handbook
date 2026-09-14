@@ -1,0 +1,520 @@
+<title>AI Cheminformatics — A Course in 15 Volumes</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E5E2DC;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E7E6E3;
+
+  /* track colours — each set's spine, used as the card stripe */
+
+  --p0: #6B5B3A;
+  --p1: #0B6B52;
+  --p2: #1F5C86;
+  --p3: #7A3B6B;
+  --p4: #8A4A22;
+  --p5: #3F4A5A;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+
+    --p0: #C6AE78;
+    --p1: #4FC6A0;
+    --p2: #77B4DF;
+    --p3: #D89BC6;
+    --p4: #E09A66;
+    --p5: #9BAAC0;
+
+    --p0: #C6AE78;
+  --p1: #4FC6A0;
+  --p2: #77B4DF;
+  --p3: #D89BC6;
+  --p4: #E09A66;
+  --p5: #9BAAC0;
+
+  --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; border-radius: 2px; }
+a { color: var(--ink); }
+strong { font-weight: 600; }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.018em; }
+p { margin: 0 0 12px; }
+code { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+.wrap { max-width: 1500px; margin: 0 auto; padding: 46px 56px 110px; }
+@media (max-width: 720px) { .wrap { padding: 28px 20px 70px; } }
+
+/* ===== hero ===== */
+.hero { border-bottom: 3px solid var(--ink); padding-bottom: 30px; margin-bottom: 34px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 14px; }
+.hero h1 { font-size: clamp(38px, 6vw, 68px); font-weight: 800; line-height: 1.0; margin: 0 0 18px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 20.5px; color: var(--ink-2); margin: 0; max-width: 78ch; }
+
+.stats { display: flex; flex-wrap: wrap; gap: 0; margin-top: 28px; border: 1px solid var(--rule); border-radius: 3px; overflow: hidden; }
+.stat { flex: 1 1 150px; padding: 12px 16px 13px; border-right: 1px solid var(--rule); background: var(--ground-2); }
+.stat:last-child { border-right: 0; }
+.stat b { display: block; font-family: var(--display); font-weight: 700; font-size: 27px; line-height: 1.1; }
+.stat span { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase; color: var(--ink-3); }
+
+/* ===== the three-step path ===== */
+.pathbox { margin: 34px 0 8px; }
+.path { display: grid; grid-template-columns: repeat(auto-fit, minmax(272px, 1fr)); gap: 12px; margin: 16px 0 0; }
+.step { border: 1px solid var(--rule); border-top: 3px solid var(--stripe, var(--ink-3)); border-radius: 3px; padding: 15px 17px 17px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.step:hover { background: var(--panel); }
+.step .sn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--stripe, var(--ink-3)); margin-bottom: 6px; }
+.step b { display: block; font-family: var(--display); font-weight: 700; font-size: 21px; line-height: 1.15; color: var(--ink); margin-bottom: 6px; }
+.step p { font-size: 16.5px; margin: 0; }
+.step.s1 { --stripe: var(--p1); }
+.step.s2 { --stripe: var(--p2); }
+.step.s3 { --stripe: var(--p5); }
+
+/* ===== groups ===== */
+.group { margin: 52px 0 0; }
+.group > h2 { font-size: 26px; font-weight: 700; margin: 0 0 4px; padding-bottom: 9px; border-bottom: 2px solid var(--stripe, var(--ink)); display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.group > h2 .gn { font-family: var(--mono); font-size: 11.4px; letter-spacing: .13em; text-transform: uppercase; color: var(--stripe, var(--ink-3)); font-weight: 400; }
+.group > p.gd { font-size: 17.7px; color: var(--ink-2); margin: 11px 0 0; max-width: 84ch; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(330px, 1fr)); gap: 12px; margin: 18px 0 0; }
+.doc {
+  border: 1px solid var(--rule); border-left: 4px solid var(--stripe, var(--ink-3));
+  border-radius: 3px; padding: 14px 16px 15px; background: var(--ground-2);
+  text-decoration: none; color: var(--ink-2); display: flex; flex-direction: column; gap: 7px;
+}
+.doc:hover { background: var(--panel); }
+.doc .dn { font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--stripe, var(--ink-3)); }
+.doc h3 { font-size: 19.4px; font-weight: 600; margin: 0; color: var(--ink); line-height: 1.2; }
+.doc p { font-size: 16.5px; margin: 0; }
+.doc .meta { font-family: var(--mono); font-size: 11.4px; color: var(--ink-3); margin-top: auto; padding-top: 4px; }
+
+/* ===== routes table ===== */
+.tw { overflow-x: auto; margin: 20px 0 0; border: 1px solid var(--rule); border-radius: 3px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 560px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 13px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td.route { font-family: var(--mono); font-size: 13.7px; color: var(--ink-2); }
+
+/* ===== notes ===== */
+.note { border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 3px; padding: 13px 16px 14px; margin: 22px 0 0; background: var(--ground-2); font-size: 17.7px; }
+.note .tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.note p:last-child { margin-bottom: 0; }
+.note ul { margin: 8px 0 0; padding-left: 22px; }
+.note li { margin-bottom: 5px; }
+.foot { margin-top: 52px; padding-top: 20px; border-top: 1px solid var(--rule); font-size: 15.4px; color: var(--ink-3); }
+.foot p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.tw { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+.group.g-p0 { --stripe: var(--p0); }
+.group.g-p1 { --stripe: var(--p1); }
+.group.g-p2 { --stripe: var(--p2); }
+.group.g-p3 { --stripe: var(--p3); }
+.group.g-p4 { --stripe: var(--p4); }
+.group.g-p5 { --stripe: var(--p5); }
+</style>
+
+<div class="wrap">
+
+<header class="hero">
+  <p class="eyebrow">AI cheminformatics · a course in fifteen volumes</p>
+  <h1>Molecules into models. <span class="thin">An A–Z course, from no chemistry to a portfolio.</span></h1>
+  <p class="lede">A molecule is a physical object and a computer cannot hold one. Everything in this
+  field follows from that single inconvenience. These seventeen volumes take you from that sentence to
+  a working QSAR platform — every concept taught with a worked example, and a cheat sheet at the end
+  for when you just need the answer.</p>
+  <div class="stats">
+    <div class="stat"><b>17</b><span>volumes</span></div>
+    <div class="stat"><b>17,038</b><span>lines</span></div>
+    <div class="stat"><b>5</b><span>phases</span></div>
+    <div class="stat"><b>9</b><span>exercises + 3 capstones</span></div>
+    <div class="stat"><b>57</b><span>source markdown files</span></div>
+  </div>
+</header>
+
+<section class="pathbox">
+  <h2 style="font-size:23px;font-weight:700;margin:0 0 4px;">Start here — the three-step path</h2>
+  <p style="font-size:17.7px;color:var(--ink-2);margin:0;max-width:84ch;">If you are new, read in
+  order. Volume 01 assumes no chemistry and no machine learning at all — genuinely none.</p>
+  <div class="path">
+    <a class="step s1" href="01-what-it-is.html">
+      <span class="sn">Step 1 · volumes 01–07</span>
+      <b>The foundations</b>
+      <p>What the field is, the toolchain, how a molecule becomes data, RDKit, descriptors,
+      curation and chemical space. The half of the course everything else stands on.</p>
+    </a>
+    <a class="step s2" href="08-qsar.html">
+      <span class="sn">Step 2 · volumes 08–11</span>
+      <b>The models</b>
+      <p>QSAR and the four things that make it honest, screening and ADMET, graph networks, and
+      generating molecules that can actually be made.</p>
+    </a>
+    <a class="step s3" href="12-structure-based.html">
+      <span class="sn">Step 3 · volumes 12–17</span>
+      <b>Structure, frontiers, practice</b>
+      <p>Proteins and docking, foundation models and MLOps, then the exercises, the capstones and the
+      career material that turn all of it into something you can show.</p>
+    </a>
+  </div>
+</section>
+
+<section class="group g-p0">
+  <h2><span class="gn">Phase 0 · 2 volumes</span> Orientation and setup</h2>
+  <p class="gd">What this field actually is, and getting an environment that will not fight you.</p>
+  <div class="cards">
+    <a class="doc" href="01-what-it-is.html">
+      <span class="dn">01 · start here</span>
+      <h3>What Cheminformatics Is</h3>
+      <p>What the word means · the three neighbouring fields and how they differ · why a computer at
+      all · how a drug actually gets made, and where computation enters · <strong>the twenty words</strong>
+      you need before the rest of the course makes sense. Assumes no chemistry.</p>
+      <span class="meta">998 lines · 3–4 hours</span>
+    </a>
+    <a class="doc" href="02-toolchain.html">
+      <span class="dn">02 · phase 0</span>
+      <h3>The Toolchain</h3>
+      <p>Why chemistry libraries are unusual — thin Python over large C++ projects — and why that
+      makes <code>pip install</code> historically painful · conda and environments · the scientific
+      Python stack · notebooks versus scripts, and when each stops being appropriate.</p>
+      <span class="meta">837 lines · 3–4 hours</span>
+    </a>
+  </div>
+</section>
+
+<section class="group g-p1">
+  <h2><span class="gn">Phase 1 · 5 volumes</span> Foundations — molecules as data</h2>
+  <p class="gd">The representation layer. This is the half of the course that beginners skip and
+  seniors say they wish they had learned properly.</p>
+  <div class="cards">
+    <a class="doc" href="03-molecules-as-data.html">
+      <span class="dn">03 · phase 1</span>
+      <h3>How a Molecule Becomes Data</h3>
+      <p>SMILES read slowly, character by character, on caffeine · why <code>OCC</code> and
+      <code>CCO</code> are the same molecule and why that is a problem you must actively solve ·
+      canonicalisation · SMARTS versus SMILES · InChIKey as a database key · tautomers, and why
+      "are these the same compound?" is genuinely hard.</p>
+      <span class="meta">954 lines · 5–6 hours</span>
+    </a>
+    <a class="doc" href="04-rdkit.html">
+      <span class="dn">04 · phase 1</span>
+      <h3>RDKit, the Core Library</h3>
+      <p>The library everything in the course runs through · parsing and the <code>None</code> that
+      does not raise · sanitisation and what it silently fixes · aromaticity models · substructure
+      search · drawing molecules, because chemists verify by looking.</p>
+      <span class="meta">896 lines · 6–8 hours</span>
+    </a>
+    <a class="doc" href="05-descriptors.html">
+      <span class="dn">05 · phase 1</span>
+      <h3>Descriptors and Fingerprints</h3>
+      <p>Turning a graph into a vector · the standard property profile · <strong>the Morgan algorithm
+      worked through by hand on ethanol</strong> · why ECFP4 means radius 2 · Tanimoto similarity and
+      why the number is not portable between fingerprint types.</p>
+      <span class="meta">930 lines · 6–8 hours</span>
+    </a>
+    <a class="doc" href="06-data-curation.html">
+      <span class="dn">06 · phase 1</span>
+      <h3>Chemical Data and Its Curation</h3>
+      <p>The volume that decides whether your model means anything · ChEMBL, PubChem, BindingDB and
+      what each is for · salts, solvates and duplicates · <strong>why IC<sub>50</sub>, K<sub>i</sub>
+      and EC<sub>50</sub> must never be averaged together</strong> · censored values · the audit
+      trail as the real deliverable.</p>
+      <span class="meta">873 lines · 6–8 hours</span>
+    </a>
+    <a class="doc" href="07-chemical-space.html">
+      <span class="dn">07 · phase 1</span>
+      <h3>Chemical Space and Pipelines</h3>
+      <p>Seeing the shape of what you have · clustering, PCA, t-SNE and UMAP — and what each
+      projection lies about · scaffold analysis · diversity selection · then making the whole thing
+      reproducible rather than a notebook you cannot rerun.</p>
+      <span class="meta">838 lines · 5–6 hours</span>
+    </a>
+  </div>
+</section>
+
+<section class="group g-p2">
+  <h2><span class="gn">Phase 2 · 4 volumes</span> Machine learning for chemistry</h2>
+  <p class="gd">Where the models arrive — and where almost every published mistake in the field
+  lives.</p>
+  <div class="cards">
+    <a class="doc" href="08-qsar.html">
+      <span class="dn">08 · phase 2</span>
+      <h3>QSAR — The First Real Model</h3>
+      <p>The modelling is ten lines of scikit-learn; everything that makes it honest is the rest of
+      the volume. <strong>Scaffold splits versus random splits and the gap between them</strong> ·
+      the applicability domain · y-randomisation · the OECD validation principles · and why an R² of
+      0.92 should make you suspicious rather than pleased.</p>
+      <span class="meta">929 lines · 8–10 hours</span>
+    </a>
+    <a class="doc" href="09-screening-admet.html">
+      <span class="dn">09 · phase 2</span>
+      <h3>Virtual Screening and ADMET</h3>
+      <p>Narrowing millions to a list you can afford to buy · the funnel and its arithmetic ·
+      enrichment rather than accuracy · PAINS and structural alerts as flags, not deletes · ADMET,
+      hERG, and killing compounds early — which is the cheapest thing this field does.</p>
+      <span class="meta">848 lines · 6–8 hours</span>
+    </a>
+    <a class="doc" href="10-deep-learning.html">
+      <span class="dn">10 · phase 2</span>
+      <h3>Deep Learning and Graph Networks</h3>
+      <p>Learning the representation instead of choosing it · message passing explained in four
+      sentences and then in one · how a GNN relates to the Morgan fingerprint · <strong>the conditions
+      under which a GNN actually beats a random forest</strong> — and why most projects do not meet
+      them.</p>
+      <span class="meta">861 lines · 8–10 hours</span>
+    </a>
+    <a class="doc" href="11-generation.html">
+      <span class="dn">11 · phase 2</span>
+      <h3>Generation and Retrosynthesis</h3>
+      <p>Designing molecules rather than ranking them · how a model that only knows text writes valid
+      chemistry · temperature · REINVENT and the leash · mode collapse and how to spot it yourself ·
+      then the harder half: <strong>SA Score, retrosynthesis, and why a 6-step route beats a
+      3-step one</strong>.</p>
+      <span class="meta">1,265 lines · 8–10 hours</span>
+    </a>
+  </div>
+</section>
+
+<section class="group g-p3">
+  <h2><span class="gn">Phase 3 · 2 volumes</span> Advanced specialisation</h2>
+  <p class="gd">Adding the protein, the physics, and everything needed to keep a model alive in
+  production.</p>
+  <div class="cards">
+    <a class="doc" href="12-structure-based.html">
+      <span class="dn">12 · phase 3</span>
+      <h3>Proteins, Docking and Simulation</h3>
+      <p>What a protein is, for our purposes · where structures come from and how much to trust them ·
+      AlphaFold and pLDDT read at the binding site · protein preparation, the step everyone skips ·
+      <strong>docking's 2–3 kcal/mol error and what it forbids you from claiming</strong> ·
+      interaction fingerprints · conformers · MD and FEP.</p>
+      <span class="meta">1,165 lines · 10–12 hours</span>
+    </a>
+    <a class="doc" href="13-frontiers.html">
+      <span class="dn">13 · phase 3</span>
+      <h3>Foundation Models and the Frontiers</h3>
+      <p>Pretraining, and the five-minute check for whether a model knows your chemistry ·
+      fine-tuning without catastrophic forgetting · <strong>the one thing an LLM must never do</strong> ·
+      materials and crystals · polymers and BigSMILES · self-driving labs and active learning · and
+      why chemical drift arrives abruptly rather than gradually.</p>
+      <span class="meta">1,125 lines · 10–12 hours</span>
+    </a>
+  </div>
+</section>
+
+<section class="group g-p4">
+  <h2><span class="gn">Phase 4 · 3 volumes</span> Practice and career</h2>
+  <p class="gd">Nobody hires understanding. They hire artefacts.</p>
+  <div class="cards">
+    <a class="doc" href="14-exercises.html">
+      <span class="dn">14 · phase 4</span>
+      <h3>The Nine Exercises</h3>
+      <p>Nine tasks written as real corporate briefs with the traps deliberately planted — and they form
+      <strong>one continuous story</strong>: an eighteen-month CDK4/6 programme where the shortcuts you
+      take in exercise 01 are what break the model in exercise 08. Each with its brief, the moves the
+      solution makes, the mistakes, and what a senior scientist checks.</p>
+      <span class="meta">959 lines · 40–50 hours of practice</span>
+    </a>
+    <a class="doc" href="15-capstones-insights.html">
+      <span class="dn">15 · phase 4</span>
+      <h3>The Capstones and the Field Insights</h3>
+      <p>Three portfolio projects with their full specifications and <strong>the rubric that scores
+      them</strong> — where curation and honesty outweigh every model combined · then the seven
+      foundational ideas of the field, each given as the one sentence that reframes it.</p>
+      <span class="meta">842 lines · 37–47 hours of project work</span>
+    </a>
+    <a class="doc" href="16-portfolio-career.html">
+      <span class="dn">16 · phase 4</span>
+      <h3>Portfolio, Open Source and the Job</h3>
+      <p>The README that gets read · your first pull request and why documentation is the right place to
+      start · <strong>the job titles decoded</strong> · company types · remote work, and the timezone and
+      language advantages of working from Tunisia · freelancing and CROs · the interview questions that
+      decide the outcome · and a reading habit that survives a full-time job.</p>
+      <span class="meta">1,082 lines · read once, act on for a year</span>
+    </a>
+  </div>
+</section>
+
+<section class="group g-p5">
+  <h2><span class="gn">Reference · 1 volume</span> The cheat sheet</h2>
+  <p class="gd">The one to keep open on a second screen.</p>
+  <div class="cards">
+    <a class="doc" href="17-cheat-sheet.html">
+      <span class="dn">17 · reference</span>
+      <h3>The Cheat Sheet</h3>
+      <p>Nine blocks of <strong>the RDKit you retype every week</strong> · the numbers worth
+      memorising · the activity-unit conversions that silently ruin datasets · four decision tables
+      answering "which one should I use" · <strong>twenty traps in one list</strong> · a full A–Z
+      glossary · and the whole course compressed into seventeen sentences.</p>
+      <span class="meta">1,197 lines · look-up, not reading</span>
+    </a>
+  </div>
+</section>
+
+<section class="group" style="--stripe: var(--ink);">
+  <h2><span class="gn">Reference</span> Routes by goal</h2>
+  <p class="gd">Nobody needs all seventeen at once. Pick the route that matches what you are doing.</p>
+  <div class="tw">
+  <table>
+    <thead><tr><th style="width:24%">If you are…</th><th style="width:32%">Read, in this order</th><th>Why this route</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Completely new</strong></td>
+        <td class="route">01 → 02 → 03 → 04 → 05</td>
+        <td>The map and the vocabulary, then a working environment, then the representation layer everything else is built on. Stop after 05 if you only need to be useful.</td>
+      </tr>
+      <tr>
+        <td><strong>A programmer with no chemistry</strong></td>
+        <td class="route">01 → 03 → 04 → 06 → 08</td>
+        <td>Skip the environment volume, learn the notation deeply, then go straight to curation and the model — the two places where software instincts mislead you most.</td>
+      </tr>
+      <tr>
+        <td><strong>A chemist with no ML</strong></td>
+        <td class="route">02 → 05 → 08 → 10 → 17</td>
+        <td>You have the domain; you need the tooling, the vectorisation, and above all the validation discipline in Volume 08.</td>
+      </tr>
+      <tr>
+        <td><strong>Building a QSAR model this week</strong></td>
+        <td class="route">06 → 08 → 17</td>
+        <td><strong>Curation first</strong> — it decides whether the model means anything — then the four things that make it honest, then the cheat sheet beside you.</td>
+      </tr>
+      <tr>
+        <td><strong>Doing structure-based work</strong></td>
+        <td class="route">03 → 12 → 11</td>
+        <td>Representations, then proteins and docking with its real error bars, then generation if you intend to design rather than screen.</td>
+      </tr>
+      <tr>
+        <td><strong>Coming from mainstream ML</strong></td>
+        <td class="route">03 → 06 → 08 → 10 → 13</td>
+        <td>Your modelling is fine. What is new is the notation, the data's messiness, scaffold splitting, and applicability domains — none of which exist in your usual problems.</td>
+      </tr>
+      <tr>
+        <td><strong>Building a portfolio</strong></td>
+        <td class="route">15 → 08 → 06 → back to 15</td>
+        <td>Read the capstone specs and their rubric first so you know what you are aiming at, learn the two volumes they lean on, then build. Volume 16 when you have something to show.</td>
+      </tr>
+      <tr>
+        <td><strong>Interviewing soon</strong></td>
+        <td class="route">17 → 08 → 16 → 14</td>
+        <td>The cheat sheet for recall, Volume 08 because "how would you validate a QSAR model?" is the screening question of this field, then the interview chapter, then the two exercises most likely to be asked about.</td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<div class="note">
+  <span class="tag">How to use this folder</span>
+  <p>Every volume is a single self-contained HTML file — no build step, no dependencies beyond Google
+  Fonts, and all the cross-links are relative. That means:</p>
+  <ul>
+    <li><strong>Open <code>index.html</code> in a browser</strong> and everything works, straight off disk.</li>
+    <li><strong>Push the folder to GitHub</strong> and enable Pages on it — the links resolve unchanged.</li>
+    <li>Each volume has a sticky contents rail that highlights the section you are reading, a strip of
+    tabs to the other fourteen, and respects your system light/dark preference.</li>
+  </ul>
+</div>
+
+<div class="note">
+  <span class="tag">How the teaching works</span>
+  <p>Two devices repeat throughout. <strong>Worked examples</strong> take one concrete thing — the
+  Morgan algorithm on ethanol, a SMILES model writing <code>CCO</code> character by character, three
+  temperatures on the same sampling step, 0.9<sup>6</sup> against 0.5<sup>3</sup> — and walk it
+  slowly, because the concepts in this field are much easier to see on one small molecule than to
+  read about. And <strong>the four-band blocks</strong> state what a thing is, how it works, what
+  juniors get wrong, and the question you should be able to answer about it.</p>
+</div>
+
+<div class="foot">
+  <p><strong>Where this comes from.</strong> These 17 volumes are the taught, navigable edition of
+  <strong>57 markdown files</strong> — roughly 77,700 lines — in
+  <code>docs/ai-cheminformatics-knowledge-base/</code>: five phase folders, nine exercise briefs with
+  full worked solutions, and seven field-insight files. The originals hold the complete code, the
+  full exercise briefs and the capstone specifications; these carry the concepts, the mechanisms and
+  the judgement.</p>
+  <p><strong>On what will age.</strong> Library APIs move, model names date, and benchmark numbers
+  drift. The reasoning will not: that a split decides whether a number is honest, that a prediction
+  without an applicability domain is a guess with a decimal point, and that a generated molecule is a
+  picture until someone can make it.</p>
+</div>
+
+</div>

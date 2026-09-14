@@ -1,0 +1,1197 @@
+<title>The Cheat Sheet</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 17</p>
+  <p class="rail-sub">The cheat sheet</p>
+  <span class="rail-vol">Keep open</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+  <a href="#use"><span class="n">—</span>How to use this</a>
+
+  <div class="rail-group">I · The code you retype</div>
+  <a href="#c1"><span class="n">01</span>Reading and writing</a>
+  <a href="#c2"><span class="n">02</span>Standardising a molecule</a>
+  <a href="#c3"><span class="n">03</span>Descriptors</a>
+  <a href="#c4"><span class="n">04</span>Fingerprints and similarity</a>
+  <a href="#c5"><span class="n">05</span>Substructure and SMARTS</a>
+  <a href="#c6"><span class="n">06</span>Scaffolds and splitting</a>
+  <a href="#c7"><span class="n">07</span>Filters and alerts</a>
+  <a href="#c8"><span class="n">08</span>Conformers and 3D</a>
+  <a href="#c9"><span class="n">09</span>Drawing</a>
+
+  <div class="rail-group">II · The numbers</div>
+  <a href="#num"><span class="n">—</span>Worth memorising</a>
+  <a href="#units"><span class="n">—</span>Activity units</a>
+
+  <div class="rail-group">III · Decision tables</div>
+  <a href="#d1"><span class="n">—</span>Which representation</a>
+  <a href="#d2"><span class="n">—</span>Which model</a>
+  <a href="#d3"><span class="n">—</span>Which split and metric</a>
+  <a href="#d4"><span class="n">—</span>Which method for the question</a>
+
+  <div class="rail-group">IV · Traps</div>
+  <a href="#traps"><span class="n">—</span>The twenty traps</a>
+
+  <div class="rail-group">V · Glossary</div>
+  <a href="#g1"><span class="n">—</span>A–F</a>
+  <a href="#g2"><span class="n">—</span>G–O</a>
+  <a href="#g3"><span class="n">—</span>P–Z</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#whole"><span class="n">—</span>The course in 15 sentences</a>
+  <a href="#real"><span class="n">—</span>Where to go for the real thing</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 17 of 17 · the reference</p>
+  <h1>The cheat sheet. <span class="thin">The thing you keep open on the second screen.</span></h1>
+  <p class="lede">Fourteen volumes compressed into what you actually reach for: the RDKit you retype
+  every week, the numbers worth knowing by heart, the tables that answer "which one should I use", the
+  traps in one list, and a glossary for every term the course introduced.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · you have read the rest, or are willing to</span>
+    <span><b>For</b> · looking things up, not learning</span>
+    <span><b>Use</b> · Ctrl-F</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<div class="vol here"><span class="vn">Vol 17 · here</span><b>Cheat sheet</b></div>
+</div>
+
+<div class="note" id="use">
+  <span class="tag">How to use this</span>
+  <p>This volume is deliberately not teaching. Every entry links back to the volume that explains
+  <em>why</em>, and if a line here surprises you, that is the volume to reread. Snippets assume
+  <code>from rdkit import Chem</code> and that you check for <code>None</code> after every parse —
+  which is the first trap in the list and the one that catches everybody.</p>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>The code you retype</h2>
+</header>
+
+<header class="mod" id="c1">
+  <span class="mn">Snippet 01</span>
+  <h2>Reading and writing molecules</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">Volume 03 · every pipeline starts here</div>
+<pre><code>from rdkit import Chem
+
+# --- parse ---------------------------------------------------
+mol = Chem.MolFromSmiles("CCO")
+if mol is None:                    # ⭐ ALWAYS. Returns None on
+    ...                            #    failure — it does not raise.
+
+mol = Chem.MolFromSmarts("[OX2H]")         # a QUERY, not a molecule
+mol = Chem.MolFromMolBlock(block)          # MOL / SDF text
+mol = Chem.MolFromInchi("InChI=1S/C2H6O/...")
+
+# --- write ---------------------------------------------------
+Chem.MolToSmiles(mol)              # CANONICAL — the only form to
+                                   # compare or store as a key
+Chem.MolToSmiles(mol, isomericSmiles=False)   # drop stereo
+Chem.MolToInchiKey(mol)            # 27 chars, the database key
+Chem.MolToMolBlock(mol)
+
+# --- files ---------------------------------------------------
+supplier = Chem.SDMolSupplier("compounds.sdf")
+for mol in supplier:               # ⭐ yields None for bad entries
+    if mol is None:
+        continue
+
+with Chem.SDWriter("out.sdf") as w:
+    w.write(mol)
+
+# a CSV of SMILES is usually just pandas + a parse column
+import pandas as pd
+df = pd.read_csv("data.csv")
+df["mol"] = df["smiles"].apply(Chem.MolFromSmiles)
+bad = df[df["mol"].isna()]         # ⭐ LOG THESE. Never drop silently.
+
+# --- properties on the molecule ------------------------------
+mol.GetNumAtoms()                  # heavy atoms only, by default
+mol.GetNumAtoms(onlyExplicit=False)
+mol.GetNumHeavyAtoms()
+mol.GetRingInfo().NumRings()
+for atom in mol.GetAtoms():
+    atom.GetSymbol(), atom.GetDegree(), atom.GetIsAromatic()</code></pre>
+</div>
+
+<header class="mod" id="c2">
+  <span class="mn">Snippet 02</span>
+  <h2>Standardising a molecule</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">Volume 06 · the step that decides whether your dataset is real</div>
+<pre><code>from rdkit.Chem.MolStandardize import rdMolStandardize
+
+# the usual order --------------------------------------------
+mol = rdMolStandardize.Cleanup(mol)          # sanitise, fix valences
+                                             # normalise functional groups
+
+lfc = rdMolStandardize.LargestFragmentChooser()
+mol = lfc.choose(mol)                        # ⭐ STRIP THE SALT.
+                                             # "drug.HCl" -&gt; "drug"
+
+un  = rdMolStandardize.Uncharger()
+mol = un.uncharge(mol)                       # neutralise where sensible
+
+te  = rdMolStandardize.TautomerEnumerator()
+mol = te.Canonicalize(mol)                   # ONE canonical tautomer
+                                             # (slow — do it once, store it)
+
+smiles = Chem.MolToSmiles(mol)               # now it is comparable
+
+# ⭐ THE DEDUPLICATION KEY
+#    canonical SMILES of the STANDARDISED molecule, or its
+#    InChIKey. Never the raw input string — the same compound
+#    arrives written five different ways.
+
+# ⭐ AND THE RULE THAT MATTERS MORE THAN ANY SNIPPET
+#    NEVER STANDARDISE IN PLACE. Keep the raw column, add a
+#    standardised column, and log what each step changed.
+#    A cleaning rule you cannot reverse is a decision you
+#    cannot revisit.</code></pre>
+</div>
+
+<header class="mod" id="c3">
+  <span class="mn">Snippet 03</span>
+  <h2>Descriptors</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">Volume 05 · the standard profile</div>
+<pre><code>from rdkit.Chem import Descriptors, Crippen
+from rdkit.Chem import rdMolDescriptors as rdmd
+
+Descriptors.MolWt(mol)             # molecular weight
+Crippen.MolLogP(mol)               # CALCULATED logP (not measured)
+rdmd.CalcTPSA(mol)                 # topological polar surface area
+rdmd.CalcNumHBD(mol)               # H-bond donors
+rdmd.CalcNumHBA(mol)               # H-bond acceptors
+rdmd.CalcNumRotatableBonds(mol)    # flexibility
+rdmd.CalcNumRings(mol)
+rdmd.CalcNumAromaticRings(mol)
+rdmd.CalcFractionCSP3(mol)         # "3D-ness"; higher is often better
+Descriptors.NumRadicalElectrons(mol)
+
+# everything at once (200+) ----------------------------------
+from rdkit.Chem import Descriptors
+names = [n for n, _ in Descriptors.descList]
+calc  = Descriptors.CalcMolDescriptors(mol)      # dict, modern RDKit
+
+# ⭐ WARNINGS
+#  · MolLogP is a CALCULATION, and it disagrees with measured
+#    logP by ~0.5-1 log unit routinely. Never present it as measured.
+#  · many of the 200 are near-duplicates of each other — see the
+#    multicollinearity note in Volume 05.
+#  · a descriptor that is constant across YOUR set is useless,
+#    however famous it is.</code></pre>
+</div>
+
+<header class="mod" id="c4">
+  <span class="mn">Snippet 04</span>
+  <h2>Fingerprints and similarity</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">Volume 05 and 07 · the workhorse</div>
+<pre><code>from rdkit.Chem import rdFingerprintGenerator
+from rdkit import DataStructs
+
+# --- the modern generator API (preferred) --------------------
+gen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+fp  = gen.GetFingerprint(mol)
+
+#   radius 2 == "ECFP4"   (⭐ the 4 is the DIAMETER, not the radius —
+#   radius 3 == "ECFP6"    the single most common naming confusion)
+
+# you will still see the older call everywhere:
+#   from rdkit.Chem import AllChem
+#   AllChem.GetMorganFingerprintAsBitVect(mol, 2, nBits=2048)
+
+# other generators
+rdFingerprintGenerator.GetRDKitFPGenerator()          # path-based
+rdFingerprintGenerator.GetAtomPairGenerator()         # long-range
+rdFingerprintGenerator.GetTopologicalTorsionGenerator()
+from rdkit.Chem import MACCSkeys
+MACCSkeys.GenMACCSKeys(mol)                           # 166 fixed keys
+
+# --- similarity ----------------------------------------------
+DataStructs.TanimotoSimilarity(fp1, fp2)              # the default
+DataStructs.DiceSimilarity(fp1, fp2)
+DataStructs.BulkTanimotoSimilarity(fp, [fp1, fp2, ...])   # ⭐ use this
+                                                          # for one-vs-many
+
+# --- as a numpy array for sklearn ----------------------------
+import numpy as np
+arr = np.zeros((0,), dtype=np.int8)
+DataStructs.ConvertToNumpyArray(fp, arr)
+
+# ⭐ THE NUMBER THAT IS NOT PORTABLE
+#    "Tanimoto 0.85" means nothing without the fingerprint type
+#    and size. 0.85 on MACCS is not 0.85 on ECFP4. Always state
+#    which fingerprint produced it.</code></pre>
+</div>
+
+<header class="mod" id="c5">
+  <span class="mn">Snippet 05</span>
+  <h2>Substructure and SMARTS</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">Volume 03 · asking structural questions</div>
+<pre><code>patt = Chem.MolFromSmarts("c1ccccc1")       # benzene ring
+mol.HasSubstructMatch(patt)                 # True / False
+mol.GetSubstructMatches(patt)               # tuples of atom indices
+
+# SMARTS you will use constantly ------------------------------
+"[OX2H]"              alcohol OH
+"[CX3](=O)[OX2H1]"    carboxylic acid
+"[NX3;H2,H1;!$(NC=O)]"  primary/secondary amine, NOT an amide
+"[#6]"                any carbon (aliphatic or aromatic)
+"c"                   aromatic carbon      "C"  aliphatic carbon
+"[R]"                 any ring atom        "[!R]" not in a ring
+"[$(...)]"            recursive SMARTS — "atom in this context"
+"~"                   any bond             "@"  ring bond
+
+# ⭐ SMILES vs SMARTS
+#    SMILES describes ONE molecule.
+#    SMARTS describes a PATTERN that matches many.
+#    Every SMILES is valid SMARTS; the reverse is not true,
+#    and using MolFromSmiles on a pattern silently gives you
+#    the wrong thing rather than an error.
+
+# reactions ---------------------------------------------------
+from rdkit.Chem import AllChem
+rxn = AllChem.ReactionFromSmarts("[C:1](=[O:2])[OH].[N:3]&gt;&gt;[C:1](=[O:2])[N:3]")
+products = rxn.RunReactants((acid, amine))
+#   the :1 :2 :3 are ATOM MAPS — they carry identity across the arrow</code></pre>
+</div>
+
+<header class="mod" id="c6">
+  <span class="mn">Snippet 06</span>
+  <h2>Scaffolds and splitting</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">Volume 08 · the split decides whether your number is honest</div>
+<pre><code>from rdkit.Chem.Scaffolds import MurckoScaffold
+
+scaffold = MurckoScaffold.MurckoScaffoldSmiles(mol=mol)
+# strips all side chains, keeps ring systems + linkers
+
+scaffold = MurckoScaffold.MurckoScaffoldSmiles(mol=mol,
+                                               includeChirality=False)
+
+# --- a scaffold split ----------------------------------------
+from collections import defaultdict
+
+groups = defaultdict(list)
+for i, m in enumerate(mols):
+    groups[MurckoScaffold.MurckoScaffoldSmiles(mol=m)].append(i)
+
+# sort scaffold groups largest-first, fill train to ~80%,
+# then the rest go to test. Whole scaffolds never split across
+# the boundary.
+
+⭐ WHY THIS AND NOT train_test_split
+   A random split puts analogue A in train and analogue A' in
+   test. The model memorises the series and reports a number
+   that will not survive contact with new chemistry.
+
+⭐ REPORT BOTH. The GAP between random and scaffold performance
+   is the most informative single number in a QSAR report —
+   it quantifies how much your random split was flattering you.
+
+# --- other splits worth knowing ------------------------------
+#   time split      — train on old data, test on new. The most
+#                     realistic of all if you have dates.
+#   cluster split   — cluster by fingerprint, split by cluster.
+#   random split    — for hyperparameter tuning only, never for
+#                     the headline number.</code></pre>
+</div>
+
+<header class="mod" id="c7">
+  <span class="mn">Snippet 07</span>
+  <h2>Filters and structural alerts</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">Volume 09 · cheap triage before anything expensive</div>
+<pre><code>from rdkit.Chem import FilterCatalog
+
+params = FilterCatalog.FilterCatalogParams()
+params.AddCatalog(FilterCatalog.FilterCatalogParams.FilterCatalogs.PAINS)
+catalog = FilterCatalog.FilterCatalog(params)
+
+if catalog.HasMatch(mol):
+    entry = catalog.GetFirstMatch(mol)
+    entry.GetDescription()          # which alert fired
+
+# other catalogs: PAINS_A / PAINS_B / PAINS_C, BRENK, NIH, ZINC
+
+# --- Lipinski, written out -----------------------------------
+def ro5_violations(mol):
+    v  = int(Descriptors.MolWt(mol)    &gt; 500)
+    v += int(Crippen.MolLogP(mol)      &gt; 5)
+    v += int(rdmd.CalcNumHBD(mol)      &gt; 5)
+    v += int(rdmd.CalcNumHBA(mol)      &gt; 10)
+    return v                        # conventionally: &lt;= 1 is fine
+
+⭐ FLAG, DO NOT DELETE.
+   PAINS is a set of SUSPICIONS derived from specific assay
+   types, not a verdict — real drugs match PAINS patterns.
+   Lipinski describes what has historically been orally
+   available, not what binds. Both belong in a "review this"
+   column, not in a WHERE clause.</code></pre>
+</div>
+
+<header class="mod" id="c8">
+  <span class="mn">Snippet 08</span>
+  <h2>Conformers and 3D</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">Volume 12 · everything 3D depends silently on this</div>
+<pre><code>from rdkit.Chem import AllChem
+
+mol = Chem.AddHs(mol)                       # ⭐ HYDROGENS FIRST.
+                                            # 3D without them is wrong.
+
+params = AllChem.ETKDGv3()
+params.randomSeed = 42                      # ⭐ reproducibility
+cids = AllChem.EmbedMultipleConfs(mol, numConfs=200, params=params)
+
+res = AllChem.MMFFOptimizeMoleculeConfs(mol)    # [(converged, energy)]
+# or AllChem.UFFOptimizeMoleculeConfs(mol)
+
+energies = [e for conv, e in res]
+best = cids[int(np.argmin(energies))]
+
+Chem.MolToMolBlock(mol, confId=best)
+mol = Chem.RemoveHs(mol)                    # for 2D output only
+
+# RMSD between conformers / molecules
+from rdkit.Chem import rdMolAlign
+rdMolAlign.GetBestRMS(probe, ref)           # ⭐ handles symmetry;
+                                            # plain AlignMol does not
+
+HOW MANY CONFORMERS
+    rigid      ~50        typical drug  200       flexible  200-500
+    (roughly 3^N conformers exist for N rotatable bonds:
+     N=8 -&gt; ~6,500)
+
+⭐ THE INVISIBLE FAILURE
+   If the bioactive conformer is not in your generated set,
+   docking cannot find the right pose — and nothing in the
+   output will tell you. The bioactive conformer is often NOT
+   the lowest-energy one.</code></pre>
+</div>
+
+<header class="mod" id="c9">
+  <span class="mn">Snippet 09</span>
+  <h2>Drawing</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">Volume 04 · because chemists verify by looking</div>
+<pre><code>from rdkit.Chem import Draw
+from rdkit.Chem.Draw import rdMolDraw2D
+
+Draw.MolToImage(mol, size=(300, 300))
+Draw.MolsToGridImage(mols, molsPerRow=4,
+                     legends=[f"{s}" for s in labels])
+
+# high-quality SVG, with atoms highlighted -------------------
+AllChem.Compute2DCoords(mol)                # ⭐ or the layout is random
+d = rdMolDraw2D.MolDraw2DSVG(350, 300)
+rdMolDraw2D.PrepareAndDrawMolecule(
+    d, mol, highlightAtoms=[0, 1, 2])
+d.FinishDrawing()
+svg = d.GetDrawingText()
+
+# ⭐ THE RULE
+#    Any tool a chemist touches must SHOW THE STRUCTURE, drawn.
+#    They check your work by looking at it, and a SMILES string
+#    is not something anyone verifies by reading.</code></pre>
+</div>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>The numbers</h2>
+</header>
+
+<header class="mod" id="num">
+  <span class="mn">Reference</span>
+  <h2>Worth memorising</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:34%">Number</th><th style="width:22%">Value</th><th>Why you need it</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Lipinski's rule of five</strong></td><td>MW &lt; 500 · logP &lt; 5 · HBD ≤ 5 · HBA ≤ 10</td><td>The most cited rule in the field. A description, not a law.</td></tr>
+    <tr><td><strong>Veber</strong></td><td>rotatable bonds ≤ 10 · TPSA ≤ 140</td><td>Oral bioavailability, and it captures flexibility which Lipinski misses.</td></tr>
+    <tr><td><strong>TPSA for CNS penetration</strong></td><td>below ~90 Å²</td><td>The usual rule of thumb for crossing the blood–brain barrier.</td></tr>
+    <tr><td><strong>Tanimoto "similar"</strong></td><td>&gt; 0.85 on ECFP4, loosely</td><td>Conventional, arbitrary, and meaningless without naming the fingerprint.</td></tr>
+    <tr><td><strong>Docking score error</strong></td><td><strong>2–3 kcal/mol</strong></td><td>The single most important number in Volume 12. It forbids affinity claims.</td></tr>
+    <tr><td><strong>Top docking pose correct</strong></td><td>50–70% of the time</td><td>Why you inspect several poses.</td></tr>
+    <tr><td><strong>Docking vs FEP ranking</strong></td><td>R² 0.1–0.3 vs 0.5–0.7</td><td>Screen with one, optimise with the other.</td></tr>
+    <tr><td><strong>pLDDT usable threshold</strong></td><td>&gt; 70, <em>at the binding site</em></td><td>Not the whole-protein average.</td></tr>
+    <tr><td><strong>Crystal resolution</strong></td><td>&lt; 2.0 Å good · &gt; 3.0 Å careful</td><td>Side-chain positions become guesses at low resolution.</td></tr>
+    <tr><td><strong>H-bond geometry</strong></td><td>2.5–3.5 Å · angle &gt; 120°</td><td>1–5 kcal/mol each, and directional, so it brings selectivity.</td></tr>
+    <tr><td><strong>SA Score</strong></td><td>1 easy → 10 hard; filter at ~4.5</td><td>Synthesizability triage for generated molecules.</td></tr>
+    <tr><td><strong>SCScore</strong></td><td>1 simple → 5 complex</td><td>The learned alternative. Disagrees with SA Score, deliberately.</td></tr>
+    <tr><td><strong>Generation targets</strong></td><td>validity &gt; 95% · uniqueness &gt; 90% · novelty &gt; 80%</td><td>Necessary, nowhere near sufficient.</td></tr>
+    <tr><td><strong>Retrosynthesis accuracy</strong></td><td>top-1 ≈ 45% · top-10 ≈ 75–80%</td><td>Read top-10; multiple valid routes exist.</td></tr>
+    <tr><td><strong>Foundation model crossover</strong></td><td>~1,000–10,000 labelled molecules</td><td>Below it, pretraining wins; above it, task-specific models catch up.</td></tr>
+    <tr><td><strong>Fine-tuning learning rate</strong></td><td>~1e-5 on the encoder</td><td>Higher causes catastrophic forgetting within two epochs.</td></tr>
+    <tr><td><strong>Drug-like chemical space</strong></td><td>~10<sup>60</sup> possible vs ~10<sup>8</sup> ever made</td><td>The size of the prize, and the reason generation exists.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="units">
+  <span class="mn">Reference</span>
+  <h2>Activity units — the conversion you will need constantly</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">Volume 06 · getting this wrong silently ruins a dataset</div>
+<pre><code>pIC50 = -log10( IC50 in MOLAR )
+
+    IC50 = 1 nM   = 1e-9 M    -&gt;  pIC50 = 9     very potent
+    IC50 = 100 nM = 1e-7 M    -&gt;  pIC50 = 7     good
+    IC50 = 1 uM   = 1e-6 M    -&gt;  pIC50 = 6     moderate
+    IC50 = 100 uM = 1e-4 M    -&gt;  pIC50 = 4     weak / inactive
+
+⭐ ALWAYS MODEL THE LOG FORM. Activity spans orders of
+   magnitude; a regressor on raw IC50 optimises the weak
+   compounds you do not care about, because they carry the
+   largest absolute errors.
+
+⭐ AND THE ONE THAT DESTROYS DATASETS
+   IC50, Ki and EC50 ARE NOT INTERCHANGEABLE.
+     Ki    — a true binding constant, assay-independent
+     IC50  — depends on substrate concentration and assay setup
+     EC50  — a functional/cellular response, not binding
+   Mixing them in one column and averaging is the classic
+   fatal curation error. Model one, or model them as separate
+   tasks and say which.
+
+⭐ CENSORED VALUES ARE INFORMATION
+   "&gt;10000 nM" is not 10000. It means "we stopped looking".
+   Dropping these biases your set toward actives; treating
+   them as numbers biases your model. Flag them and decide
+   deliberately.</code></pre>
+</div>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>Decision tables</h2>
+</header>
+
+<header class="mod" id="d1">
+  <span class="mn">Decide</span>
+  <h2>Which representation</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:26%">If you need</th><th style="width:28%">Use</th><th>Because</th></tr></thead>
+  <tbody>
+    <tr><td>A database key</td><td><strong>InChIKey</strong></td><td>Canonical, fixed length, designed for lookup.</td></tr>
+    <tr><td>To store or compare structures</td><td><strong>Canonical SMILES</strong></td><td>Compact and readable. Canonical, or comparison is meaningless.</td></tr>
+    <tr><td>To search for a pattern</td><td><strong>SMARTS</strong></td><td>A query language. SMILES describes one molecule; SMARTS matches many.</td></tr>
+    <tr><td>3D coordinates or multiple conformers</td><td><strong>SDF / MOL</strong></td><td>SMILES carries no geometry at all.</td></tr>
+    <tr><td>Features for a classic ML model</td><td><strong>ECFP4 + descriptors</strong></td><td>The default that is very hard to beat below ~10k molecules.</td></tr>
+    <tr><td>Interpretability for a chemist</td><td><strong>Named descriptors</strong></td><td>"logP is too high" is actionable; "bit 1,428" is not.</td></tr>
+    <tr><td>Learned features, lots of data</td><td><strong>Graph neural network</strong></td><td>Worth it above roughly 10k molecules, or for multi-task work.</td></tr>
+    <tr><td>Features with very little data</td><td><strong>Pretrained embeddings</strong></td><td>Transfer substitutes for labels you do not have — check coverage first.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="d2">
+  <span class="mn">Decide</span>
+  <h2>Which model</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:24%">Dataset</th><th style="width:30%">Start with</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Under 50</strong></td><td>Do not model</td><td>Use a rule, or similarity search. A model here is decoration.</td></tr>
+    <tr><td><strong>50–500</strong></td><td>Random forest on ECFP4</td><td>Robust, needs almost no tuning, gives feature importance.</td></tr>
+    <tr><td><strong>500–5,000</strong></td><td>Gradient boosting (XGBoost / LightGBM)</td><td>Usually the best accuracy per hour of effort in this range.</td></tr>
+    <tr><td><strong>5,000–50,000</strong></td><td>Boosting <em>and</em> a GNN, compared honestly</td><td>The crossover region. Which wins is empirical, not theoretical.</td></tr>
+    <tr><td><strong>Over 50,000, multi-task</strong></td><td>GNN or fine-tuned foundation model</td><td>Where learned representations earn their keep.</td></tr>
+    <tr><td><strong>Any size</strong></td><td><strong>A baseline first</strong></td><td>Mean prediction, a rule, or nearest neighbour. Without it you cannot claim improvement.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="d3">
+  <span class="mn">Decide</span>
+  <h2>Which split, which metric</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:24%">Situation</th><th style="width:26%">Split</th><th>Metric</th></tr></thead>
+  <tbody>
+    <tr><td>QSAR headline number</td><td><strong>Scaffold</strong> (report random alongside)</td><td>R² and RMSE for regression; ROC-AUC and PR-AUC for classification.</td></tr>
+    <tr><td>You have dates</td><td><strong>Time split</strong></td><td>The most realistic of all — it is what deployment actually looks like.</td></tr>
+    <tr><td>Virtual screening</td><td>Actives + property-matched decoys</td><td><strong>Enrichment at 1%</strong> — you only look at the top.</td></tr>
+    <tr><td>Heavily imbalanced</td><td>Stratified within a scaffold split</td><td><strong>PR-AUC</strong>, not ROC-AUC. ROC flatters imbalance.</td></tr>
+    <tr><td>Hyperparameter tuning</td><td>Random CV, inside the training set only</td><td>Never touch the test set. Nested CV if you want the tuning honest.</td></tr>
+    <tr><td>Every model, always</td><td>—</td><td><strong>Y-randomisation.</strong> Shuffle labels, retrain; if performance survives, you have a leak.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="d4">
+  <span class="mn">Decide</span>
+  <h2>Which method for the question</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:34%">The question</th><th style="width:26%">The method</th><th>Volume</th></tr></thead>
+  <tbody>
+    <tr><td>"Find me molecules like this one"</td><td>Similarity search on ECFP4</td><td>05, 07</td></tr>
+    <tr><td>"Will this compound be active?"</td><td>QSAR, with an applicability domain</td><td>08</td></tr>
+    <tr><td>"Which of these 10 million should we buy?"</td><td>Filters → docking → ML rescoring → clustering</td><td>09</td></tr>
+    <tr><td>"Will it be absorbed / is it toxic?"</td><td>ADMET models as a ranked cascade, not hard filters</td><td>09</td></tr>
+    <tr><td>"How does it sit in the pocket?"</td><td>Docking — as a hypothesis, then validate</td><td>12</td></tr>
+    <tr><td>"Which of these 20 analogues is most potent?"</td><td>FEP, on a validated binding mode</td><td>12</td></tr>
+    <tr><td>"Is this pose stable?"</td><td>Molecular dynamics</td><td>12</td></tr>
+    <tr><td>"Design me something new"</td><td>REINVENT, with synthesizability in the score</td><td>11</td></tr>
+    <tr><td>"Can it be made?"</td><td>SA Score to triage, AiZynthFinder for a route</td><td>11</td></tr>
+    <tr><td>"I have 80 labelled molecules"</td><td>Pretrained embeddings + simple classifier</td><td>13</td></tr>
+    <tr><td>"Why did the deployed model break?"</td><td>Applicability-domain coverage first, always</td><td>13</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="part" id="part4">
+  <span class="pn">Part IV</span>
+  <h2>The traps</h2>
+</header>
+
+<header class="mod" id="traps">
+  <span class="mn">Reference</span>
+  <h2>Twenty traps, in one list</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">If you remember nothing else from fifteen volumes, remember these</div>
+<pre><code>DATA
+ 1  MolFromSmiles returns None on failure. It does not raise.
+    Check every time, and LOG the failures — never drop silently.
+ 2  Two SMILES for the same molecule are not equal as strings.
+    Canonicalise before comparing anything.
+ 3  Salts and solvates make one compound look like three.
+    Strip them, and record that you did.
+ 4  IC50, Ki and EC50 are not interchangeable. Do not average them.
+ 5  "&gt;10000" is not 10000. Censored values are information.
+ 6  Model the log (pIC50), not the raw concentration.
+ 7  Never clean in place. Keep the raw column.
+
+MODELLING
+ 8  A random split leaks structure through analogue series.
+    Scaffold split for the headline number, and report both.
+ 9  Scale, impute and select features INSIDE the fold, after
+    splitting. Doing it first leaks the test set.
+10  Always run y-randomisation. If a shuffled model still
+    performs, you have a leak, not a model.
+11  An R2 of 0.92 is a reason for suspicion, not celebration.
+12  A model without an applicability domain will confidently
+    answer questions about chemistry it has never seen.
+13  Activity cliffs cap your accuracy. Find them and report
+    them rather than smoothing them away.
+14  Always have a baseline. Improvement over nothing is not
+    a measurement.
+
+STRUCTURE
+15  A raw PDB has no hydrogens and undecided protonation states.
+16  Docking scores carry 2-3 kcal/mol error — so no affinity
+    claims, and no SAR from score differences.
+17  The top pose is right 50-70% of the time. Look at several.
+18  Check pLDDT at the BINDING SITE, not the global average.
+19  If the bioactive conformer is not in your conformer set,
+    docking cannot succeed, and nothing will tell you.
+
+GENERATION AND MODELS
+20  A generated molecule is a picture until someone can make it.
+    Put synthesizability INSIDE the scoring function — and never
+    let a language model compute a chemical fact.</code></pre>
+</div>
+
+<details class="try">
+  <summary>Try it · One last check — you are handed a CSV of 8,000 compounds and asked for "a model for potency by Friday". What are the first four things you do?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>None of them is training a model.</strong></p>
+<pre><code>1  ASK WHAT DECISION IT CHANGES.
+   "A model for potency" is not a specification. Will it
+   rank compounds for synthesis? Triage a purchase list?
+   Support a go/no-go? The answer changes the metric, the
+   threshold and whether the project is worth doing.
+
+2  LOOK AT THE ACTIVITY COLUMN.
+   One assay type, or three mixed together? Any censored
+   values? Is it already logged? ⭐ This is where datasets
+   are silently ruined, and it takes ten minutes.
+
+3  COUNT SCAFFOLDS, NOT COMPOUNDS.
+   8,000 compounds across 40 scaffolds is a small dataset
+   wearing a large dataset's clothes — and it decides
+   whether a scaffold split is even possible.
+
+4  BUILD THE BASELINE.
+   A mean predictor, or nearest-neighbour on ECFP4. Without
+   it you cannot claim any model improved anything.
+
+THEN model. And report the scaffold-split number, with an
+applicability domain, or you have produced a guess with a
+decimal point.</code></pre>
+    <p>If you reached for those four before reaching for scikit-learn, the course worked.</p>
+  </div>
+</details>
+
+<header class="part" id="part5">
+  <span class="pn">Part V</span>
+  <h2>Glossary</h2>
+</header>
+
+<header class="mod" id="g1">
+  <span class="mn">Glossary</span>
+  <h2>A – F</h2>
+</header>
+
+<div class="terms">
+  <dl>
+    <dt>ADMET</dt><dd>Absorption, Distribution, Metabolism, Excretion, Toxicity. The properties that decide whether an active molecule can be a drug — and the cause of most late-stage failures.</dd>
+    <dt>AlphaFold</dt><dd>DeepMind's protein structure prediction system. Predicts the <em>apo</em> structure; check pLDDT at your binding site before docking into one.</dd>
+    <dt>Applicability domain</dt><dd>The region of chemical space where a model's predictions are trustworthy. Outside it the model still answers, with no warning. <strong>The most important practical idea in the course.</strong></dd>
+    <dt>Aromaticity</dt><dd>A property of certain cyclic systems. Different toolkits use different aromaticity models, so the same molecule can be perceived differently — a real source of cross-tool disagreement.</dd>
+    <dt>Activity cliff</dt><dd>Two very similar molecules with very different activity. Where similarity-based models are guaranteed to fail.</dd>
+    <dt>BigSMILES</dt><dd>An extension of SMILES for polymers, which are stochastic rather than exact structures.</dd>
+    <dt>Bemis–Murcko scaffold</dt><dd>A molecule stripped to its ring systems and linkers. The basis of scaffold splitting.</dd>
+    <dt>CASP</dt><dd>Computer-Aided Synthesis Planning — tools like AiZynthFinder that search for synthetic routes.</dd>
+    <dt>ChEMBL</dt><dd>The major public bioactivity database. Updates quarterly, so "ChEMBL" is not a version — pin the number.</dd>
+    <dt>Conformer</dt><dd>One 3D shape a molecule can adopt. Roughly 3<sup>N</sup> exist for N rotatable bonds.</dd>
+    <dt>Descriptor</dt><dd>A computed number summarising a molecule — MW, logP, TPSA. Interpretable, unlike fingerprint bits.</dd>
+    <dt>DFT</dt><dd>Density Functional Theory. The quantum method behind most materials databases — and the reason those labels are calculations, not measurements.</dd>
+    <dt>Docking</dt><dd>Predicting how a molecule sits in a binding site. A search plus a score, each fallible independently.</dd>
+    <dt>ECFP</dt><dd>Extended Connectivity Fingerprint, the Morgan fingerprint. ECFP4 means <em>radius 2</em> — the 4 is the diameter.</dd>
+    <dt>Enrichment factor</dt><dd>How many times more actives you find in the top <em>x</em>% than by chance. The metric that matters in screening.</dd>
+    <dt>ETKDG</dt><dd>RDKit's conformer generation method, biased by torsion preferences measured from crystal structures.</dd>
+    <dt>FEP</dt><dd>Free Energy Perturbation. The accurate but expensive way to rank similar ligands. R² 0.5–0.7, hours per molecule.</dd>
+    <dt>Fingerprint</dt><dd>A bit vector encoding a molecule's substructures. The workhorse representation of the field.</dd>
+  </dl>
+</div>
+
+<header class="mod" id="g2">
+  <span class="mn">Glossary</span>
+  <h2>G – O</h2>
+</header>
+
+<div class="terms">
+  <dl>
+    <dt>GNN</dt><dd>Graph Neural Network. Learns a representation from the molecular graph by message passing, rather than using a fixed fingerprint recipe.</dd>
+    <dt>hERG</dt><dd>A cardiac ion channel. Blocking it causes fatal arrhythmia, making it one of the most important toxicity endpoints to predict.</dd>
+    <dt>InChIKey</dt><dd>A 27-character hashed identifier. The standard database key for a chemical structure.</dd>
+    <dt>IC<sub>50</sub></dt><dd>The concentration giving 50% inhibition. Assay-dependent — not interchangeable with K<sub>i</sub> or EC<sub>50</sub>.</dd>
+    <dt>Lead optimisation</dt><dd>The phase after hit finding, where one series is refined. The point at which your model's applicability domain usually stops covering the compounds being submitted.</dd>
+    <dt>Ligand efficiency</dt><dd>Binding energy per heavy atom. Stops you rewarding molecules for simply getting bigger.</dd>
+    <dt>Lipinski's rule of five</dt><dd>MW &lt; 500, logP &lt; 5, HBD ≤ 5, HBA ≤ 10. A description of orally available drugs, not a law and not a filter.</dd>
+    <dt>logP</dt><dd>Partition coefficient — greasiness. RDKit's <code>MolLogP</code> is <em>calculated</em> and routinely differs from measured logP by 0.5–1 unit.</dd>
+    <dt>MACCS keys</dt><dd>A fixed 166-bit fingerprint of predefined substructures. Fast, interpretable, coarse.</dd>
+    <dt>Matched molecular pair</dt><dd>Two molecules differing by one defined transformation. The right way to talk about SAR with a chemist.</dd>
+    <dt>MD</dt><dd>Molecular Dynamics. Simulates motion over time. Good for pose stability, not for affinity.</dd>
+    <dt>Mode collapse</dt><dd>A generative model converging on a narrow set of outputs. Spotted by uniqueness falling while reward rises.</dd>
+    <dt>MMFF94 / UFF</dt><dd>Force fields used to optimise conformer geometries in RDKit.</dd>
+    <dt>OECD principles</dt><dd>The five validation requirements that make a QSAR model regulatory-defensible — including a defined endpoint, an applicability domain and mechanistic interpretation where possible.</dd>
+  </dl>
+</div>
+
+<header class="mod" id="g3">
+  <span class="mn">Glossary</span>
+  <h2>P – Z</h2>
+</header>
+
+<div class="terms">
+  <dl>
+    <dt>PAINS</dt><dd>Pan-Assay Interference Compounds — substructures that produce false positives in many assays. A flag prompting review, not a delete.</dd>
+    <dt>PDB</dt><dd>The Protein Data Bank, and its file format. Around 220,000 experimental structures. Contains no hydrogens.</dd>
+    <dt>pIC<sub>50</sub></dt><dd>−log<sub>10</sub>(IC<sub>50</sub> in molar). Always model this rather than raw concentration.</dd>
+    <dt>pLDDT</dt><dd>AlphaFold's per-residue confidence, 0–100, stored in the B-factor column. Read it at the binding site, not globally.</dd>
+    <dt>Pharmacophore</dt><dd>The abstract 3D pattern of features required for binding. The method that finds scaffold hops.</dd>
+    <dt>QSAR</dt><dd>Quantitative Structure–Activity Relationship. A model mapping structure to activity — the field's central technique.</dd>
+    <dt>RDKit</dt><dd>The open-source cheminformatics toolkit this entire course is built on. Pin its version: descriptor and aromaticity behaviour changes between releases.</dd>
+    <dt>REINVENT</dt><dd>The industry-standard generative model. A frozen prior, a learning agent, a scoring function, and σ as the leash between them.</dd>
+    <dt>Retrosynthesis</dt><dd>Planning a synthesis backwards from the target. Template-based uses reaction rules; template-free treats it as translation.</dd>
+    <dt>SA Score</dt><dd>Synthetic Accessibility, 1 (easy) to 10 (hard). Heuristic, based on fragment frequency in PubChem.</dd>
+    <dt>Scaffold split</dt><dd>Splitting data so that whole scaffolds stay on one side. The honest way to estimate performance on new chemistry.</dd>
+    <dt>SCScore</dt><dd>Synthetic Complexity, 1 (simple) to 5 (complex). Learned from reaction data. Disagrees with SA Score by design.</dd>
+    <dt>SMARTS</dt><dd>A pattern language for substructure queries. Related to SMILES, but it matches many molecules rather than describing one.</dd>
+    <dt>SMILES</dt><dd>A text representation of a molecule. Non-unique without canonicalisation, and carries no 3D information.</dd>
+    <dt>Tanimoto</dt><dd>The standard fingerprint similarity coefficient. Its value is meaningless without naming the fingerprint that produced it.</dd>
+    <dt>Tautomer</dt><dd>Structures differing by the position of a hydrogen and a double bond. The reason "are these the same compound?" is genuinely hard.</dd>
+    <dt>TPSA</dt><dd>Topological Polar Surface Area. Below ~90 Å² is the usual rule of thumb for brain penetration; below 140 for oral absorption.</dd>
+    <dt>USPTO</dt><dd>Reactions text-mined from US patents. Flawed — parsing errors, poor atom mapping, unreliable yields — and universal, because there is no free alternative.</dd>
+    <dt>Virtual screening</dt><dd>Computationally ranking a library to choose what to test. Judged by enrichment, not by accuracy.</dd>
+    <dt>Y-randomisation</dt><dd>Shuffle the labels and retrain. If performance survives, you have a leak. Run it every time.</dd>
+  </dl>
+</div>
+
+<header class="mod" id="whole">
+  <span class="mn">Reference</span>
+  <h2>The whole course in fifteen sentences</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">One per volume</div>
+<pre><code>01  A molecule is a physical object and a computer cannot hold
+    one — everything in this field follows from that.
+02  The toolchain is RDKit plus the scientific Python stack, and
+    knowing it deeply beats knowing ten tools shallowly.
+03  A molecule becomes data as a string, a graph or a 3D object,
+    and each one loses something different.
+04  RDKit is the library everything else is built on; learn its
+    sanitisation and canonicalisation behaviour, not just its API.
+05  A fingerprint is a fixed recipe for describing structure, and
+    a descriptor is a number you can explain to a chemist.
+06  Curation is most of the work, and the audit trail is the
+    deliverable a senior scientist actually reads.
+07  Chemical space is too big to see, so you cluster, project and
+    sample it — and every projection lies somewhere.
+08  A QSAR model is only as good as its split, its applicability
+    domain, and whether you ran y-randomisation.
+09  Screening is a funnel judged by enrichment, and every filter
+    you add discards real molecules as well as bad ones.
+10  A GNN learns the representation instead of choosing it, which
+    pays off only when you have enough data to learn from.
+11  Generation invents molecules; synthesizability decides whether
+    any of them exist.
+12  Structure-based design adds the protein, geometry and physics
+    — and a docking score carries 2-3 kcal/mol of error.
+13  Pretraining buys you data you do not have; monitoring is what
+    keeps a deployed model true.
+14  Nobody hires understanding — they hire artefacts.
+15  And when in doubt, check the applicability domain first.</code></pre>
+</div>
+
+<header class="mod" id="real">
+  <span class="mn">Reference</span>
+  <h2>Where to go for the real thing</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>The documentation</h4><p>The RDKit Book and its Getting Started guide are unusually good, and closer to the source of truth than any summary — including this one.</p></div>
+  <div class="card"><h4>The source knowledge base</h4><p><code>docs/ai-cheminformatics-knowledge-base/</code> — 57 markdown files, roughly 77,700 lines, with the full code, the worked solutions and the exercise briefs these volumes summarise.</p></div>
+  <div class="card"><h4>The journals</h4><p><em>J. Chem. Inf. Model.</em>, <em>J. Cheminformatics</em> (open access), and ChemRxiv for preprints — where methods appear about a year before the journals.</p></div>
+  <div class="card"><h4>The community</h4><p>The RDKit UGM is unusually practical, and the RDKit mailing list and GitHub discussions are where the maintainers answer questions directly.</p></div>
+</div>
+
+<div class="disclaimer">
+  <p><strong>On what will age.</strong> Library APIs move — the fingerprint generator interface in
+  Snippet 04 replaced an older call that still appears everywhere, and something will replace it in
+  turn. Model names and benchmark numbers will date faster still. <strong>What will not age is the
+  reasoning:</strong> that a split decides whether a number is honest, that a prediction without an
+  applicability domain is a guess with a decimal point, and that a generated molecule is a picture
+  until someone can make it.</p>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

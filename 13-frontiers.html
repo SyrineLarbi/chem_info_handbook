@@ -1,0 +1,1208 @@
+<title>Foundation Models and the Frontiers</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 13</p>
+  <p class="rail-sub">Foundation models and the frontiers</p>
+  <span class="rail-vol">Phase 3</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+  <a href="#obj"><span class="n">—</span>What you will be able to do</a>
+
+  <div class="rail-group">I · Foundation models</div>
+  <a href="#l1"><span class="n">01</span>Pretraining, and why it works</a>
+  <a href="#l2"><span class="n">02</span>Using embeddings</a>
+  <a href="#l3"><span class="n">03</span>Fine-tuning without breaking it</a>
+  <a href="#l4"><span class="n">04</span>When they beat a task model</a>
+
+  <div class="rail-group">II · LLMs in chemistry</div>
+  <a href="#l5"><span class="n">05</span>What an LLM must never do</a>
+  <a href="#l6"><span class="n">06</span>The tool-augmented pattern</a>
+
+  <div class="rail-group">III · Beyond drugs</div>
+  <a href="#l7"><span class="n">07</span>Materials — crystals, not molecules</a>
+  <a href="#l8"><span class="n">08</span>Polymers and BigSMILES</a>
+  <a href="#l9"><span class="n">09</span>The materials databases</a>
+
+  <div class="rail-group">IV · The automated lab</div>
+  <a href="#l10"><span class="n">10</span>Self-driving labs</a>
+  <a href="#l11"><span class="n">11</span>Active learning</a>
+  <a href="#l12"><span class="n">12</span>ELNs, LIMS and instrument data</a>
+  <a href="#l13"><span class="n">13</span>Tools chemists will actually use</a>
+
+  <div class="rail-group">V · Keeping it running</div>
+  <a href="#l14"><span class="n">14</span>Why chemical drift is different</a>
+  <a href="#l15"><span class="n">15</span>Versioning what matters</a>
+  <a href="#l16"><span class="n">16</span>Monitoring and the model card</a>
+  <a href="#lmat2"><span class="n">17</span>Three materials problems</a>
+  <a href="#lmulti"><span class="n">18</span>Multimodal models</a>
+  <a href="#mistakes"><span class="n">—</span>The mistakes that cost most</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#drill"><span class="n">—</span>Rapid drill</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 13 of 17 · phase 3</p>
+  <h1>Foundation models and the frontiers. <span class="thin">Pretraining, materials, robots, and keeping it all alive.</span></h1>
+  <p class="lede">Four subjects that share one idea: <strong>stop training from scratch.</strong> A model
+  pretrained on a hundred million molecules already knows chemistry you do not have labels for. A
+  robot that chooses its own next experiment learns faster than a plan. And a model nobody monitors
+  quietly stops being true — which is the part of this volume that will matter to you first.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · Volumes 01–12</span>
+    <span><b>Teaches</b> · transfer, materials, automation, MLOps</span>
+    <span><b>Time</b> · 10–12 hours</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<div class="vol here"><span class="vn">Vol 13 · here</span><b>Frontiers</b></div>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<div class="obj" id="obj">
+  <span class="cap">By the end of this volume you will be able to</span>
+  <ul>
+    <li>Explain why pretraining on unlabelled SMILES produces useful chemistry, and check whether it covers <em>your</em> chemistry.</li>
+    <li>Pick between embeddings, fine-tuning and a task-specific model using your dataset size.</li>
+    <li>State the one thing an LLM must never be allowed to do in a chemistry pipeline.</li>
+    <li>Say how a crystal differs from a molecule, computationally, and why that breaks your usual tools.</li>
+    <li>Describe the active-learning loop behind a self-driving lab.</li>
+    <li>Name the form of drift that is specific to chemistry — and why it arrives abruptly rather than gradually.</li>
+  </ul>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>Foundation models</h2>
+</header>
+
+<header class="mod" id="l1">
+  <span class="mn">Lesson 01</span>
+  <h2>Pretraining, and why it works at all</h2>
+</header>
+
+<p>Volume 11 used a SMILES model to <em>generate</em>. The same trained model can be used a second way,
+which turns out to be more broadly useful: as a source of <strong>representations</strong>.</p>
+
+<pre class="ascii">
+  THE PROBLEM IT SOLVES
+
+    Labelled chemical data is tiny and expensive. A typical
+    project has 200-2,000 measured molecules, because each one
+    cost a real experiment.
+
+    UNLABELLED chemical data is enormous and free. PubChem and
+    ZINC hold hundreds of millions of structures with no
+    measurements attached at all.
+
+  THE MOVE
+
+    1. PRETRAIN on 100M unlabelled SMILES, with no chemistry
+       objective — just "predict the masked token" or "predict
+       the next token", exactly as BERT and GPT learn English.
+
+    2. The model is forced to learn valence, aromaticity, ring
+       systems and functional group patterns, because those are
+       what make the next token predictable.
+
+    3. NOW USE IT on your 200 labelled molecules — either as a
+       feature extractor, or by fine-tuning.
+
+  ⭐ THE CLAIM WORTH REMEMBERING
+     Embeddings from a pretrained model plus a simple classifier,
+     on 50-200 labelled molecules, can rival a fingerprint model
+     trained on thousands. That is the whole value proposition:
+     PRETRAINING BUYS YOU DATA YOU DO NOT HAVE.
+</pre>
+
+<div class="note">
+  <span class="tag">Where you have seen this before</span>
+  <p>This is the same argument as Volume 10's, one level up. A GNN learns a representation from
+  <em>your</em> task's data; a foundation model learns one from <em>all</em> chemistry and then adapts.
+  Which is why the deciding question is identical in both cases — <strong>how much labelled data do you
+  actually have?</strong></p>
+</div>
+
+<header class="mod" id="l2">
+  <span class="mn">Lesson 02</span>
+  <h2>Using embeddings — and checking them first</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · the check nobody runs</span>
+  <div class="body">
+<pre><code>THE EASY PATH
+    molecule -&gt; pretrained model -&gt; a vector (say 768 numbers)
+             -&gt; logistic regression / random forest -&gt; prediction
+
+    No GPU, no fine-tuning, ten lines of code. Often very good.
+
+⭐ BUT FIRST: DOES THE MODEL KNOW YOUR CHEMISTRY?
+
+    A model pretrained on ZINC drug-like molecules has seen
+    almost no organometallics, no polymers, no molecules with
+    rare elements, no inorganic salts. On those, its embeddings
+    are meaningless — AND IT WILL NOT TELL YOU. You get a vector
+    either way, and the downstream model trains happily on noise.
+
+THE FIVE-MINUTE TEST
+
+    1. embed 500 of YOUR molecules
+    2. PCA or t-SNE to 2D
+    3. colour by something you know — scaffold, series, activity
+
+    WHAT YOU WANT TO SEE
+       structurally similar molecules sitting together.
+       your series forming recognisable groups.
+
+    WHAT MEANS STOP
+       a featureless blob with no structure at all.
+       The model has not seen your chemistry. Use fingerprints.
+
+ALSO: HOW TO POOL
+    Many models are pretrained with masked-language-modelling
+    only, which never trains the [CLS] token to mean anything.
+    Taking [CLS] from such a model gives worse results than
+    MEAN POOLING over the token embeddings.
+    -&gt; default to mean pooling unless the model was explicitly
+       pretrained with a [CLS] objective.</code></pre>
+  </div>
+</div>
+
+<header class="mod" id="l3">
+  <span class="mn">Lesson 03</span>
+  <h2>Fine-tuning without destroying what it learned</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The failure mode</span>
+    <p><strong>Catastrophic forgetting.</strong> You fine-tune on 300 molecules at a normal learning
+    rate, the model overfits them within two epochs, and in doing so overwrites the general chemical
+    knowledge that was the entire reason you used it. Validation loss improves briefly, then
+    diverges.</p></div>
+  <div class="b"><span class="k">The settings that prevent it</span>
+    <ul>
+      <li>A <strong>small learning rate on the encoder</strong> — around <code>1e-5</code>, far lower than you would use training from scratch.</li>
+      <li><strong>Warmup</strong> over roughly the first 10% of steps.</li>
+      <li>Watch training <em>and</em> validation loss per epoch. Divergence after one or two epochs is the signature.</li>
+      <li>Consider <strong>LoRA</strong> — train small adapter matrices and leave the pretrained weights frozen. Cheap, and structurally immune to this failure.</li>
+    </ul></div>
+  <div class="b check"><span class="k">The benchmarking rule that decides the answer</span>
+    <p><strong>Scaffold split, not random split.</strong> A random split leaks structural information —
+    near-identical analogues land in both train and test — and foundation models look spectacular under
+    it, then collapse on novel scaffolds in deployment. Report both, and show the gap; the gap is the
+    honest number.</p></div>
+</div>
+
+<header class="mod" id="l4">
+  <span class="mn">Lesson 04</span>
+  <h2>When a foundation model actually beats a task-specific one</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:26%">Your situation</th><th style="width:34%">The better bet</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Under 100 labelled molecules</strong></td><td>Foundation embeddings + a simple classifier</td><td>Pretrained knowledge substitutes for the data you do not have.</td></tr>
+    <tr><td><strong>100–1,000</strong></td><td>LoRA fine-tuning</td><td>Enough to adapt the model, not enough to train one.</td></tr>
+    <tr><td><strong>1,000–10,000</strong></td><td>Compare both, honestly</td><td>This is the crossover. Task-specific GNNs catch up here, and which wins is an empirical question.</td></tr>
+    <tr><td><strong>Over 10,000</strong></td><td>Task-specific model</td><td>Enough data to learn a representation tuned to your endpoint.</td></tr>
+    <tr><td><strong>Many related endpoints</strong></td><td>Foundation model with per-task heads</td><td>A shared representation is exactly the thing being shared.</td></tr>
+    <tr><td><strong>Unusual chemical space</strong></td><td>Foundation model — <em>if</em> it has seen that space</td><td>Pretraining covers more chemistry than any single dataset. Run the embedding check from Lesson 02 first.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>LLMs in chemistry</h2>
+</header>
+
+<header class="mod" id="l5">
+  <span class="mn">Lesson 05</span>
+  <h2>The one thing an LLM must never do</h2>
+</header>
+
+<div class="bad">
+  <span class="tag">Never let a language model compute a chemical fact</span>
+  <p>Ask a general LLM "is this molecule drug-like?" and it will answer confidently — <em>without
+  computing the molecular weight or logP</em>. Ask it for a SMILES string and it will produce one that
+  looks entirely plausible and is <strong>invalid 10–25% of the time</strong>: an unclosed ring, an
+  impossible valence, a bracket that does not match. Downstream, that string either fails silently or
+  parses into a different molecule than intended.</p>
+</div>
+
+<pre class="ascii">
+  THE RULE
+
+    An LLM may DECIDE WHAT TO COMPUTE.
+    RDKit DOES THE COMPUTING.
+
+  AND THE NON-NEGOTIABLE STEP
+
+    every SMILES string that comes out of a language model
+    goes straight into Chem.MolFromSmiles() before ANYTHING
+    else touches it. None -&gt; discard, log, move on.
+
+    This is three lines of code and it is the difference
+    between a pipeline and a rumour.
+</pre>
+
+<header class="mod" id="l6">
+  <span class="mn">Lesson 06</span>
+  <h2>The tool-augmented pattern</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · the right division of labour</span>
+  <div class="body">
+<pre><code>USER ASKS
+    "Is this molecule likely to cross the blood-brain barrier,
+     and if not, what would you change?"
+
+WRONG — the LLM answers from memory
+    "Yes, this molecule has good BBB penetration."
+    Confident. Fluent. Possibly wrong. No calculation happened.
+
+RIGHT — the LLM orchestrates, the tools compute
+
+    1. LLM decides which tools to call
+           -&gt; rdkit.Descriptors.MolWt
+           -&gt; rdkit.Crippen.MolLogP
+           -&gt; rdkit.rdMolDescriptors.CalcTPSA
+           -&gt; your trained BBB classifier
+
+    2. TOOLS return real numbers
+           MW 412.5    logP 4.8    TPSA 92.4    P(BBB) 0.21
+
+    3. LLM interprets and explains
+           "TPSA of 92 is above the ~90 threshold usually
+            associated with BBB penetration, and the model gives
+            0.21. Reducing polar surface area — for instance
+            replacing the free carboxylic acid with an ester or
+            an amide — is the usual move."
+
+⭐ WHAT THE LLM IS ACTUALLY GOOD FOR HERE
+   · turning a vague question into a concrete set of calculations
+   · explaining a result to a chemist in their language
+   · writing the RDKit code to do something you described
+   · reading and summarising literature
+
+   Every one of those is a LANGUAGE task. None is a CHEMISTRY
+   calculation. Keep that line and LLMs are genuinely useful;
+   blur it and you will publish something embarrassing.</code></pre>
+  </div>
+</div>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>Beyond drug molecules</h2>
+</header>
+
+<details class="try">
+  <summary>Try it · You have 180 labelled compounds for a rare endpoint. A colleague proposes fine-tuning a foundation model; another wants a random forest on ECFP4. Who is right?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>At 180 compounds, try the foundation model's embeddings with a simple classifier first —
+    but run the random forest too, because it costs an hour and settles the argument with a
+    number.</strong></p>
+<pre><code>WHY EMBEDDINGS RATHER THAN FINE-TUNING
+   180 examples is in the band where pretrained knowledge
+   substitutes for data you do not have — but it is also few
+   enough that FINE-TUNING will overfit within two epochs
+   and destroy the knowledge you came for. Embeddings +
+   logistic regression has no such failure mode.
+
+BEFORE ANY OF IT — THE FIVE-MINUTE CHECK
+   Embed the 180, project to 2D, colour by series. If they
+   cluster sensibly, the model has seen this chemistry and
+   the embeddings mean something. If it is a featureless
+   blob, the answer is fingerprints and the debate is over.
+
+AND WHATEVER YOU CHOOSE
+   Scaffold split. With 180 compounds a random split will
+   flatter BOTH approaches enormously, and you will pick the
+   wrong one on the strength of a number that is not real.</code></pre>
+    <p>The meta-answer worth giving in an interview: <strong>"at this data size the representation
+    matters more than the model, and the split matters more than either."</strong></p>
+  </div>
+</details>
+
+<header class="mod" id="l7">
+  <span class="mn">Lesson 07</span>
+  <h2>Materials — where your usual tools stop working</h2>
+</header>
+
+<p>Everything so far assumed a molecule: a finite set of atoms with a definite structure. A crystal is
+neither finite nor definite in that sense, and that single difference invalidates most of the toolkit.</p>
+
+<pre class="ascii">
+  A MOLECULE                    A CRYSTAL
+
+  finite. 30 atoms, done.       infinite, by repetition of a
+                                UNIT CELL in three dimensions
+
+  has a SMILES string           has no SMILES. It has a unit
+                                cell (lattice vectors) plus the
+                                positions of atoms inside it
+
+  graph: atoms and bonds        graph: atoms and bonds — but an
+                                atom near the cell edge BONDS TO
+                                ATOMS IN THE NEXT CELL ALONG
+
+  ⭐ PERIODICITY IS THE WHOLE DIFFERENCE.
+     A crystal graph must carry the bonds that cross the cell
+     boundary, or you have modelled a lonely fragment rather
+     than a material. This is why molecular GNNs do not simply
+     transfer, and why CGCNN, MEGNet and ALIGNN exist.
+
+  AND THE PROPERTIES ARE DIFFERENT TOO
+     not logP and solubility, but formation energy, band gap,
+     bulk modulus, conductivity — properties OF THE BULK, which
+     no single molecule has.
+</pre>
+
+<header class="mod" id="l8">
+  <span class="mn">Lesson 08</span>
+  <h2>Polymers, and why SMILES fails them</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The problem</span>
+    <p>SMILES describes an <em>exact</em> structure. A polymer is <strong>stochastic</strong>: a sample
+    of polyethylene is a mixture of chains of different lengths, and a copolymer has monomers in a
+    random order. There is no single exact structure to write down.</p></div>
+  <div class="b"><span class="k">BigSMILES</span>
+    <p>Extends SMILES with curly braces to denote a stochastic object — "this repeat unit, many
+    times, with these end groups" — rather than pretending a polymer is one big molecule.</p></div>
+  <div class="b"><span class="k">The pragmatic approach</span>
+    <p>In practice most polymer ML works on <strong>the repeat unit as an ordinary molecule</strong>,
+    computes normal descriptors from it, and predicts bulk properties from those. Crude, and it works
+    surprisingly well — the classic target being <strong>glass transition temperature (T<sub>g</sub>)</strong>,
+    which decides whether a polymer is glassy or rubbery in use.</p></div>
+  <div class="b check"><span class="k">What it cannot capture</span>
+    <p>Chain length distribution, tacticity, branching, crystallinity and processing history — all of
+    which genuinely change the material. A repeat-unit model that predicts T<sub>g</sub> well is
+    predicting <em>a</em> T<sub>g</sub>, not the one your particular sample will have.</p></div>
+</div>
+
+<header class="mod" id="l9">
+  <span class="mn">Lesson 09</span>
+  <h2>The materials databases</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:24%">Database</th><th style="width:34%">What is in it</th><th>What to watch for</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Materials Project</strong></td><td>Computed properties for well over a hundred thousand inorganic crystals — formation energies, band gaps, elastic properties. The standard starting point, with a good API.</td><td>Almost everything is <strong>computed, not measured</strong>. Band gaps from standard DFT are systematically underestimated — a well-known, roughly predictable bias.</td></tr>
+    <tr><td><strong>OQMD</strong></td><td>Another large DFT database, strong on formation energies and phase stability.</td><td>Different DFT settings from Materials Project. <strong>Do not mix values across databases</strong> without checking the method.</td></tr>
+    <tr><td><strong>AFLOW</strong></td><td>Very large automated DFT repository with extensive structural prototypes.</td><td>Same caution. Automated generation means less curation.</td></tr>
+    <tr><td><strong>Open Catalyst</strong></td><td>Enormous set of catalyst surface–adsorbate calculations, built explicitly for ML.</td><td>Built as an ML benchmark; strong for method development, narrower as chemistry.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="warn">
+  <span class="tag">The trap that is specific to this field</span>
+  <p>In drug discovery your labels are <em>measurements</em>. In materials, most labels are
+  <strong>DFT calculations</strong> — so a model trained on them learns to reproduce DFT, including
+  its systematic errors. A model with an R² of 0.98 against Materials Project band gaps has learned to
+  imitate a calculation that is itself known to be biased low against experiment.
+  <strong>"Accurate" here means "agrees with the simulation", which is not the same claim as "agrees
+  with reality", and you must say which one you mean.</strong></p>
+</div>
+
+<header class="part" id="part4">
+  <span class="pn">Part IV</span>
+  <h2>The automated lab</h2>
+</header>
+
+<header class="mod" id="l10">
+  <span class="mn">Lesson 10</span>
+  <h2>Self-driving labs</h2>
+</header>
+
+<pre class="ascii">
+  THE CLOSED LOOP
+
+      ┌──────────────────────────────────────────────┐
+      │                                              │
+      v                                              │
+   MODEL proposes the next experiments                │
+      |                                              │
+      v                                              │
+   ROBOT runs them  (liquid handler, plate reader,   │
+      |              flow chemistry rig)             │
+      v                                              │
+   ANALYSIS parses the instrument output ────────────┘
+             and updates the model
+
+  ⭐ WHAT CHANGES: the bottleneck moves. In a normal lab, ideas
+     are cheap and experiments are slow. Here experiments are
+     fast, so the limiting factor becomes CHOOSING WELL — which
+     is why active learning (next lesson) is the heart of it.
+
+  WHAT ACTUALLY BREAKS IN PRACTICE
+     not the science — the PLUMBING. Instrument files in a dozen
+     vendor formats, a plate map that does not match the sample
+     list, a robot that silently skipped a well, units that
+     changed between runs. Most of the engineering in a
+     self-driving lab is data integration, and that is where a
+     cheminformatician spends their time.
+</pre>
+
+<header class="mod" id="l11">
+  <span class="mn">Lesson 11</span>
+  <h2>Active learning — choosing the next experiment</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · why the best-predicted experiment is often the wrong one</span>
+  <div class="body">
+<pre><code>YOU CAN RUN 24 REACTIONS THIS WEEK. WHICH 24?
+
+STRATEGY A — pure exploitation
+    pick the 24 the model predicts will work best.
+    -&gt; you confirm what you already believed.
+    -&gt; the model learns almost nothing, because it was already
+       confident about those.
+
+STRATEGY B — pure exploration
+    pick the 24 the model is most uncertain about.
+    -&gt; the model learns a lot.
+    -&gt; you get no good results this week, and your chemist
+       stops returning your calls.
+
+STRATEGY C — BAYESIAN OPTIMISATION (what is actually used)
+    The model gives a PREDICTION and an UNCERTAINTY for every
+    candidate. An acquisition function trades them off:
+
+      "expected improvement" — how much better than the best
+      result so far might this be, ACCOUNTING for uncertainty?
+
+    A point predicted mediocre but wildly uncertain can beat a
+    point predicted good and certain, because it MIGHT be
+    excellent and you would learn either way.
+
+⭐ THE CHEMISTRY-SPECIFIC COMPLICATIONS
+   · MIXED VARIABLES — temperature is continuous, solvent is
+     categorical, and the model must handle both
+   · BATCH SELECTION — you run a plate of 24 at once, so you
+     need 24 points that are informative TOGETHER, not 24
+     copies of the single most informative point
+   · CONSTRAINTS — you cannot run at 150 C in a solvent that
+     boils at 80 C, and the optimiser must know that</code></pre>
+  </div>
+</div>
+
+<header class="mod" id="l12">
+  <span class="mn">Lesson 12</span>
+  <h2>ELNs, LIMS and instrument data</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">What they are</span>
+    <p>The <strong>ELN</strong> (Electronic Lab Notebook) is where chemists record what they did; the
+    <strong>LIMS</strong> tracks samples, plates and assay results. Benchling and Dotmatics are the
+    common platforms, and both expose REST APIs. Together they are the data backbone of a wet lab —
+    and usually the real source of your training data.</p></div>
+  <div class="b"><span class="k">Why this lands on you</span>
+    <p>Because the data arrives in whatever shape the instrument emitted. Plate readers, LC-MS systems
+    and NMR spectrometers each write their own vendor format, and none of it is analysis-ready.
+    <strong>Writing robust parsers for instrument output is unglamorous and is frequently the highest-value
+    thing a cheminformatician does in a wet-lab organisation.</strong></p></div>
+  <div class="b check"><span class="k">The habit worth forming</span>
+    <p>Keep the raw instrument file, always, unmodified — and derive everything from it in code. When
+    an assay result is questioned eighteen months later, the parsed table will not settle the argument
+    and the raw file will. This is the same principle as Volume 06's rule about never cleaning in
+    place.</p></div>
+</div>
+
+<header class="mod" id="l13">
+  <span class="mn">Lesson 13</span>
+  <h2>Building tools chemists will actually use</h2>
+</header>
+
+<div class="good">
+  <span class="tag">The adoption rule</span>
+  <p>A model behind an API that a chemist cannot reach is a model that does not exist. <strong>A
+  mediocre model in a tool people use beats an excellent model in a notebook nobody can run.</strong>
+  Streamlit and Gradio exist for exactly this, and an afternoon spent on an interface routinely
+  outperforms a week spent on accuracy.</p>
+</div>
+
+<pre class="ascii">
+  WHAT A CHEMIST-FACING TOOL MUST DO
+
+   1. TAKE INPUT THE WAY THEY HAVE IT
+        a sketcher, a pasted SMILES, an uploaded SD file.
+        Not "provide a canonical SMILES via JSON".
+
+   2. SHOW THE MOLECULE
+        drawn, not as a string. They verify by looking.
+
+   3. GIVE A NUMBER AND A CONFIDENCE
+        ⭐ and an APPLICABILITY DOMAIN FLAG — "this compound is
+        outside what the model has seen" is the single most
+        useful thing the interface can say, and the thing most
+        internal tools omit.
+
+   4. EXPLAIN, A LITTLE
+        which features drove it, or the nearest training
+        molecules. "0.82" alone does not get acted on.
+
+   5. BE HONEST WHEN IT DOES NOT KNOW
+        a refusal is trusted. A confident wrong answer, once
+        discovered, ends the tool's career.
+
+  THE SHAPE THAT WORKS
+     FastAPI service holding the model + a thin Streamlit or
+     Gradio front end. The service is testable and reusable;
+     the front end is disposable and that is fine.
+</pre>
+
+<header class="part" id="part5">
+  <span class="pn">Part V</span>
+  <h2>Keeping models alive</h2>
+</header>
+
+<header class="mod" id="l14">
+  <span class="mn">Lesson 14</span>
+  <h2>Why chemical drift is not like other drift</h2>
+</header>
+
+<div class="bad">
+  <span class="tag">The difference that matters</span>
+  <p>In most ML, distribution drift is <em>gradual</em> — user behaviour shifts over months. In drug
+  discovery it is <strong>abrupt</strong>, and it is caused by the project succeeding. Hit finding
+  explores diverse scaffolds; lead optimisation then narrows onto one series and makes small changes to
+  it. <strong>The day the project moves from one phase to the next, the input distribution changes
+  overnight and your applicability domain no longer covers the compounds being submitted.</strong></p>
+</div>
+
+<div class="terms">
+  <dl>
+    <dt>Scaffold shift</dt><dd>A new chemical series appears whose core is absent from training data. The most common and most damaging form.</dd>
+    <dt>Property range expansion</dt><dd>Optimisation pushes compounds beyond the range the model ever saw — you are asking it to extrapolate precisely where you most want to be right.</dd>
+    <dt>Functional group novelty</dt><dd>A chemist introduces a group that never appeared in training.</dd>
+    <dt>Target switch</dt><dd>Someone reuses your model for a different biological target. The chemistry looks similar; the SAR is unrelated. This is a governance failure more than a technical one.</dd>
+  </dl>
+</div>
+
+<div class="note">
+  <span class="tag">And the cost asymmetry</span>
+  <p>A bad recommendation in an e-commerce model shows someone an irrelevant advert. A bad prediction
+  here sends a chemist to the bench for a week — on the order of <strong>$5,000–$10,000 of synthesis
+  effort per compound</strong> in a pharma setting — and, if it points a programme in the wrong
+  direction, costs months. <strong>That asymmetry is why applicability-domain reporting is not
+  optional in this field, however unusual it looks to an ML engineer arriving from another
+  industry.</strong></p>
+</div>
+
+<header class="mod" id="l15">
+  <span class="mn">Lesson 15</span>
+  <h2>Versioning what actually matters</h2>
+</header>
+
+<pre class="ascii">
+  A MODEL IS NOT REPRODUCIBLE UNLESS ALL FIVE ARE PINNED
+
+   1. CODE            git. The easy one, and the only one most
+                      teams do.
+
+   2. DATA            ⭐ THE ONE THAT IS ALWAYS MISSED.
+                      "ChEMBL" is not a version. ChEMBL 33 is.
+                      The database updates quarterly and your
+                      training set changes underneath you.
+                      -&gt; DVC, or a hashed immutable snapshot
+
+   3. THE SPLIT       the exact train/test assignment. A
+                      scaffold split with a different random
+                      seed is a different experiment, and
+                      "we get 0.82" is not reproducible without it.
+
+   4. ENVIRONMENT     ⭐ AND RDKit'S VERSION SPECIFICALLY.
+                      Descriptor implementations and aromaticity
+                      perception change between releases. The
+                      same molecule can yield different
+                      fingerprints under different RDKit
+                      versions — silently.
+
+   5. THE MODEL       weights plus hyperparameters plus the
+                      metrics it was accepted on.
+</pre>
+
+<header class="mod" id="l16">
+  <span class="mn">Lesson 16</span>
+  <h2>Monitoring, and the model card</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · what to monitor for a deployed QSAR model</span>
+  <div class="body">
+<pre><code>DAILY / PER PREDICTION
+    · applicability domain coverage
+      what fraction of today's submissions fall inside the
+      training distribution?
+      ⭐ THIS IS THE LEADING INDICATOR. It falls WEEKS before
+         accuracy does, because AD coverage degrades as soon as
+         the chemistry moves — while accuracy cannot be measured
+         until the assay results come back.
+    · prediction distribution — a sudden shift in the histogram
+      of outputs usually means the inputs changed
+    · scaffold novelty rate — how many submissions carry a core
+      never seen in training?
+
+WHEN ASSAY RESULTS ARRIVE (weeks later)
+    · actual accuracy on the compounds that were predicted
+    · accuracy INSIDE versus OUTSIDE the applicability domain,
+      reported separately — if they are the same, your AD
+      definition is not doing anything
+
+QUARTERLY
+    · retrain on the new data. ChEMBL updates; internal
+      screening adds results weekly.
+    · re-run the whole evaluation, not just the new part
+
+THE MODEL CARD — one page, versioned with the model
+    what it predicts · what it must NOT be used for · training
+    data and its version · the split strategy · metrics, with
+    the split they were measured under · the applicability
+    domain definition · known failure modes · owner and date
+
+⭐ THE "MUST NOT BE USED FOR" LINE IS THE MOST VALUABLE ONE,
+   because a model gets reused by someone who was not in the
+   room. Writing "not validated for covalent inhibitors or for
+   targets other than X" takes ten seconds and prevents the
+   single most common governance failure in this field.</code></pre>
+  </div>
+</div>
+
+<header class="mod" id="lmat2">
+  <span class="mn">Lesson 17</span>
+  <h2>Three materials problems worth recognising</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:22%">Problem</th><th style="width:34%">What is being predicted</th><th>Why ML is used here specifically</th></tr></thead>
+  <tbody>
+    <tr><td><strong>MOFs</strong><br><span class="lbl">metal-organic frameworks</span></td><td>Gas uptake and selectivity, for storage, separation and catalysis</td><td>Porous crystals with enormous design freedom: over 100,000 have been synthesised and <strong>more than 500,000 hypothetical structures computed.</strong> The search space is far too large to simulate exhaustively, which is the textbook case for a surrogate model.</td></tr>
+    <tr><td><strong>Solid-state electrolytes</strong></td><td><strong>Ionic conductivity</strong> above all, plus near-zero electronic conductivity, the electrochemical stability window, and mechanical properties</td><td>Oxide, sulfide, halide and polymer compositions give a vast space, and each DFT evaluation is expensive. An ML surrogate is what makes screening it possible at all.</td></tr>
+    <tr><td><strong>Catalysts</strong></td><td>Activity, selectivity and stability — three objectives that fight each other</td><td>Selectivity is usually the hard one, and the honest framing is multi-objective (Volume 11, Lesson 07) rather than a single score.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="tag">And one more database name</span>
+  <p><strong>NOMAD</strong> is the large open repository for computational materials data, built around
+  archiving raw calculation outputs rather than only curated properties. That distinction matters: it
+  makes recomputation and reanalysis possible, which is exactly the provenance problem Lesson 15 is
+  about.</p>
+</div>
+
+<header class="mod" id="lmulti">
+  <span class="mn">Lesson 18</span>
+  <h2>Multimodal — models that read and write about molecules</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">What they do</span>
+    <p><strong>Text2Mol</strong> and <strong>MolT5</strong> (Edwards et al., 2022) translate in both
+    directions between SMILES and natural-language descriptions: <em>molecule captioning</em> turns a
+    structure into prose, and the reverse turns a description into a candidate structure.</p></div>
+  <div class="b"><span class="k">Where this is genuinely useful</span>
+    <ul>
+      <li><strong>Retrieval.</strong> Searching a corpus by describing what you want — "a selective CDK4/6 inhibitor with a fluorinated aromatic" — rather than by substructure.</li>
+      <li>Linking structures to the literature that discusses them, which is a real and tedious task.</li>
+      <li>Annotating large libraries with human-readable summaries.</li>
+    </ul></div>
+  <div class="b junior"><span class="k">Where it is oversold</span>
+    <p>Text-to-molecule generation reads like magic in a demo and is unreliable in practice: the output
+    is a SMILES string subject to the same <strong>10–25% invalidity</strong> as any language-model
+    output, with no guarantee the molecule matches the description. It is a retrieval and annotation
+    tool, not a design tool.</p></div>
+  <div class="b check"><span class="k">The rule, unchanged</span>
+    <p>Validate every generated string with RDKit before anything downstream touches it — and let the
+    model decide <em>what</em> to compute rather than computing it.</p></div>
+</div>
+
+<header class="mod" id="mistakes">
+  <span class="mn">Reference</span>
+  <h2>The mistakes that cost most</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:28%">Mistake</th><th style="width:36%">Why it is wrong</th><th>The fix</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Trusting LLM-generated SMILES</strong></td><td>Invalid 10–25% of the time, and plausible-looking when wrong.</td><td>Validate with RDKit immediately, as a non-negotiable pipeline step.</td></tr>
+    <tr><td><strong>Letting an LLM compute properties</strong></td><td>It answers from memory, not arithmetic.</td><td>Tool-augmented pattern: the model decides what to compute, RDKit computes it.</td></tr>
+    <tr><td><strong>Using embeddings unchecked</strong></td><td>If the pretrained model never saw your chemistry, the vectors are noise and nothing complains.</td><td>Embed, project to 2D, colour by scaffold. A featureless blob means stop.</td></tr>
+    <tr><td><strong>Fine-tuning at a normal learning rate</strong></td><td>Catastrophic forgetting — you overwrite the knowledge you came for.</td><td><code>1e-5</code> on the encoder, warmup, watch both losses, or use LoRA.</td></tr>
+    <tr><td><strong>Benchmarking on a random split</strong></td><td>Structural leakage flatters foundation models badly.</td><td>Scaffold split. Report both and show the gap.</td></tr>
+    <tr><td><strong>Taking <code>[CLS]</code> by default</strong></td><td>MLM-only pretraining never gives it meaning.</td><td>Mean pooling unless the model was pretrained with a <code>[CLS]</code> objective.</td></tr>
+    <tr><td><strong>Treating DFT labels as measurements</strong></td><td>You learn to reproduce a simulation's systematic bias.</td><td>Say which you mean — agreement with DFT, or with experiment.</td></tr>
+    <tr><td><strong>Not versioning the data</strong></td><td>"ChEMBL" is not a version; the model is not reproducible.</td><td>Pin all five: code, data, split, environment (RDKit version), model.</td></tr>
+    <tr><td><strong>Monitoring accuracy only</strong></td><td>Accuracy is unmeasurable until assays return, weeks later.</td><td>Monitor applicability-domain coverage daily — it is the leading indicator.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="drill">
+  <span class="mn">Reference</span>
+  <h2>Rapid drill</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">One-sentence answers to have ready</div>
+<pre><code>Why does pretraining on unlabelled SMILES help?
+  Labelled chemistry is tiny and expensive; unlabelled is huge
+  and free. Predicting masked tokens forces the model to learn
+  valence, aromaticity and functional groups for free.
+
+How do I know a pretrained model covers my chemistry?
+  Embed your molecules, project to 2D, colour by scaffold. If
+  similar molecules cluster, fine. If it is a shapeless blob,
+  the model has not seen your chemistry — use fingerprints.
+
+Foundation model or task-specific model?
+  By dataset size. &lt;100 molecules: embeddings. 100-1,000: LoRA.
+  1,000-10,000: compare both. &gt;10,000: task-specific usually wins.
+
+Why is fine-tuning so easy to get wrong?
+  Catastrophic forgetting. Use ~1e-5 on the encoder, warmup, and
+  watch validation loss diverge after 1-2 epochs.
+
+Random or scaffold split?
+  Scaffold, always, for the headline number — random split leaks
+  structure and flatters pretrained models. Report both.
+
+What must an LLM never do?
+  Compute a chemical fact. It decides WHAT to compute; RDKit
+  computes it. And every LLM SMILES goes through MolFromSmiles.
+
+What makes a crystal different from a molecule?
+  Periodicity. It is infinite by repetition, has no SMILES, and
+  atoms bond across the unit cell boundary — which is why
+  molecular GNNs do not transfer.
+
+Why is BigSMILES needed?
+  Polymers are stochastic — variable chain lengths, random
+  copolymer sequences. SMILES describes an exact structure.
+
+What is the catch with materials databases?
+  Most labels are DFT calculations, not measurements. A high R2
+  means you reproduce the simulation, bias included.
+
+Exploration or exploitation?
+  Neither alone. Bayesian optimisation trades predicted value
+  against uncertainty — and in a lab you need BATCH selection
+  and real constraints too.
+
+Why is chemical drift different?
+  It is abrupt, not gradual. Moving from hit finding to lead
+  optimisation changes the input distribution overnight.
+
+What do you monitor on a deployed QSAR model?
+  Applicability-domain coverage, daily. It falls weeks before
+  accuracy, which cannot be measured until assays return.</code></pre>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 14 · The nine exercises</h4><p>Where the reading stops and the evidence starts — nine tasks written as real corporate briefs, with the traps deliberately planted and the worked solutions beside them.</p></div>
+  <div class="card"><h4>The source material</h4><p><code>phase-3-advanced-specialization/</code> files <code>22</code>–<code>25</code> (1,906 / 1,640 / 2,276 / 2,395 lines), carrying the ChemBERTa and LoRA code, the crystal-graph construction, the Bayesian optimiser, the FastAPI and Streamlit templates, and the DVC and model-registry setup.</p></div>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

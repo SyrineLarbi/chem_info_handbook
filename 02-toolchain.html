@@ -1,0 +1,839 @@
+<title>The Toolchain</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 02</p>
+  <p class="rail-sub">The toolchain</p>
+  <span class="rail-vol">Phase 0</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+
+  <div class="rail-group">I · Getting it installed</div>
+  <a href="#l1"><span class="n">01</span>Why conda, not pip</a>
+  <a href="#l2"><span class="n">02</span>The environment, step by step</a>
+  <a href="#l3"><span class="n">03</span>Proving it works</a>
+
+  <div class="rail-group">II · The stack</div>
+  <a href="#l4"><span class="n">04</span>What each library is for</a>
+  <a href="#l5"><span class="n">05</span>NumPy, the part you need</a>
+  <a href="#l6"><span class="n">06</span>pandas for chemical tables</a>
+  <a href="#l7"><span class="n">07</span>Plotting that tells the truth</a>
+
+  <div class="rail-group">III · Working habits</div>
+  <a href="#l8"><span class="n">08</span>Notebooks, and how they lie</a>
+  <a href="#l9"><span class="n">09</span>A project layout</a>
+  <a href="#l10"><span class="n">10</span>Making it reproducible</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#trouble"><span class="n">—</span>When it breaks</a>
+  <a href="#chk"><span class="n">—</span>Checkpoint</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 02 of 17 · phase 0</p>
+  <h1>The toolchain. <span class="thin">Get a working environment, then never fight it again.</span></h1>
+  <p class="lede">Chemistry libraries are unusual: they are thin Python wrappers around large C++
+  projects, which is why <code>pip install</code> has historically been a bad way to get them and why
+  this field standardised on conda. This volume gets you installed, explains why the instructions
+  are what they are, and covers the parts of NumPy and pandas that chemical data actually uses.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · Volume 01, and that you can write Python</span>
+    <span><b>Produces</b> · a working environment</span>
+    <span><b>Time</b> · 4–5 hours</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<div class="vol here"><span class="vn">Vol 02 · here</span><b>Toolchain</b></div>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<div class="obj">
+  <span class="cap">By the end of this volume you will be able to</span>
+  <ul>
+    <li>Create a conda environment with RDKit in it, and explain to someone else why conda rather than pip.</li>
+    <li>Run a five-line script that parses a molecule and computes its weight — the "hello world" of this field.</li>
+    <li>Use pandas to hold a table of molecules without corrupting them, which is less automatic than it sounds.</li>
+    <li>Lay out a project so that the model you build in Volume 08 is reproducible six months later.</li>
+  </ul>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>Getting it installed</h2>
+</header>
+
+<header class="mod" id="l1">
+  <span class="mn">Lesson 01</span>
+  <h2>Why conda, not pip</h2>
+</header>
+
+<p>Every tutorial tells you to use conda and none of them say why, which leaves you unable to
+judge when the advice stops applying. The reason is this:</p>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The underlying situation</span>
+    <p><strong>RDKit is a large C++ library.</strong> The Python package is a binding over it. So
+    installing it is not "download some Python files" — it is "obtain a compiled binary that matches
+    your operating system, your CPU architecture, and the exact versions of the C++ libraries it was
+    linked against". The same is true of the crystallography, quantum chemistry and molecular
+    dynamics tools you meet later.</p></div>
+  <div class="b"><span class="k">Why that favoured conda</span>
+    <p>pip historically packaged Python code and left non-Python dependencies to you. conda packages
+    <strong>anything</strong>, including compilers, C++ libraries and binary blobs, and it resolves
+    versions across all of them together. For a stack that is mostly compiled code with Python on
+    top, that difference was decisive.</p></div>
+  <div class="b junior"><span class="k">What has changed, honestly</span>
+    <p><code>pip install rdkit</code> now works on the common platforms, because the project publishes
+    wheels. So for RDKit alone, pip is fine. <strong>conda still wins as soon as you add a second
+    compiled tool</strong> — Open Babel, a docking engine, a quantum chemistry package — because that
+    is where the version conflicts appear and where conda's solver earns its keep.</p></div>
+  <div class="b check"><span class="k">The recommendation</span>
+    <p>Use <strong>conda (via miniforge)</strong> for this course. It costs you ten minutes now and
+    saves a day later, and it is what the job will use. Use pip <em>inside</em> the conda environment
+    for pure-Python packages that conda does not carry.</p></div>
+</div>
+
+<div class="note">
+  <span class="tag">miniforge, not Anaconda</span>
+  <p>Prefer <strong>miniforge</strong> — a minimal installer that defaults to the community
+  <code>conda-forge</code> channel. The full Anaconda distribution is large, and its default channels
+  carry licensing conditions for commercial use at organisations above a size threshold. miniforge
+  sidesteps both. Wherever you see <code>conda</code> below, <code>mamba</code> is a drop-in
+  replacement that resolves far faster, and miniforge ships it.</p>
+</div>
+
+<header class="mod" id="l2">
+  <span class="mn">Lesson 02</span>
+  <h2>The environment, step by step</h2>
+</header>
+
+<ol class="stepn">
+  <li><strong>Install miniforge</strong> for your platform, then close and reopen your terminal so
+  the <code>conda</code> command is on your path.</li>
+  <li><strong>Create an environment with a pinned Python.</strong> Do not install into
+  <code>base</code> — you want to be able to delete and rebuild without losing conda itself.</li>
+  <li><strong>Install the chemistry stack in one command</strong>, so the solver sees all the
+  constraints at once rather than being walked into a corner package by package.</li>
+  <li><strong>Register it as a Jupyter kernel</strong>, so notebooks can actually find it. Skipping
+  this is the single most common reason a notebook reports "No module named rdkit" while the terminal
+  imports it fine.</li>
+</ol>
+
+<div class="sheet">
+  <div class="cap">The four commands</div>
+<pre><code># 1. create — pin Python; chemistry packages lag the newest release
+conda create -n chem python=3.11 -y
+
+# 2. activate
+conda activate chem
+
+# 3. install everything at once, from conda-forge
+conda install -c conda-forge \
+    rdkit pandas numpy scipy scikit-learn matplotlib seaborn \
+    jupyterlab ipykernel py3dmol -y
+
+# 4. make it visible to Jupyter
+python -m ipykernel install --user --name chem --display-name "Python (chem)"</code></pre>
+</div>
+
+<div class="warn">
+  <span class="tag">Two things that will cost you an afternoon</span>
+  <p><strong>Pin the Python version.</strong> RDKit builds trail new Python releases by months. Ask
+  for <code>python=3.13</code> too early and conda will silently give you an RDKit from two years ago
+  — or fail to solve with a wall of text that does not say that is the problem.</p>
+  <p><strong>Install in one command, not four.</strong> Installing packages one at a time lets the
+  solver commit to a version that blocks the next package. When that happens the error appears on the
+  <em>last</em> package, which is never the one at fault.</p>
+</div>
+
+<header class="mod" id="l3">
+  <span class="mn">Lesson 03</span>
+  <h2>Proving it works</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · the five lines that confirm everything</span>
+  <div class="body">
+    <p class="q">Run this. If it prints the three numbers, your environment is correct and you can
+    stop thinking about installation.</p>
+<pre><code>from rdkit import Chem
+from rdkit.Chem import Descriptors
+
+mol = Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)O")   # aspirin
+print(Chem.MolToSmiles(mol))                         # canonical form
+print(Descriptors.MolWt(mol))                        # 180.159
+print(mol.GetNumAtoms())                             # 13</code></pre>
+    <p><strong>Read what each line proved:</strong></p>
+    <ul>
+      <li><code>MolFromSmiles</code> returned something other than <code>None</code> — the C++ parser
+      loaded and ran. This is the real test.</li>
+      <li><code>MolToSmiles</code> printed a SMILES that may <em>not</em> match what you typed. That is
+      correct and important: RDKit rewrites it into its own canonical form. Volume 03 explains why
+      that matters more than it looks.</li>
+      <li><code>MolWt</code> gave 180.159, so the periodic table data loaded.</li>
+      <li><code>GetNumAtoms()</code> gave <strong>13, not 21</strong> — hydrogens are implicit by
+      default. Aspirin is C₉H₈O₄: 9 + 4 = 13 heavy atoms. Remember this, because
+      "why does my atom count look wrong?" is a recurring beginner question.</li>
+    </ul>
+  </div>
+</div>
+
+<details class="try">
+  <summary>Try it · <code>Chem.MolFromSmiles("CC(=O)Oc1ccccc1C(=O)")</code> returns <code>None</code> and prints a warning. What went wrong, and why does RDKit return None rather than raising?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>The final oxygen is missing</strong> — the string ends <code>C(=O)</code> instead of
+    <code>C(=O)O</code>. That leaves a carbon with an unfillable valence, so the molecule is chemically
+    impossible and the sanitisation step rejects it.</p>
+    <p>It returns <code>None</code> rather than raising because <strong>you are usually parsing
+    100,000 molecules from a file and some of them are broken.</strong> An exception would abort the
+    batch; <code>None</code> lets you count and log the failures and carry on. The consequence is the
+    most important defensive habit in this field:</p>
+<pre><code>mol = Chem.MolFromSmiles(s)
+if mol is None:
+    bad.append(s)          # log it — never silently drop it
+    continue</code></pre>
+    <p><strong>Every loop over SMILES needs this check.</strong> Without it you get
+    <code>AttributeError: 'NoneType' object has no attribute ...</code> two hundred lines later, or
+    worse, a dataset that quietly lost 3% of its rows.</p>
+  </div>
+</details>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>The stack</h2>
+</header>
+
+<header class="mod" id="l4">
+  <span class="mn">Lesson 04</span>
+  <h2>What each library is for</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:17%">Library</th><th style="width:30%">Its one job</th><th>When you meet it</th></tr></thead>
+  <tbody>
+    <tr><td><strong>RDKit</strong></td><td>Everything structural: parse, draw, search, transform, compute descriptors and fingerprints.</td><td>Volumes 04–05, then constantly. The one non-negotiable tool.</td></tr>
+    <tr><td><strong>pandas</strong></td><td>The table. Compounds as rows, properties as columns.</td><td>From Volume 06 onwards, every dataset.</td></tr>
+    <tr><td><strong>NumPy</strong></td><td>The array. Fingerprints become matrices here.</td><td>Volume 05, and under everything else.</td></tr>
+    <tr><td><strong>scikit-learn</strong></td><td>Classical models — random forest, gradient boosting, SVM — plus splits and metrics.</td><td>Volume 08. Still the right default for most chemical datasets.</td></tr>
+    <tr><td><strong>matplotlib / seaborn</strong></td><td>Plots.</td><td>Volume 07, where chemical space gets visualised.</td></tr>
+    <tr><td><strong>py3Dmol</strong></td><td>Viewing 3D structures inside a notebook.</td><td>Volume 12, with proteins.</td></tr>
+    <tr><td><strong>PyTorch + PyTorch Geometric</strong></td><td>Neural networks on graphs.</td><td>Volume 10. Install later — it is a heavy dependency and you do not need it yet.</td></tr>
+    <tr><td><strong>DeepChem</strong></td><td>A batteries-included layer over the above, with datasets and standard splits built in.</td><td>Volume 10. Convenient; opinionated.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="l5">
+  <span class="mn">Lesson 05</span>
+  <h2>NumPy — the part chemistry actually uses</h2>
+</header>
+
+<p>You need a narrow slice of NumPy, but you need it reflexively, because <strong>a fingerprint is a
+vector and a set of fingerprints is a matrix</strong>, and almost every similarity computation is
+one line of array arithmetic.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · similarity as arithmetic, done by hand</span>
+  <div class="body">
+    <p class="q">Tanimoto similarity between two bit vectors is: shared bits ÷ (bits in either). Here
+    it is on toy 8-bit fingerprints, so you can see there is no magic in it.</p>
+<pre><code>import numpy as np
+
+a = np.array([1,0,1,1,0,0,1,0])     # molecule A's fingerprint
+b = np.array([1,0,1,0,0,1,1,0])     # molecule B's
+
+shared = np.sum(a &amp; b)              # bits ON in both      -> 3
+either = np.sum(a | b)              # bits ON in either    -> 5
+print(shared / either)              # 0.6
+
+# the same for 2,000 molecules against one query, vectorised:
+#   M is (2000, 2048), q is (2048,)
+# shared = M @ q                      -> (2000,) via matrix product
+# either = M.sum(1) + q.sum() - shared
+# sims   = shared / either            -> all 2,000 similarities, no loop</code></pre>
+    <p><strong>The second block is the lesson.</strong> The loop version of that takes seconds per
+    thousand molecules; the matrix version takes milliseconds. When Volume 09 screens two million
+    compounds, this is the difference between a coffee break and an overnight job — and the
+    formulation is identical, just applied to a matrix instead of a pair.</p>
+  </div>
+</div>
+
+<header class="mod" id="l6">
+  <span class="mn">Lesson 06</span>
+  <h2>pandas for chemical tables — and the trap in it</h2>
+</header>
+
+<p>A chemical dataset is a DataFrame with a SMILES column. That much is obvious. What is not obvious
+is how easily a round trip through a file corrupts it.</p>
+
+<div class="bad">
+  <span class="tag">The trap: pandas, CSVs and chemistry do not fully agree</span>
+  <ul>
+    <li><strong>A compound ID like <code>001234</code> becomes the integer 1234</strong> on read.
+    Leading zeros are gone, and the join against the assay file now silently misses.</li>
+    <li><strong>A SMILES containing a comma</strong> — they exist, inside brackets — breaks a naive
+    CSV split.</li>
+    <li><strong>Excel is worse.</strong> It will convert compound codes that look like dates, and it
+    mangles long numbers into scientific notation. Never let a chemical file pass through Excel
+    on its way to your model.</li>
+    <li><strong>A missing activity value read as the string <code>"NA"</code></strong> turns the whole
+    column into text, and then your model trains on nothing useful.</li>
+  </ul>
+  <p><strong>The habits:</strong> read IDs as strings explicitly (<code>dtype={'id': str}</code>),
+  prefer tab-separated or Parquet over CSV, and assert the row count and the parse-success count
+  after every load.</p>
+</div>
+
+<div class="wex">
+  <span class="cap">Worked example · a defensive load</span>
+  <div class="body">
+<pre><code>import pandas as pd
+from rdkit import Chem
+
+df = pd.read_csv("compounds.csv", dtype={"compound_id": str})
+print(f"loaded {len(df)} rows")
+
+df["mol"] = df["smiles"].apply(Chem.MolFromSmiles)
+
+bad = df["mol"].isna().sum()
+print(f"{bad} of {len(df)} SMILES failed to parse")
+if bad / len(df) &gt; 0.02:
+    raise ValueError("more than 2% unparseable — check the file, do not proceed")
+
+df = df[df["mol"].notna()].copy()</code></pre>
+    <p><strong>The threshold is the point.</strong> A few failures are normal. Twenty percent means
+    you are reading the wrong column, or the file uses a different format, or the encoding is wrong —
+    and finding that out now is much cheaper than explaining a bad model later. Volume 06 builds this
+    into a full curation pipeline.</p>
+  </div>
+</div>
+
+<header class="mod" id="l7">
+  <span class="mn">Lesson 07</span>
+  <h2>Plots that tell the truth about chemical data</h2>
+</header>
+
+<p>Two rules cover most of it, and both come from the shape chemical data tends to have:</p>
+
+<div class="grid2">
+  <div class="card"><h4>Log-scale almost everything</h4><p>Potencies, solubilities and concentrations span orders of magnitude. On a linear axis, every compound worth looking at is crushed into the bottom 2% of the plot. This is why the field converts IC₅₀ to pIC₅₀ before doing anything — it makes the quantity approximately normal <em>and</em> plottable.</p></div>
+  <div class="card"><h4>Show the distribution, not the summary</h4><p>A bar chart of mean activity per series hides that one series is bimodal — which usually means two binding modes, or two assays merged, and is the most interesting thing in the data. Use a strip plot or a box plot with points overlaid.</p></div>
+</div>
+
+<div class="note">
+  <span class="tag">One chemistry-specific habit</span>
+  <p><strong>Always be able to get from a point on a plot back to the molecule.</strong> An outlier is
+  not noise to be trimmed — it is a compound, with a structure, and looking at it is how you discover
+  that your data has a problem or your project has a finding. Keep the index aligned, and prefer
+  plotting tools that let you hover for the structure.</p>
+</div>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>Working habits</h2>
+</header>
+
+<header class="mod" id="l8">
+  <span class="mn">Lesson 08</span>
+  <h2>Notebooks, and the specific way they lie</h2>
+</header>
+
+<p>Notebooks are right for this work — you are looking at molecules, and seeing structures inline is
+genuinely valuable. But they have one failure mode that matters more in science than elsewhere:</p>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The problem</span>
+    <p><strong>The visible order of cells is not the order they ran in.</strong> A notebook showing a
+    clean result may depend on a cell you edited after running it, or deleted. The document looks like
+    a record of what happened and is not one.</p></div>
+  <div class="b"><span class="k">Why it is worse here</span>
+    <p>Because the output <em>is</em> the claim. "This model achieves an AUC of 0.83" gets copied into
+    a slide, then into a decision about what to synthesise. If the number came from a stale variable,
+    nobody will ever find out.</p></div>
+  <div class="b check"><span class="k">The three habits that fix it</span>
+    <ul>
+      <li><strong>Restart and run all before you believe any number you intend to report.</strong> Not occasionally — every time.</li>
+      <li><strong>Move anything reused into a <code>.py</code> module</strong> and import it. Functions in a notebook are copied; functions in a module are shared and testable.</li>
+      <li><strong>Notebooks explore; scripts produce.</strong> Once a pipeline works, it moves into a script that runs start to finish with no human in it.</li>
+    </ul></div>
+</div>
+
+<header class="mod" id="l9">
+  <span class="mn">Lesson 09</span>
+  <h2>A project layout that survives contact</h2>
+</header>
+
+<pre class="ascii">
+  project/
+    data/
+      raw/            &lt;-- exactly as downloaded. NEVER edited. Read-only.
+      interim/        &lt;-- parsed, standardised, still one row per source record
+      processed/      &lt;-- model-ready; the file the training script actually opens
+    notebooks/        &lt;-- numbered, exploratory, disposable
+    src/
+      data.py         &lt;-- loading and curation
+      features.py     &lt;-- descriptors and fingerprints
+      models.py       &lt;-- training and evaluation
+      splits.py       &lt;-- scaffold splitting  (its own file — you will reuse it everywhere)
+    models/           &lt;-- saved models, each with its metrics and data version beside it
+    reports/
+      figures/
+    environment.yml   &lt;-- the exact environment, exported
+    README.md         &lt;-- what the model does, and what it does NOT cover
+
+  THE RULE THAT MATTERS MOST:  data/raw/ is immutable.
+    Every cleaning decision is a step in code from raw -> interim -> processed,
+    so that six months later you can answer "why is this compound missing?"
+    by reading the pipeline instead of guessing.
+</pre>
+
+<header class="mod" id="l10">
+  <span class="mn">Lesson 10</span>
+  <h2>Making it reproducible — the chemistry-specific parts</h2>
+</header>
+
+<p>Standard reproducibility advice applies: pin versions, set seeds, version the data. Three things
+are specific to this field and are the ones people forget:</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:28%">Pin this too</th><th>Because</th></tr></thead>
+  <tbody>
+    <tr><td><strong>The RDKit version</strong></td><td>Descriptor implementations and aromaticity perception have changed between releases. The same molecule can get a different fingerprint from a different RDKit, which silently invalidates a saved model. Record it next to the model, always.</td></tr>
+    <tr><td><strong>The exact fingerprint parameters</strong></td><td>A Morgan fingerprint is defined by its radius and bit length. A model trained on radius 2 / 2048 bits and served radius 3 / 1024 bits will not error — it will just be wrong. Store the parameters <em>with</em> the model, not in a separate notebook.</td></tr>
+    <tr><td><strong>The standardisation recipe</strong></td><td>Whether you stripped salts, neutralised charges, and which tautomer rule you used, changes what the molecule <em>is</em>. Two people with the same raw file and different recipes get different models. Volume 06 makes this a named, versioned step.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="good">
+  <span class="tag">The one-line summary of this lesson</span>
+  <p><strong>A saved model is not a file, it is a file plus the recipe that made its inputs.</strong>
+  Save them together and you can trust a prediction a year later. Save the model alone and you have a
+  function whose input format you will eventually guess wrong.</p>
+</div>
+
+<header class="mod" id="trouble">
+  <span class="mn">Reference</span>
+  <h2>When it breaks — the five common failures</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:34%">Symptom</th><th>Cause and fix</th></tr></thead>
+  <tbody>
+    <tr><td><code>ModuleNotFoundError: rdkit</code> in a notebook, but it imports fine in the terminal</td><td>The notebook is running a different kernel. Register the environment (step 4 of Lesson 02) and select it from the kernel menu.</td></tr>
+    <tr><td>conda hangs for many minutes on "Solving environment"</td><td>Too many loose constraints, or mixed channels. Use <code>mamba</code>, stick to <code>conda-forge</code> alone, and pin Python.</td></tr>
+    <tr><td><code>AttributeError: 'NoneType' has no attribute 'GetNumAtoms'</code></td><td>A SMILES failed to parse and you did not check for <code>None</code>. Add the guard from Lesson 03.</td></tr>
+    <tr><td>Molecules render as blank boxes in Jupyter</td><td>Drawing needs <code>from rdkit.Chem.Draw import IPythonConsole</code> imported once to register the renderer.</td></tr>
+    <tr><td>Descriptor values differ from a colleague's on the same molecule</td><td>Different RDKit versions, or one of you standardised and the other did not. Compare canonical SMILES first — if those differ, the molecules differ.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="chk" id="chk">
+  <span class="cap">Checkpoint · you should now be able to</span>
+  <ul>
+    <li>Build a conda environment with RDKit and justify conda over pip in one sentence.</li>
+    <li>Parse aspirin and get 180.159 and 13 atoms — and say why it is 13 and not 21.</li>
+    <li>Write the four-line guard that every loop over SMILES needs.</li>
+    <li>Name the three things to pin alongside a chemical model that people usually forget.</li>
+  </ul>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 03 · How a molecule becomes data</h4><p>SMILES properly — aromaticity, stereochemistry, canonicalisation — plus SMARTS, InChI and the file formats. The volume everything structural depends on.</p></div>
+  <div class="card"><h4>The source material</h4><p><code>phase-0-setup/02-development-environment-setup.md</code> (2,051 lines) and <code>03-scientific-python-for-chemists.md</code> (2,220 lines), which carry the fuller NumPy and SciPy treatment.</p></div>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

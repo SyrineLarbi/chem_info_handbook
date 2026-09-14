@@ -1,0 +1,929 @@
+<title>Virtual Screening and ADMET</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 09</p>
+  <p class="rail-sub">Virtual screening and ADMET</p>
+  <span class="rail-vol">Phase 2</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+
+  <div class="rail-group">I · Virtual screening</div>
+  <a href="#l1"><span class="n">01</span>The two families</a>
+  <a href="#l2"><span class="n">02</span>The cascade</a>
+  <a href="#l3"><span class="n">03</span>Preparing the library</a>
+  <a href="#l4"><span class="n">04</span>Ligand-based methods</a>
+  <a href="#l5"><span class="n">05</span>Measuring enrichment</a>
+  <a href="#l6"><span class="n">06</span>Triage and what to buy</a>
+
+  <div class="rail-group">II · ADMET</div>
+  <a href="#l7"><span class="n">07</span>Why it matters more than potency</a>
+  <a href="#l8"><span class="n">08</span>The endpoints</a>
+  <a href="#l9"><span class="n">09</span>hERG, in detail</a>
+  <a href="#l10"><span class="n">10</span>Modelling ADMET</a>
+  <a href="#l11"><span class="n">11</span>Multi-parameter optimisation</a>
+
+  <a href="#lagg"><span class="n">12</span>Colloidal aggregation</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#chk"><span class="n">—</span>Checkpoint</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 09 of 17 · phase 2</p>
+  <h1>Virtual screening and ADMET. <span class="thin">Narrowing millions, then killing the survivors early.</span></h1>
+  <p class="lede">Two halves of the same discipline. Screening takes a library too large to test and
+  produces a list you can afford to buy. ADMET takes a potent molecule and asks whether it could ever
+  be a drug — which is where most candidates actually die, long after potency stopped being the
+  problem.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · Volumes 01–08</span>
+    <span><b>Teaches</b> · cascades, enrichment, ADMET endpoints</span>
+    <span><b>Time</b> · 6–8 hours</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<div class="vol here"><span class="vn">Vol 09 · here</span><b>Screening &amp; ADMET</b></div>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<div class="obj">
+  <span class="cap">By the end of this volume you will be able to</span>
+  <ul>
+    <li>Design a screening cascade that puts the cheap filters first, and say why the order is forced.</li>
+    <li>Compute an enrichment factor and explain it to someone who controls a budget.</li>
+    <li>Name the ADMET endpoints that kill compounds, and what each one physically means.</li>
+    <li>Explain hERG well enough to say why it is checked before anything else.</li>
+    <li>Handle the multi-objective problem without collapsing it into a single misleading score.</li>
+  </ul>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>Virtual screening</h2>
+</header>
+
+<header class="mod" id="l1">
+  <span class="mn">Lesson 01</span>
+  <h2>The two families</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:22%">Approach</th><th style="width:26%">Needs</th><th style="width:24%">Asks</th><th>Use when</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Ligand-based</strong></td>
+      <td>Known active molecules</td>
+      <td>"What else looks like these?"</td>
+      <td><strong>You have actives but no protein structure.</strong> Fast, robust, the workhorse.</td>
+    </tr>
+    <tr>
+      <td><strong>Structure-based</strong></td>
+      <td>A 3D protein structure</td>
+      <td>"What fits in this pocket?"</td>
+      <td>You have a structure and few or no known actives. Slower, more assumptions, can find genuinely novel chemistry. Volume 12.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="good">
+  <span class="tag">The practical answer is usually "both"</span>
+  <p><strong>Use ligand-based to rank fast, structure-based to check the survivors.</strong> Docking
+  two million compounds is expensive; docking the twenty thousand that a similarity search already
+  liked is cheap, and the two methods fail differently — so agreement between them is genuine
+  evidence in a way that either alone is not.</p>
+</div>
+
+<header class="mod" id="l2">
+  <span class="mn">Lesson 02</span>
+  <h2>The cascade — and why the order is forced</h2>
+</header>
+
+<pre class="ascii">
+  2,000,000  purchasable compounds
+       |
+       |  1. PROPERTY FILTERS          milliseconds each
+       |     lead-like ranges, element whitelist, size bounds
+       v
+  1,200,000
+       |
+       |  2. STRUCTURAL ALERTS         milliseconds
+       |     PAINS, reactive groups, unwanted substructures
+       v
+    950,000
+       |
+       |  3. LIGAND-BASED RANKING      microseconds each, in bulk
+       |     similarity to knowns, or a trained QSAR model
+       v
+     20,000    (top 2%)
+       |
+       |  4. DOCKING                   seconds to minutes EACH
+       |     -- this is why it comes fourth, not first
+       v
+      2,000
+       |
+       |  5. CLUSTER, THEN PICK        Volume 07, Lesson 06
+       |     + a human chemist looking at every one
+       v
+        500  compounds to buy and test
+
+  ⭐ THE ORDERING RULE: CHEAPEST FILTER FIRST, ALWAYS.
+     Docking 2M compounds at 10 seconds each is 231 CPU-days.
+     Docking 20,000 is 2.3 days. The cascade exists to make
+     the expensive step affordable — and every stage must
+     therefore be cheaper than the one after it.
+</pre>
+
+<div class="warn">
+  <span class="tag">The cost of a cascade: errors compound downward</span>
+  <p><strong>A compound wrongly removed at stage 1 can never be recovered at stage 5.</strong> The
+  cascade multiplies your false-negative rate at every stage, and — per Volume 01 — you will never
+  find out. So <strong>early filters must be loose and defensible</strong>, and the aggressive
+  discrimination belongs late, where you still have the option of looking at what you are
+  discarding.</p>
+</div>
+
+<header class="mod" id="l3">
+  <span class="mn">Lesson 03</span>
+  <h2>Preparing the library</h2>
+</header>
+
+<p>A vendor catalogue is not ready to screen. The preparation is Volume 06's curation with three
+additions:</p>
+
+<ol class="stepn">
+  <li><strong>Standardise</strong> — desalt, neutralise, canonical tautomer. Exactly as before.</li>
+  <li><strong>Enumerate what is ambiguous.</strong> A compound supplied with unspecified stereochemistry
+  is really several compounds; a compound with an ionisable group exists as several
+  <strong>protonation states</strong> at physiological pH. For docking, the state you choose changes
+  the result, so generate the plausible states rather than silently picking one.</li>
+  <li><strong>Generate conformers, if docking.</strong> Per Volume 03, a flexible molecule has no
+  single shape. Most docking programs handle flexibility internally; shape-based methods need an
+  explicit conformer ensemble.</li>
+</ol>
+
+<div class="note">
+  <span class="tag">The number that surprises people</span>
+  <p><strong>Library preparation can multiply your compound count several-fold.</strong> Two
+  stereocentres unspecified plus two ionisable groups can turn one catalogue entry into a dozen
+  structures to evaluate. Budget for it, and keep the mapping back to the original catalogue ID —
+  because at the end you have to order something, and the vendor sells the entry, not your enumerated
+  variant.</p>
+</div>
+
+<header class="mod" id="l4">
+  <span class="mn">Lesson 04</span>
+  <h2>Ligand-based methods</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:24%">Method</th><th style="width:30%">How it ranks</th><th>Strength and weakness</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Similarity search</strong></td><td>Tanimoto to one or more known actives</td><td>Trivial, fast, effective. Finds analogues — so it will not find new scaffolds.</td></tr>
+    <tr><td><strong>Similarity ensemble</strong></td><td>Maximum or mean similarity across all known actives</td><td>Better coverage than a single query. Max is usually preferred; mean dilutes a strong match.</td></tr>
+    <tr><td><strong>Trained QSAR model</strong></td><td>Predicted activity from Volume 08</td><td>Uses inactives too, so it learns what <em>not</em> to pick. <strong>Watch the applicability domain</strong> — most of a 2M library is outside it.</td></tr>
+    <tr><td><strong>Pharmacophore</strong></td><td>Matching a 3D arrangement of features — donor here, ring there, at these distances</td><td><strong>Can find new scaffolds</strong>, because it abstracts away the chemistry and keeps the geometry. Needs conformers and careful model building.</td></tr>
+    <tr><td><strong>Shape similarity</strong></td><td>3D volume overlap with a known active</td><td>Also scaffold-hopping. Conformer-dependent.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="wex">
+  <span class="cap">Worked example · similarity screening at scale</span>
+  <div class="body">
+<pre><code>from rdkit import DataStructs
+
+# known actives -> fingerprints
+query_fps = [gen.GetFingerprint(m) for m in known_actives]
+
+# score = the BEST similarity to ANY known active
+scores = []
+for fp in library_fps:                       # 2,000,000 of them
+    best = max(DataStructs.BulkTanimotoSimilarity(fp, query_fps))
+    scores.append(best)
+
+top = np.argsort(scores)[::-1][:20000]       # top 1%</code></pre>
+    <p><strong>Two practical notes.</strong> Use <code>BulkTanimotoSimilarity</code> — the loop runs
+    in C++ and the Python version is roughly a hundred times slower, which is the difference between
+    an hour and a week. And store the library's fingerprints once, on disk, rather than recomputing
+    them for every campaign.</p>
+    <p><strong>One conceptual note.</strong> Taking the <em>maximum</em> similarity means one very
+    similar active is enough. That is usually right for finding analogues and is exactly why this
+    method will not give you a new scaffold — it is structurally incapable of it.</p>
+  </div>
+</div>
+
+<header class="mod" id="l5">
+  <span class="mn">Lesson 05</span>
+  <h2>Measuring enrichment — the metric that convinces people</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · enrichment, worked through</span>
+  <div class="body">
+<pre><code>SETUP
+  library            100,000 compounds
+  actives in it        1,000  (1% — the base rate)
+  you test the top     1,000  (1%) of your ranking
+  actives found          150
+
+ENRICHMENT FACTOR AT 1%
+
+  hit rate in your selection   = 150 / 1,000   = 15%
+  hit rate at random           = 1,000/100,000 =  1%
+
+  EF(1%) = 15% / 1% = 15x
+
+WHAT THAT IS WORTH, IN THE LANGUAGE OF A BUDGET
+
+  to find 150 actives at random you would test 15,000 compounds
+  you tested 1,000
+  at ~$50 per compound tested, that is $700,000 saved
+
+⭐ THIS IS THE SENTENCE THAT JUSTIFIES YOUR JOB. Learn to say it.
+   "15-fold enrichment" means nothing to a director; "we found the
+   same number of hits for one fifteenth of the cost" does.</code></pre>
+    <p><strong>Typical numbers, so you can calibrate:</strong> 10–50× for ligand-based screening with
+    good known actives; 2–10× for docking against a decent structure; 100×+ is excellent and worth
+    double-checking for a leak or an easy benchmark.</p>
+  </div>
+</div>
+
+<div class="bad">
+  <span class="tag">Two ways enrichment numbers get inflated</span>
+  <p><strong>Analogue bias.</strong> If your test actives are close analogues of your query actives,
+  a similarity search finds them trivially and the enrichment means nothing about prospective
+  performance. Benchmark on actives from a <em>different</em> series.</p>
+  <p><strong>Decoy bias.</strong> Benchmark sets like DUD-E pair actives with property-matched
+  "decoys" that are assumed inactive. Known analyses have shown such sets carry biases a model can
+  exploit — learning to tell actives from decoys rather than actives from inactives. Good scores on
+  these benchmarks transfer to reality less well than they appear to.</p>
+</div>
+
+<header class="mod" id="l6">
+  <span class="mn">Lesson 06</span>
+  <h2>Triage — choosing what to actually buy</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The score is not the selection</span>
+    <p>Taking the top 500 by score gives you 500 near-identical compounds and one hypothesis. If the
+    hypothesis is wrong, you learn nothing from any of them.</p></div>
+  <div class="b"><span class="k">The standard procedure</span>
+    <ol>
+      <li>Take the top few thousand by score.</li>
+      <li><strong>Cluster them</strong> (Volume 07, Lesson 04).</li>
+      <li>Take the best 2–3 from each cluster — so you buy many hypotheses, not one.</li>
+      <li><strong>Apply ADMET and structural filters now</strong>, not earlier. A compound that fails
+      a filter but scores superbly is worth a human look.</li>
+      <li><strong>A chemist looks at every structure.</strong> This step is never skipped, and it is
+      not a formality.</li>
+    </ol></div>
+  <div class="b check"><span class="k">Why the human step survives</span>
+    <p>Because a chemist spots in two seconds things no filter encodes: a compound that will decompose
+    in DMSO, a reactive group in a context your SMARTS missed, a structure that is obviously a dye, a
+    compound that looks like something the group tried in 2019. <strong>Expect roughly 10–30% of your
+    computational picks to be rejected on sight, and treat that as information about your filters
+    rather than as an insult.</strong></p></div>
+</div>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>ADMET</h2>
+</header>
+
+<header class="mod" id="l7">
+  <span class="mn">Lesson 07</span>
+  <h2>Why ADMET matters more than potency</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The historical lesson</span>
+    <p>In the early 1990s, a large share of clinical failures were <strong>pharmacokinetic</strong> —
+    the compound worked in a test tube and never reached its target in a human. The industry responded
+    by screening ADMET properties early, and PK-driven attrition fell substantially.</p></div>
+  <div class="b"><span class="k">What replaced it</span>
+    <p>Attrition did not go away; it moved. Today the dominant causes are <strong>lack of efficacy</strong>
+    and <strong>safety</strong>. But the lesson stands and generalises:</p>
+    <p><strong>Potency is the easiest property to optimise and the least likely to be what kills
+    you.</strong> Chemists can usually make something more potent. Making it soluble, absorbable,
+    stable in the body, and non-toxic — while keeping the potency — is the hard part.</p></div>
+  <div class="b check"><span class="k">What this means for your models</span>
+    <p><strong>An ADMET model that flags a problem in month three is worth more than a potency model
+    that gains 0.3 log units.</strong> It is also usually easier to build well: ADMET endpoints have
+    large, consistent public datasets measured by standard assays, which is exactly what Volume 08
+    said chemical data usually lacks.</p></div>
+</div>
+
+<header class="mod" id="l8">
+  <span class="mn">Lesson 08</span>
+  <h2>The endpoints</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:10%">Letter</th><th style="width:22%">Endpoint</th><th style="width:30%">What it physically means</th><th>How it kills a compound</th></tr></thead>
+  <tbody>
+    <tr><td rowspan="3"><strong>A</strong><br><span style="font-size:14px;">absorption</span></td><td>Aqueous solubility</td><td>Will it dissolve at all?</td><td>Undissolved drug is not absorbed. The most common single problem, and it worsens as chemists add greasy groups for potency.</td></tr>
+    <tr><td>Caco-2 / PAMPA permeability</td><td>Can it cross a cell membrane?</td><td>Measured on a gut-cell layer. Poor permeability means an oral dose stays in the gut.</td></tr>
+    <tr><td>P-gp substrate</td><td>Is it actively pumped back out?</td><td>A transporter that ejects foreign molecules. Also keeps drugs out of the brain.</td></tr>
+    <tr><td rowspan="2"><strong>D</strong><br><span style="font-size:14px;">distribution</span></td><td>Plasma protein binding</td><td>What fraction is stuck to blood proteins?</td><td>Only the free fraction works. 99.9% bound means a thousandth of the dose is active.</td></tr>
+    <tr><td>Blood–brain barrier</td><td>Does it reach the brain?</td><td>Required for CNS drugs, and a liability for everything else — brain exposure causes side effects.</td></tr>
+    <tr><td rowspan="2"><strong>M</strong><br><span style="font-size:14px;">metabolism</span></td><td>Microsomal stability / clearance</td><td>How fast does the liver destroy it?</td><td>Too fast and it is gone before it works. Drives dosing frequency.</td></tr>
+    <tr><td>CYP450 inhibition</td><td>Does it block the enzymes that metabolise <em>other</em> drugs?</td><td><strong>Drug–drug interactions.</strong> Blocking CYP3A4 can make a patient's other medication accumulate to toxic levels.</td></tr>
+    <tr><td><strong>E</strong><br><span style="font-size:14px;">excretion</span></td><td>Half-life, renal clearance</td><td>How long it stays in the body</td><td>Determines whether it is once-daily or four-times-daily — a commercial question as much as a scientific one.</td></tr>
+    <tr><td rowspan="3"><strong>T</strong><br><span style="font-size:14px;">toxicity</span></td><td><strong>hERG</strong></td><td>Does it block a cardiac potassium channel?</td><td><strong>Fatal arrhythmia.</strong> The most feared single liability — see Lesson 09.</td></tr>
+    <tr><td>Ames test</td><td>Is it mutagenic?</td><td>A bacterial assay for DNA damage. A positive is usually programme-ending.</td></tr>
+    <tr><td>Hepatotoxicity</td><td>Does it damage the liver?</td><td>The leading cause of post-approval withdrawal, and the hardest to predict from structure.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="l9">
+  <span class="mn">Lesson 09</span>
+  <h2>hERG — the liability worth understanding properly</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · why one channel gets its own lesson</span>
+  <div class="body">
+<pre><code>WHAT IT IS
+  hERG is a potassium channel in heart muscle. It helps reset the
+  electrical cycle of each heartbeat.
+
+WHAT GOES WRONG
+  Block it  ->  the reset is delayed  ->  the QT interval on an ECG
+  lengthens  ->  risk of torsades de pointes, a potentially fatal
+  arrhythmia.
+
+WHY IT IS SO COMMON
+  The hERG channel's binding site is large, greasy and accommodating.
+  It binds an unusually wide range of molecules -- and the features
+  that make a compound bind hERG (basic nitrogen, aromatic rings,
+  lipophilicity) are the SAME features chemists add to improve
+  potency and permeability.
+
+  So hERG liability tends to INCREASE as a project optimises
+  everything else. It is not an unlucky accident; it is a
+  structural tension in the optimisation.
+
+THE HISTORY
+  Several drugs -- terfenadine and cisapride among them -- were
+  withdrawn or restricted over QT prolongation. Regulators now
+  require cardiac safety assessment for essentially every new drug.
+
+⭐ CONSEQUENCE FOR YOU: hERG is checked EARLY and often, and a
+   hERG model is one of the most-used models in any pharma
+   company. It is also a good first ADMET model to build: the
+   public data is plentiful and the endpoint is well defined.</code></pre>
+  </div>
+</div>
+
+<header class="mod" id="l10">
+  <span class="mn">Lesson 10</span>
+  <h2>Modelling ADMET — what is different</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:30%">Compared with a QSAR model…</th><th>What changes</th></tr></thead>
+  <tbody>
+    <tr><td><strong>The data is better</strong></td><td>Standard assays, run consistently, often thousands of compounds. Less between-lab chaos than literature IC₅₀ data.</td></tr>
+    <tr><td><strong>The data is more diverse</strong></td><td>ADMET is measured on compounds from many projects, so the applicability domain is genuinely broad — a rare luxury.</td></tr>
+    <tr><td><strong>Physicochemical descriptors work well</strong></td><td>Solubility and permeability are driven by bulk properties — size, polarity, greasiness — so descriptors carry real signal and interpretability, unlike in target binding.</td></tr>
+    <tr><td><strong>Classification often beats regression</strong></td><td>The decision is usually "is this a problem?" — a three-bin answer (low / medium / high risk) is more honest and more useful than a precise number nobody believes.</td></tr>
+    <tr><td><strong>Being wrong costs differently</strong></td><td>A false <em>negative</em> on hERG lets a dangerous compound through. A false positive kills a good one. These are not symmetric, and the threshold should reflect that — usually by being conservative on safety endpoints.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="tag">Off-the-shelf options</span>
+  <p>Several free tools — SwissADME, pkCSM, ADMETlab among them — predict a panel of these endpoints
+  from a SMILES. <strong>Use them for orientation and never as evidence.</strong> Their applicability
+  domains are undocumented for your chemistry, and their confident single numbers invite exactly the
+  overinterpretation Volume 08 warned about. If a property matters to the project, build the model on
+  data you can inspect.</p>
+</div>
+
+<header class="mod" id="l11">
+  <span class="mn">Lesson 11</span>
+  <h2>Multi-parameter optimisation</h2>
+</header>
+
+<p>A real compound must be potent <em>and</em> soluble <em>and</em> permeable <em>and</em> stable
+<em>and</em> not hit hERG. Five objectives that trade against each other — adding lipophilicity
+improves permeability and worsens solubility and hERG.</p>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The naive approach, and why it fails</span>
+    <p>Combine everything into one weighted score and rank by it. <strong>The problem is that the
+    weights are invented</strong>, and a single number hides which property is failing — so the
+    chemist cannot act on it. A compound scoring 0.4 because it is insoluble and one scoring 0.4
+    because it hits hERG need completely different responses.</p></div>
+  <div class="b"><span class="k">What works better: the property profile</span>
+<pre><code>compound   pIC50   logS    perm   CYP3A4   hERG    verdict
+   A        8.2    -5.8    high    clean    5.1 uM   promising
+   B        8.9    -7.1    low     inhib    0.8 uM   potent, otherwise bad
+   C        7.1    -4.2    high    clean   &gt;30 uM    weaker, clean --> OPTIMISE THIS
+
+⭐ COMPOUND C IS THE RIGHT STARTING POINT, and a single combined
+   score would have ranked B first. Potency is the easiest property
+   to improve; a clean safety profile is the hardest to recover.</code></pre></div>
+  <div class="b check"><span class="k">The two techniques worth knowing</span>
+    <p><strong>Pareto fronts.</strong> Find the compounds that are not beaten on every objective by
+    some other compound. That set is the honest answer to "what are my options?", and it requires no
+    invented weights.</p>
+    <p><strong>Desirability functions.</strong> If you must have one number, map each property onto
+    0–1 through a curve that encodes what "good" means for <em>that</em> property, then combine.
+    Better than raw weighting because the curves are explicit and arguable — but always keep the
+    components beside the score.</p></div>
+</div>
+
+<details class="try">
+  <summary>Try it · Your screening funnel takes 2 million compounds down to 50. The team is pleased. What single number should you report alongside it?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>The enrichment — how many more actives are in your 50 than chance would give — and, if
+    you cannot estimate it, say so plainly.</strong></p>
+<pre><code>WHY THE FUNNEL ALONE PROVES NOTHING
+   Any set of filters reduces 2,000,000 to 50. Sorting by
+   molecular weight and taking the top 50 does it too. The
+   reduction is not the achievement — the ENRICHMENT is.
+
+WHERE THE NUMBER COMES FROM
+   Retrospective validation: known actives spiked into
+   property-matched decoys, run through the SAME funnel.
+   Report enrichment at 1%, because the top of the list is
+   the only part anyone will buy.
+
+AND THE HONEST VERSION WHEN YOU CANNOT
+   "We have no known actives for this target, so the funnel
+    is unvalidated. These 50 are a prioritised hypothesis,
+    not an enriched set."
+   ⭐ That sentence costs nothing and protects everyone —
+      including you, in six months.</code></pre>
+    <p>The second number worth volunteering: <strong>how many distinct scaffolds are in the 50?</strong>
+    If the answer is four, you are proposing to test four ideas, not fifty.</p>
+  </div>
+</details>
+
+<header class="mod" id="lagg">
+  <span class="mn">Lesson 12</span>
+  <h2>Colloidal aggregation — the artefact behind many false positives</h2>
+</header>
+
+<div class="bad">
+  <span class="tag">The mechanism, because it explains the whole problem</span>
+  <p>Some compounds clump together in aqueous buffer into <strong>colloidal aggregates</strong> — particles
+  tens to hundreds of nanometres across. Those particles adsorb protein onto their surface and
+  sequester it. The enzyme stops working, the assay reports inhibition, and <strong>the compound
+  looks like a hit while having no specific interaction with the target at all.</strong></p>
+</div>
+
+<pre class="ascii">
+  WHY IT MATTERS MORE THAN ITS REPUTATION SUGGESTS
+
+    · it is one of the largest single sources of false
+      positives in high-throughput screening
+    · it is CONCENTRATION-DEPENDENT, so it appears at screening
+      concentrations and vanishes on follow-up — which reads as
+      "irreproducible assay" rather than "aggregation"
+    · aggregators are often flat, greasy and poorly soluble —
+      exactly the molecules that also score well in docking
+
+  THE RISK PROFILE TO FLAG
+
+    high logP  +  low aqueous solubility  +  flat aromatic
+    system  +  activity that does not track with structure
+    across close analogues
+
+  ⭐ THE ASSAY-SIDE TEST, WHICH YOU SHOULD KNOW EVEN THOUGH
+     YOU DO NOT RUN IT
+     Re-run the assay with a small amount of detergent
+     (typically 0.01% Triton X-100). Detergent breaks up the
+     colloid. If the "activity" disappears, it was aggregation.
+     Asking a biologist "was this run with detergent?" is one
+     of the highest-value questions a computational person can
+     ask in a hit-triage meeting.
+</pre>
+
+<div class="note">
+  <span class="tag">What you can do computationally</span>
+  <p>Estimate an aggregation risk from the property profile and carry it as a <strong>flag</strong>
+  beside each hit, exactly like PAINS. Do not filter on it — aggregation is concentration-dependent and
+  a prediction is a suspicion, not a verdict. But a hit list that arrives already annotated with
+  "these four are aggregation risks, suggest testing with detergent" is the kind of deliverable that
+  gets a computational person invited back.</p>
+</div>
+
+<div class="chk" id="chk">
+  <span class="cap">Checkpoint · you should now be able to</span>
+  <ul>
+    <li>Order a five-stage screening cascade and justify the order by cost per compound.</li>
+    <li>Compute EF(1%) and express it as money saved rather than as a multiple.</li>
+    <li>Name two ways enrichment benchmarks get inflated.</li>
+    <li>Explain cluster-then-pick and why a chemist reviews every selected structure.</li>
+    <li>List the five ADMET letters with one endpoint each and what it physically means.</li>
+    <li>Explain hERG and why its liability tends to grow as a project optimises.</li>
+    <li>Say why a single combined desirability score can point at the wrong compound.</li>
+  </ul>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 10 · Deep learning and graph networks</h4><p>Learned representations instead of fixed fingerprints — what changes, when it actually helps, and the honest benchmark position.</p></div>
+  <div class="card"><h4>The source material</h4><p><code>phase-2-ml-for-chemistry/13-virtual-screening.md</code> (2,046 lines) and <code>14-admet-prediction.md</code> (2,238 lines).</p></div>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

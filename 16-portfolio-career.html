@@ -1,0 +1,1082 @@
+<title>Portfolio, Open Source and the Job</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 16</p>
+  <p class="rail-sub">Portfolio, open source and the job</p>
+  <span class="rail-vol">Phase 4</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+
+  <div class="rail-group">I · The portfolio</div>
+  <a href="#l1"><span class="n">01</span>Portfolio over degrees</a>
+  <a href="#l2"><span class="n">02</span>The README that gets read</a>
+  <a href="#l3"><span class="n">03</span>The profile around it</a>
+
+  <div class="rail-group">II · Open source</div>
+  <a href="#l4"><span class="n">04</span>Why it is the highest leverage</a>
+  <a href="#l5"><span class="n">05</span>Your first contribution</a>
+
+  <div class="rail-group">III · The market</div>
+  <a href="#l6"><span class="n">06</span>The job titles, decoded</a>
+  <a href="#l7"><span class="n">07</span>Company types</a>
+  <a href="#l8"><span class="n">08</span>Remote, and working from Tunisia</a>
+  <a href="#l9"><span class="n">09</span>Freelancing and CROs</a>
+
+  <div class="rail-group">IV · The interview</div>
+  <a href="#l10"><span class="n">10</span>The technical rounds</a>
+  <a href="#l11"><span class="n">11</span>The questions that decide it</a>
+  <a href="#l12"><span class="n">12</span>Behavioural, and salary</a>
+
+  <div class="rail-group">V · Staying current</div>
+  <a href="#l13"><span class="n">13</span>Certifications, honestly</a>
+  <a href="#l14"><span class="n">14</span>Free resources worth the time</a>
+  <a href="#l15"><span class="n">15</span>Conferences, journals, people</a>
+  <a href="#l16"><span class="n">16</span>An information diet</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#plan"><span class="n">—</span>A 12-month plan</a>
+  <a href="#drill"><span class="n">—</span>Rapid drill</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 16 of 17 · phase 4</p>
+  <h1>Portfolio, open source and the job. <span class="thin">Presenting work nobody can see otherwise.</span></h1>
+  <p class="lede">You have built things. This volume is about the gap between having built them and
+  anyone knowing — the README that gets read, the first pull request, the job titles that hide what a
+  role actually is, the interview questions that decide the outcome, and a reading habit that survives
+  contact with a full-time job.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · Volumes 01–15, and something built</span>
+    <span><b>Teaches</b> · how this field hires</span>
+    <span><b>Time</b> · read in one sitting, act on for a year</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<div class="vol here"><span class="vn">Vol 16 · here</span><b>Portfolio &amp; career</b></div>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>The portfolio</h2>
+</header>
+
+<header class="mod" id="l1">
+  <span class="mn">Lesson 01</span>
+  <h2>Portfolio over degrees</h2>
+</header>
+
+<div class="good">
+  <span class="tag">Why the claim holds in this field specifically</span>
+  <p>Cheminformatics hiring is unusually evidence-driven, because the work is unusually easy to check.
+  A public repository with a working QSAR platform, an honest scaffold-split number and a deployed demo
+  is <strong>directly inspectable</strong> in a way a degree is not. This does not make credentials
+  worthless — it means <strong>an artefact outranks a claim</strong>, and you can start building
+  artefacts this week.</p>
+</div>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The shape that works</span>
+    <p><strong>Three finished projects beat twelve abandoned ones.</strong> Prediction, screening,
+    generation — the three capstones — on one target, so they read as a programme rather than three
+    unrelated exercises.</p></div>
+  <div class="b junior"><span class="k">The mistake that keeps people invisible</span>
+    <p><strong>Perfectionism before publishing.</strong> The project that is nearly ready for two years
+    helps nobody. A finished, honest, slightly rough project that exists beats an excellent one that
+    does not.</p></div>
+  <div class="b check"><span class="k">The test</span>
+    <p>Can a stranger understand what you built and why it is good <em>without running it</em>? If not,
+    the problem is the presentation, not the work.</p></div>
+</div>
+
+<header class="mod" id="l2">
+  <span class="mn">Lesson 02</span>
+  <h2>The README that gets read</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">In this order — and the order is the whole trick</div>
+<pre><code>1. RESULTS FIRST.
+   "Predicts hERG inhibition. ROC-AUC 0.81 on a scaffold split
+    (0.93 on a random split — see below for why that gap
+    matters)."
+
+   ⭐ NOT "this project uses RDKit and scikit-learn". Nobody
+      has ever been impressed by a list of imports.
+
+2. A SCREENSHOT OR A GIF, immediately.
+   It must be visible without cloning anything.
+
+3. MOTIVATION — two sentences on the decision this changes.
+
+4. METHODS — enough to judge the work. The split strategy,
+   the applicability domain, the baseline you beat.
+
+5. ⭐ LIMITATIONS AND FUTURE WORK.
+   "Where this fails: outside the applicability domain, and on
+    covalent binders, which are absent from the training set."
+
+   Almost nobody writes this section. It is the single
+   fastest way to signal that you understand your own work,
+   and reviewers notice its absence more than they notice
+   its presence.
+
+6. INSTALLATION — one command. If it takes four, fix the
+   project, not the README.
+
+7. USAGE — one worked example with real output shown.
+
+8. LICENSE and ACKNOWLEDGMENTS. Cite the data source and its
+   version. In this field, provenance is professional
+   courtesy and also evidence you know data has versions.</code></pre>
+</div>
+
+<details class="try">
+  <summary>Try it · Your model gets ROC-AUC 0.93 on a random split and 0.81 on a scaffold split. Which goes in the README headline?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>0.81 — and put 0.93 next to it, with one sentence explaining the gap.</strong></p>
+    <p>Leading with 0.93 is not a lie, but any reviewer who knows the field will check your split, find
+    it was random, and silently discount everything else in the repository. <strong>You would have
+    spent your credibility to buy a number nobody believes.</strong></p>
+    <p>Leading with 0.81 and explaining the gap does the opposite: it demonstrates you know why the
+    numbers differ, which is exactly the competence the job requires. The sentence to write is
+    something like:</p>
+<pre><code>"ROC-AUC 0.81 (scaffold split) / 0.93 (random split).
+ The gap is the point: random splits put close analogues on
+ both sides, so 0.93 measures how well the model recognises
+ series it has already seen. 0.81 is what to expect on new
+ chemistry, which is what the model is for."</code></pre>
+    <p>That paragraph is worth more than the model.</p>
+  </div>
+</details>
+
+<header class="mod" id="l3">
+  <span class="mn">Lesson 03</span>
+  <h2>The profile around the projects</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">GitHub</span>
+    <p>Pin the good repositories. Every repository has a README — a bare one reads as abandoned. A
+    commit history showing steady work beats a single "initial commit" dropping someone else's
+    notebook, because the history is evidence the work is yours.</p></div>
+  <div class="b"><span class="k">LinkedIn, used the way this field uses it</span>
+    <p>Not a CV transcript. A headline naming the intersection — <em>"cheminformatics · molecular ML ·
+    RDKit"</em> — and posts that are <strong>short write-ups of things you built or read</strong>. In
+    a field this small, a handful of substantive posts makes you recognisable faster than any amount
+    of profile polish.</p></div>
+  <div class="b"><span class="k">Engaging with researchers</span>
+    <p>The community is genuinely small and unusually accessible. Reading someone's paper and asking a
+    specific, informed question is a normal way to become known. <strong>Specific is the operative
+    word</strong> — "I enjoyed your paper" is noise; "your applicability-domain definition uses
+    distance-to-model rather than leverage, was that for the non-linear case?" is a conversation.</p></div>
+  <div class="b check"><span class="k">The honest caution</span>
+    <p>Building a profile is worth a few hours a month, not a few hours a week. The artefacts are the
+    asset; the profile only makes them findable.</p></div>
+</div>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>Open source</h2>
+</header>
+
+<header class="mod" id="l4">
+  <span class="mn">Lesson 04</span>
+  <h2>Why it is the highest-leverage thing you can do</h2>
+</header>
+
+<p>A merged pull request to <strong>RDKit</strong> — the library every volume of this course depends on
+— is a verifiable, public, third-party-reviewed statement about your competence. There is no equivalent
+line you can write on a CV.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:26%">Project</th><th style="width:30%">What it is</th><th>Why contribute there</th></tr></thead>
+  <tbody>
+    <tr><td><strong>RDKit</strong></td><td>The toolkit the whole field runs on</td><td>The most recognised contribution in cheminformatics. C++ core with Python bindings, so there is work at several difficulty levels.</td></tr>
+    <tr><td><strong>DeepChem</strong></td><td>ML for chemistry and biology</td><td>Pure Python, very approachable, an active Discord where questions get answered.</td></tr>
+    <tr><td><strong>Chemprop</strong></td><td>Message-passing networks for molecules</td><td>Focused codebase. Good if your interest is GNNs specifically.</td></tr>
+    <tr><td><strong>TeachOpenCADD</strong></td><td>Teaching talktorials for computer-aided drug design</td><td>Contributions are <em>content</em> as much as code — a good route if writing is your strength.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="l5">
+  <span class="mn">Lesson 05</span>
+  <h2>Your first contribution</h2>
+</header>
+
+<pre class="ascii">
+  THE ORDER THAT ACTUALLY WORKS
+
+  1. DOCUMENTATION AND DOCSTRINGS
+       Genuinely valued, permanently needed, and it forces you
+       to read the code carefully enough to understand it.
+       ⭐ Improving a docstring means working out exactly what
+          a function does — which is the real benefit.
+
+  2. TESTS
+       Scientific code is chronically under-tested. Writing a
+       test forces you to state the expected behaviour
+       precisely, and a test for an edge case you found
+       yourself is a genuinely valuable contribution.
+
+  3. "GOOD FIRST ISSUE"
+       Maintainers label these deliberately for newcomers.
+       Comment before you start, so two people do not do the
+       same work.
+
+  4. BUG FIXES, then features.
+
+  ⚠ WHAT NOT TO OPEN WITH
+     A large refactor of code you met last week. It will not
+     be merged, and it costs a maintainer an afternoon to
+     explain why.
+
+  ⭐ THE SIDE EFFECT THAT MATTERS MORE THAN THE MERGE
+     Reading a mature scientific codebase shows you how
+     careful people handle aromaticity perception,
+     stereochemistry and numerical edge cases. That reading
+     changes how you write your own code — which is worth
+     more than the commit.
+</pre>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>The market</h2>
+</header>
+
+<header class="mod" id="l6">
+  <span class="mn">Lesson 06</span>
+  <h2>The job titles, decoded</h2>
+</header>
+
+<p>The same job appears under many names, and the name tells you which of the three skills the team is
+short of.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:30%">Title</th><th style="width:34%">What it actually means</th><th>Chem / ML / SWE</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Cheminformatics Scientist</strong></td><td>The core role — molecular data, QSAR, virtual screening</td><td>High / Medium / Medium</td></tr>
+    <tr><td><strong>Computational Chemist</strong></td><td>Broader and more physical — MD, quantum chemistry, docking</td><td>Very high / Low–Medium / Medium</td></tr>
+    <tr><td><strong>AI/ML Scientist (Drug Discovery)</strong></td><td>Model development and architecture research</td><td>Medium / Very high / High</td></tr>
+    <tr><td><strong>Data Scientist (Pharma)</strong></td><td>Analysis-heavy — clinical and molecular data, statistics</td><td>Low–Medium / Medium / Medium</td></tr>
+    <tr><td><strong>Research Software Engineer (Chemistry)</strong></td><td>Building the platforms and pipelines others use</td><td>Low–Medium / Medium / Very high</td></tr>
+    <tr><td><strong>ML Engineer (Biotech)</strong></td><td>Serving, MLOps, infrastructure</td><td>Low / High / Very high</td></tr>
+    <tr><td><strong>Principal Scientist, CADD</strong></td><td>Senior computer-aided drug design, strategy, mentoring</td><td>Very high / Medium / Medium</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="tag">The market's actual shape</span>
+  <p>There are more open positions than qualified candidates, and the reason employers give is
+  consistent: they need <strong>chemistry plus real software engineering plus ML</strong> in one
+  person. Chemistry-only candidates cannot build the systems; ML-only candidates cannot ask the right
+  questions. <strong>The intersection is the whole opportunity</strong>, and it is what this course has
+  been assembling.</p>
+  <p>The areas currently hiring hardest: generative molecular design · multi-endpoint ADMET with
+  uncertainty · foundation models for chemistry · automated synthesis planning · protein–ligand
+  co-design.</p>
+</div>
+
+<header class="mod" id="l7">
+  <span class="mn">Lesson 07</span>
+  <h2>Company types, and what each is like</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:22%">Type</th><th style="width:34%">What to expect</th><th>Suits you if</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Big pharma</strong><br><span class="lbl">Novartis, Roche, Pfizer, AstraZeneca, Merck, Bayer</span></td><td>Deep resources, real data, slower decisions, more process. Largely hybrid now.</td><td>You want depth, mentorship and access to proprietary data at scale.</td></tr>
+    <tr><td><strong>AI biotech startups</strong></td><td>Faster, broader scope, more ownership, less certainty. Often fully distributed.</td><td>You want to build the platform rather than use one — and this is the most accessible category for international remote candidates.</td></tr>
+    <tr><td><strong>CROs</strong></td><td>Service work for many clients, high variety, mostly on-site because they are tied to labs.</td><td>You want exposure to many targets and project types quickly.</td></tr>
+    <tr><td><strong>Tech companies</strong></td><td>Strong engineering culture, research-led, remote-friendly by default.</td><td>Your engineering is as strong as your chemistry.</td></tr>
+    <tr><td><strong>Academia</strong></td><td>Freedom of topic, publication, less pay, usually on-site.</td><td>You want to choose the question.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="l8">
+  <span class="mn">Lesson 08</span>
+  <h2>Remote work, and working from Tunisia</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">Where remote actually exists</span>
+    <p><strong>AI biotech startups and tech companies</strong> are the realistic remote employers — many
+    are fully distributed. Big pharma has largely returned to hybrid and rarely hires new people fully
+    remote. CROs are mostly on-site.</p></div>
+  <div class="b"><span class="k">Two structural advantages worth naming explicitly</span>
+<pre><code>1  THE TIMEZONE. Tunisia is CET — the SAME clock as Paris.
+
+      Tunis 09:00  =  Paris 09:00  =  Basel 09:00
+                   =  London 08:00 =  Berlin 09:00
+
+   Full overlap with the entire European working day. That
+   is a decisive advantage over remote candidates in the
+   Americas or East Asia, and it should appear in every
+   application rather than being left to be discovered.
+
+2  FRENCH. It opens French pharma in a way most
+   international candidates cannot match:
+      Sanofi · Servier · Pierre Fabre · Ipsen · bioMerieux
+   all with computational chemistry teams.</code></pre></div>
+  <div class="b junior"><span class="k">The honest constraints</span>
+    <p>Few cheminformatics roles exist locally · visas complicate on-site EU and US positions ·
+    US West Coast overlap is poor at 8–9 hours · and networking opportunities for this specific field
+    are limited in-country, which is part of why the open-source route matters more here than
+    elsewhere.</p></div>
+  <div class="b check"><span class="k">The target to aim at</span>
+    <p>EU-remote at an AI biotech, or a computational team at French pharma. Plan around the timezone
+    you have rather than against it.</p></div>
+</div>
+
+<header class="mod" id="l9">
+  <span class="mn">Lesson 09</span>
+  <h2>Freelancing and CRO partnerships</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The alternative pathway</span>
+    <p>Not every route is an employment contract. Consulting for several organisations at once is a
+    real option in this field, and it is often easier to start than a first full-time role
+    internationally.</p></div>
+  <div class="b"><span class="k">How it works in practice</span>
+    <ul>
+      <li>A consulting profile specialising in something nameable — <em>"cheminformatics consulting"</em>, <em>"molecular ML"</em> — rather than general data science.</li>
+      <li><strong>European CROs that subcontract computational work</strong> — Evotec, Pharmacelera, Iktos — are the natural targets.</li>
+      <li>Offer <strong>specific services</strong>, not availability: QSAR model building, virtual screening campaigns, chemical data curation, pipeline development. A named deliverable is far easier to buy than hours.</li>
+      <li>A lower cost of living lets you price competitively while still earning well — a genuine structural advantage, and not one to be shy about.</li>
+    </ul></div>
+  <div class="b check"><span class="k">Why it is worth considering early</span>
+    <p>Two or three delivered consulting projects are themselves portfolio evidence, and they solve the
+    problem every first-time applicant has: <strong>somebody paid for this work</strong> is a stronger
+    statement than any personal project.</p></div>
+</div>
+
+<header class="part" id="part4">
+  <span class="pn">Part IV</span>
+  <h2>The interview</h2>
+</header>
+
+<header class="mod" id="l10">
+  <span class="mn">Lesson 10</span>
+  <h2>The technical rounds</h2>
+</header>
+
+<pre class="ascii">
+  WHAT A CHEMINFORMATICS LOOP USUALLY CONTAINS
+
+  1. SCREEN            background, motivation, what you built
+  2. CODING            RDKit-flavoured. Parse, standardise,
+                       compute, filter. ⭐ Usually not
+                       algorithms-and-data-structures — they
+                       want to see you handle molecules.
+  3. ML / STATS        validation, splits, metrics, leakage.
+                       This is where most candidates are lost.
+  4. DOMAIN            chemistry reasoning. They are checking
+                       you will not say something absurd to a
+                       medicinal chemist.
+  5. PROJECT DEEP DIVE your own work, interrogated. ⭐ This is
+                       why the four-sentence write-up from
+                       Volume 14 exists.
+  6. BEHAVIOURAL       collaboration, conflict, communication.
+
+  ⭐ THE PATTERN THAT WINS ACROSS ALL OF THEM
+     NAME THE TRAP BEFORE YOU NAME THE METHOD.
+     "The risk here is leakage through near-duplicate
+      analogues, so the first thing I would do is..."
+     That sentence signals experience more reliably than any
+     technique you could list.
+</pre>
+
+<header class="mod" id="l11">
+  <span class="mn">Lesson 11</span>
+  <h2>The questions that decide it</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">What a strong answer contains</div>
+<pre><code>"How would you validate a QSAR model?"
+  ⭐ THE SCREENING QUESTION OF THIS ENTIRE FIELD.
+  Scaffold split · applicability domain · y-randomisation ·
+  performance reported inside and outside the domain · a
+  baseline. If you answer "80/20 random split and
+  cross-validation", the interview is effectively over and
+  the rest is politeness.
+
+"Your model has R2 of 0.92. Are you happy?"
+  The correct reaction is SUSPICION. Ask about the split,
+  check for duplicates across train and test, check for
+  leakage, ask whether the test set is one narrow series.
+
+"What is an activity cliff and why do you care?"
+  Near-identical structures, wildly different activity. I
+  care because they break the similarity principle my model
+  rests on, and they cap its achievable accuracy — and
+  because they are the most useful thing to show a chemist.
+
+"Two molecules, Tanimoto 0.85. Same activity?"
+  Probably similar, not necessarily. And 0.85 depends
+  entirely on WHICH fingerprint — the number is not
+  portable.
+
+"How do you handle mixed IC50 and Ki data?"
+  Not by averaging. They measure different things under
+  different conditions. Model one endpoint, or model them as
+  separate tasks and say which.
+
+"A deployed model started failing. What do you do?"
+  Check the INPUTS first: applicability-domain coverage,
+  scaffold novelty, whether the assay changed, whether the
+  pipeline changed. Suspect the model last.
+
+"When would you NOT use machine learning here?"
+  When a rule already works · under ~50 data points · when
+  the answer must be mechanistic · when a physics-based
+  method is affordable and more accurate.
+
+"Why do you want to work in drug discovery?"
+  ⭐ Do not answer with "I find it interesting". Answer with
+  something you did because you found it interesting.</code></pre>
+</div>
+
+<details class="try">
+  <summary>Try it · "Walk me through a project where something went wrong." What is the shape of a strong answer?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p>Four moves, in this order — and the third is the one candidates skip.</p>
+<pre><code>1  THE SITUATION, briefly. What was being decided, and by
+   whom. Two sentences, not five minutes of background.
+
+2  WHAT WENT WRONG, stated plainly and owned. Not "the data
+   was bad" — "I built the split before I understood that
+   the series were analogues, so my validation was
+   optimistic."
+
+3  ⭐ HOW YOU FOUND OUT. This is the part that separates a
+   real story from a rehearsed one. Did someone tell you?
+   Did a prospective result disagree? Did you check?
+   Interviewers are listening for whether you have a
+   METHOD for discovering your own mistakes, because that
+   is what they are actually hiring.
+
+4  WHAT CHANGED AFTERWARDS — in your process, not just in
+   that project. "Now I print train/test scaffold overlap
+   before I look at any metric."
+
+WHAT SINKS IT
+   A story where the mistake was someone else's, or where
+   nothing was learned, or where the "failure" was secretly
+   a success ("I worked too hard on it"). Pick something
+   that genuinely cost you.</code></pre>
+  </div>
+</details>
+
+<header class="mod" id="l12">
+  <span class="mn">Lesson 12</span>
+  <h2>Behavioural rounds, and salary</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">What behavioural rounds are testing here</span>
+    <p>Specifically: can you work with chemists? This field's computational people fail most often on
+    <strong>communication with the bench</strong>, not on technique. Expect questions about explaining a
+    result to a non-specialist, disagreeing with a domain expert, and what you did when your analysis
+    contradicted what someone wanted to hear.</p></div>
+  <div class="b"><span class="k">On salary</span>
+    <ul>
+      <li><strong>Do not name a number first</strong> when you can avoid it; ask for the band.</li>
+      <li>Research the market for the <em>company type and location</em>, not the job title — the same title pays very differently across big pharma, a startup and a CRO.</li>
+      <li>For remote roles, establish early whether pay is location-adjusted. It changes the whole negotiation and it is better known before you are attached to the outcome.</li>
+      <li>Negotiate the whole package: equity, learning budget, conference attendance, compute.</li>
+    </ul></div>
+  <div class="b check"><span class="k">The first 90 days</span>
+    <p>Learn the data before you propose models. Every organisation's assay history, compound registry
+    and internal conventions are their own dialect, and <strong>the fastest credibility you can earn is
+    finding something wrong in their data that they already half-suspected.</strong></p></div>
+</div>
+
+<header class="part" id="part5">
+  <span class="pn">Part V</span>
+  <h2>Staying current</h2>
+</header>
+
+<header class="mod" id="l13">
+  <span class="mn">Lesson 13</span>
+  <h2>Certifications, honestly</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The honest answer</span>
+    <p><strong>Largely unnecessary in this field.</strong> A working repository is stronger evidence
+    than any certificate, because the work is directly inspectable. Do courses for the learning; the
+    certificate at the end is not the point.</p></div>
+  <div class="b"><span class="k">When they do help</span>
+    <p>Three cases, and they are narrow: you are changing fields and need something on the CV to explain
+    the gap · an employer or visa process specifically asks · or the course is genuinely the best way to
+    learn that material and the certificate is incidental.</p></div>
+  <div class="b check"><span class="k">When they do not</span>
+    <p>As a substitute for projects. A profile listing six certificates and no repositories reads as
+    someone who has been consuming rather than building, which is the opposite of the signal you
+    want.</p></div>
+</div>
+
+<header class="mod" id="l14">
+  <span class="mn">Lesson 14</span>
+  <h2>Free resources actually worth the time</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:26%">Resource</th><th style="width:32%">What it is</th><th>Why it earns its place</th></tr></thead>
+  <tbody>
+    <tr><td><strong>TeachOpenCADD</strong></td><td>Talktorials covering computer-aided drug design end to end</td><td>The best free structured course in the field, and the closest thing to a practical curriculum.</td></tr>
+    <tr><td><strong>RDKit documentation and Greg Landrum's blog</strong></td><td>The maintainer writing up subtle behaviour</td><td>Where the answers to "why did it do that?" actually live. Referenced throughout this course for exactly that reason.</td></tr>
+    <tr><td><strong>DeepChem tutorials</strong></td><td>Notebook series on ML for chemistry</td><td>Practical, runnable, and maintained.</td></tr>
+    <tr><td><strong>Pat Walters' blog and talks</strong></td><td>Practitioner commentary on methods and their failure modes</td><td>Unusually good at explaining why a popular method is being oversold.</td></tr>
+    <tr><td><strong>Andrew White · <em>Deep Learning for Molecules and Materials</em></strong></td><td>A free online book</td><td>The modern ML-for-chemistry text, and it is genuinely well written.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="tag">And two books, with their limitations stated</span>
+  <p><strong>Leach &amp; Gillet, <em>An Introduction to Chemoinformatics</em></strong> (2007, revised) is
+  the standard textbook. Representation, searching, descriptors, QSAR, pharmacophores, docking — the
+  fundamentals have not changed. <strong>It predates deep learning entirely</strong>, so treat it as
+  foundational rather than comprehensive, and pair it with modern tutorials.</p>
+  <p><strong>Todeschini &amp; Consonni, <em>Molecular Descriptors for Chemoinformatics</em></strong>
+  (2009, two volumes) is an encyclopedia, not a book to read. When a paper uses a descriptor you have
+  never heard of, this tells you what it measures.</p>
+</div>
+
+<header class="mod" id="l15">
+  <span class="mn">Lesson 15</span>
+  <h2>Conferences, journals and people</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The one conference to attend</span>
+    <p><strong>The RDKit UGM</strong> — annually, usually October, free or very cheap, with a virtual
+    option that is free and includes all talks. It is the community meeting for open-source
+    cheminformatics, the talks are practical rather than theoretical, and <strong>lightning talks are
+    five minutes and genuinely accessible to newcomers.</strong> Submitting one is the single
+    cheapest way to become a name in this field.</p></div>
+  <div class="b"><span class="k">Then, in order of usefulness</span>
+    <p>ACS CINF division meetings · the NeurIPS and ICML chemistry workshops (MLDD, AI4Science) for the
+    methods edge · Drug Discovery Chemistry and EFMC-ISMC if you are moving toward the medicinal
+    chemistry side.</p></div>
+  <div class="b"><span class="k">Journals and preprints</span>
+    <p><em>J. Chem. Inf. Model.</em> and <em>J. Cheminformatics</em> (open access) are the core;
+    <em>J. Med. Chem.</em> for the chemistry. <strong>ChemRxiv and arXiv q-bio are where methods appear
+    about a year before the journals</strong>, which is the gap worth living in.</p></div>
+  <div class="b check"><span class="k">Communities</span>
+    <p>The <strong>DeepChem Discord</strong> is active and good for questions. <strong>RDKit GitHub
+    discussions</strong> are not a chat platform but are where maintainers answer directly, and reading
+    them is an education in itself. PyTorch Geometric discussions for GNN work.</p></div>
+</div>
+
+<header class="mod" id="l16">
+  <span class="mn">Lesson 16</span>
+  <h2>An information diet that survives a full-time job</h2>
+</header>
+
+<div class="bad">
+  <span class="tag">The firehose problem</span>
+  <p>More is published every week than you can read in a month, and the failure mode is not missing
+  things — it is <strong>skimming so much that nothing changes how you work.</strong> Twenty papers
+  skimmed leave no trace. One reimplemented changes your defaults permanently.</p>
+</div>
+
+<div class="sheet">
+  <div class="cap">A cadence that is actually sustainable</div>
+<pre><code>WEEKLY   ~1 hour
+   Scan titles from two journal alerts and one preprint feed.
+   Save three. Read none yet.
+
+MONTHLY  ~4 hours
+   Read ONE paper properly — methods section included — and
+   ⭐ REIMPLEMENT THE CORE IDEA on your own data.
+   One reimplementation a month beats a paper a day, because
+   it produces an artefact and it produces an opinion.
+
+QUARTERLY  ~2 hours
+   Review: what did I actually learn? What changed in how I
+   work? What is now on the "should know" list that I keep
+   postponing?
+
+ANNUALLY
+   Attend one conference — the RDKit UGM virtually costs
+   nothing. Submit a lightning talk in year two.
+
+⭐ AND THE RULE THAT KEEPS IT HONEST
+   If nothing you read this quarter changed a default in
+   your own pipeline, you were consuming, not learning.</code></pre>
+</div>
+
+<header class="mod" id="plan">
+  <span class="mn">Reference</span>
+  <h2>A twelve-month plan</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:16%">Months</th><th style="width:34%">Build</th><th>Alongside</th></tr></thead>
+  <tbody>
+    <tr><td><strong>1–3</strong></td><td>Capstone 1 — the QSAR platform, deployed, with a real README</td><td>Weekly title scan. One paper a month, reimplemented. Fix your GitHub profile once, then leave it alone.</td></tr>
+    <tr><td><strong>4–6</strong></td><td>Capstone 2 on the same target, plus exercises 03, 06 and 08 written up</td><td>First open-source contribution — documentation or a test. Attend the RDKit UGM virtually.</td></tr>
+    <tr><td><strong>7–9</strong></td><td>Capstone 3, and the end-to-end reaction platform if you have room</td><td>Start applying. Two or three substantive LinkedIn write-ups of what you built. Consider one small consulting engagement.</td></tr>
+    <tr><td><strong>10–12</strong></td><td>Polish: limitations sections, one-command installs, screenshots everywhere</td><td>Interview practice on the Volume 16 question list. Submit a UGM lightning talk.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="drill">
+  <span class="mn">Reference</span>
+  <h2>Rapid drill</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">One-sentence answers to have ready</div>
+<pre><code>Why a portfolio over a degree here?
+  Because the work is directly inspectable. An artefact
+  outranks a claim in a field where anyone can clone your
+  repository and read your split.
+
+What goes first in a README?
+  The result, with the split named. Not the tech stack.
+
+What is the section nobody writes?
+  Limitations — "where this fails". It is the fastest signal
+  that you understand your own work.
+
+Where do I start in open source?
+  Documentation, then tests, then a labelled good-first-issue.
+  Never open with a refactor.
+
+What does the job title tell me?
+  Which of chemistry, ML and software engineering the team is
+  short of. The same job has six names.
+
+Where is remote actually available?
+  AI biotech startups and tech companies. Big pharma is mostly
+  hybrid; CROs are on-site.
+
+What is the interview's screening question?
+  "How would you validate a QSAR model?" Scaffold split,
+  applicability domain, y-randomisation, baseline.
+
+Are certifications worth it?
+  Rarely. Do the course for the learning; the certificate is
+  not the evidence anyone wants.
+
+Which conference?
+  The RDKit UGM. Free virtually, practical talks, and
+  five-minute lightning talks that newcomers can give.
+
+What reading cadence actually works?
+  One paper a month, reimplemented — not one a day, skimmed.
+  If nothing changed a default in your pipeline this quarter,
+  you were consuming, not learning.</code></pre>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 17 · The cheat sheet</h4><p>The whole course compressed to what you would want open on a second screen — the code you retype, the numbers worth memorising, the decision tables, the traps, and the glossary.</p></div>
+  <div class="card"><h4>The source material</h4><p><code>phase-4-portfolio-and-career/</code> files <code>29</code>–<code>32</code> (4,513 lines): the open-source contribution guide with RDKit specifics, the portfolio and README templates, the full job-search and interview chapter including the twenty key questions, and the certifications, courses, conferences, journals and research-groups reference.</p></div>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

@@ -1,0 +1,931 @@
+<title>QSAR — The First Real Model</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 08</p>
+  <p class="rail-sub">QSAR — the first real model</p>
+  <span class="rail-vol">Phase 2</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+
+  <div class="rail-group">I · The model</div>
+  <a href="#l1"><span class="n">01</span>What QSAR is</a>
+  <a href="#l2"><span class="n">02</span>The baseline first</a>
+  <a href="#l3"><span class="n">03</span>Which algorithm</a>
+
+  <div class="rail-group">II · The split</div>
+  <a href="#l4"><span class="n">04</span>Why random splits lie</a>
+  <a href="#l5"><span class="n">05</span>The four splits</a>
+  <a href="#l6"><span class="n">06</span>Writing a scaffold split</a>
+
+  <div class="rail-group">III · The metric</div>
+  <a href="#l7"><span class="n">07</span>Regression metrics</a>
+  <a href="#l8"><span class="n">08</span>Classification metrics</a>
+  <a href="#l9"><span class="n">09</span>The noise ceiling</a>
+
+  <div class="rail-group">IV · Honesty</div>
+  <a href="#l10"><span class="n">10</span>Applicability domain</a>
+  <a href="#l11"><span class="n">11</span>Y-randomisation</a>
+  <a href="#l12"><span class="n">12</span>The OECD principles</a>
+  <a href="#l13"><span class="n">13</span>Interpretation</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#recipe"><span class="n">—</span>The full recipe</a>
+  <a href="#chk"><span class="n">—</span>Checkpoint</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 08 of 17 · phase 2</p>
+  <h1>QSAR. <span class="thin">The first real model, and the four things that make it honest.</span></h1>
+  <p class="lede">Quantitative Structure–Activity Relationship: predict activity from structure. The
+  modelling itself is ten lines of scikit-learn. Everything that distinguishes a useful model from a
+  self-deceiving one is in the split, the metric, the baseline and the applicability domain — so that
+  is where this volume spends its length.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · Volumes 01–07</span>
+    <span><b>Teaches</b> · honest modelling on chemical data</span>
+    <span><b>Time</b> · 8–10 hours</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<div class="vol here"><span class="vn">Vol 08 · here</span><b>QSAR</b></div>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<div class="obj">
+  <span class="cap">By the end of this volume you will be able to</span>
+  <ul>
+    <li>Build a QSAR model end to end and beat a baseline you defined first.</li>
+    <li>Explain why random splits overstate performance on chemical data, and write a scaffold split yourself.</li>
+    <li>Pick a metric that matches the decision the model will feed, rather than the one everyone reports.</li>
+    <li>Compute an applicability domain and refuse to predict outside it.</li>
+    <li>Run a Y-randomisation check and say what it rules out.</li>
+    <li>State the OECD validation principles and audit a model against them.</li>
+  </ul>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>The model</h2>
+</header>
+
+<header class="mod" id="l1">
+  <span class="mn">Lesson 01</span>
+  <h2>What QSAR is</h2>
+</header>
+
+<pre class="ascii">
+  MOLECULE        -->  REPRESENTATION  -->  MODEL  -->  PREDICTED ACTIVITY
+  (Volume 03)          (Volume 05)          here       (pIC50, or active/inactive)
+
+  THE ASSUMPTION UNDERNEATH IT (Volume 05, Lesson 12):
+      similar structure -> similar activity
+
+  SO QSAR IS, IN EFFECT, A SOPHISTICATED NEAREST-NEIGHBOUR ARGUMENT.
+  Everything that limits it follows from that: it works where you have
+  neighbours, and fails where you do not — which is precisely what the
+  applicability domain formalises.
+</pre>
+
+<div class="wex">
+  <span class="cap">Worked example · the whole model, in twelve lines</span>
+  <div class="body">
+<pre><code>import numpy as np
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.metrics import r2_score, mean_absolute_error
+from rdkit.Chem import rdFingerprintGenerator
+
+gen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+X = np.array([gen.GetFingerprintAsNumPy(m) for m in df["mol"]])
+y = df["pIC50"].values
+
+train_idx, test_idx = scaffold_split(df, frac_train=0.8)     # NOT train_test_split
+
+model = RandomForestRegressor(n_estimators=500, n_jobs=-1, random_state=42)
+model.fit(X[train_idx], y[train_idx])
+pred = model.predict(X[test_idx])
+
+print("R2 ", round(r2_score(y[test_idx], pred), 3))
+print("MAE", round(mean_absolute_error(y[test_idx], pred), 3))</code></pre>
+    <p><strong>That is the entire modelling step, and it is the easy part.</strong> The one line that
+    matters is <code>scaffold_split</code> rather than <code>train_test_split</code>, and the rest of
+    this volume is about why.</p>
+  </div>
+</div>
+
+<header class="mod" id="l2">
+  <span class="mn">Lesson 02</span>
+  <h2>The baseline you must define first</h2>
+</header>
+
+<div class="bad">
+  <span class="tag">Define it before training anything</span>
+  <p>An R² of 0.55 is meaningless in isolation. It is only interpretable against something, and the
+  something must be chosen <em>before</em> you see your model's score — otherwise you will pick
+  whichever baseline makes your number look good.</p>
+</div>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:30%">Baseline</th><th style="width:24%">What beating it proves</th><th>Difficulty</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Predict the mean</strong></td><td>Almost nothing — R² = 0 by construction.</td><td>Trivial. But compute it, so the MAE has a reference.</td></tr>
+    <tr><td><strong>Nearest neighbour by Tanimoto</strong></td><td><strong>That your model adds something beyond "find the most similar known compound".</strong></td><td>The honest baseline, and surprisingly hard to beat. Use this one.</td></tr>
+    <tr><td><strong>Physicochemical descriptors + linear model</strong></td><td>That the structural detail in fingerprints is earning its place.</td><td>Cheap, interpretable, sometimes wins outright on physical properties.</td></tr>
+    <tr><td><strong>Random forest on Morgan</strong></td><td>Nothing — this <em>is</em> the standard. It is the baseline that fancier methods must beat.</td><td>The bar for any deep learning claim in Volume 10.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="good">
+  <span class="tag">The nearest-neighbour baseline, concretely</span>
+<pre><code>For each test compound:
+    find the most similar TRAINING compound by Tanimoto
+    predict that compound's activity
+
+If your model does not beat this, it has not learned a
+structure-activity RELATIONSHIP. It has learned a lookup table.</code></pre>
+</div>
+
+<header class="mod" id="l3">
+  <span class="mn">Lesson 03</span>
+  <h2>Which algorithm — and why the answer is boring</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:22%">Algorithm</th><th style="width:30%">Good when</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Random forest</strong></td><td>Almost always, on 100–10,000 compounds</td><td><strong>The default.</strong> Handles sparse binary features, needs almost no tuning, gives a usable uncertainty estimate from tree variance. Hard to beat.</td></tr>
+    <tr><td><strong>Gradient boosting (XGBoost, LightGBM)</strong></td><td>You have a few thousand compounds and time to tune</td><td>Usually a small improvement over RF, at the cost of tuning and more overfitting risk on small data.</td></tr>
+    <tr><td><strong>SVM (RBF or Tanimoto kernel)</strong></td><td>Small datasets, a few hundred compounds</td><td>Historically strong on QSAR. Needs feature scaling and careful tuning.</td></tr>
+    <tr><td><strong>Ridge / PLS</strong></td><td>Descriptors, and you need interpretability</td><td>PLS is the traditional QSAR workhorse and still reasonable for physical properties.</td></tr>
+    <tr><td><strong>Graph neural networks</strong></td><td>&gt; 50,000 compounds, or multi-task</td><td>Volume 10. Below that scale they typically do not beat a random forest, and the literature overstates how often they do.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="tag">The finding that keeps being rediscovered</span>
+  <p><strong>On typical medicinal chemistry datasets — hundreds to low thousands of compounds —
+  random forests on Morgan fingerprints remain competitive with much more sophisticated methods.</strong>
+  Papers claiming large deep-learning wins often compare against a poorly tuned baseline, or use a
+  random split. When both are done properly the gap usually narrows sharply or disappears. Knowing
+  this saves you months.</p>
+</div>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>The split</h2>
+  <p class="lede">The most important part of this volume. If you take one thing from the whole course,
+  take this.</p>
+</header>
+
+<header class="mod" id="l4">
+  <span class="mn">Lesson 04</span>
+  <h2>Why random splits lie</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · the same model, two splits</span>
+  <div class="body">
+<pre><code>SAME DATA. SAME MODEL. SAME FEATURES. DIFFERENT SPLIT.
+
+  random 80/20 split          R2 = 0.82     "excellent model"
+  scaffold 80/20 split        R2 = 0.41     "modest model"
+  time-based split            R2 = 0.28     "barely useful"
+
+WHICH NUMBER IS TRUE?
+
+  All three. They answer DIFFERENT QUESTIONS:
+
+  random     "how well does it predict compounds from series it has
+              already seen most of?"                    -- rarely useful
+  scaffold   "how well does it predict a NEW series?"    -- usually the real question
+  time       "how well would it have predicted what the
+              project did next?"                        -- the honest simulation</code></pre>
+    <p><strong>Why the gap is so large:</strong> chemical datasets are built from series. A chemist
+    makes a core structure and twenty variations around it. Split at random and roughly sixteen
+    variations land in training and four in test — and predicting those four requires recognising the
+    series, not understanding the chemistry.</p>
+    <p><strong>The model has memorised a scaffold and been rewarded for it.</strong> This is not a
+    subtle statistical concern; it is the single most common reason a model that looked good in
+    development is useless on the project's next compounds.</p>
+  </div>
+</div>
+
+<header class="mod" id="l5">
+  <span class="mn">Lesson 05</span>
+  <h2>The four splits, and when each is right</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:18%">Split</th><th style="width:30%">How it works</th><th>Use when</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Random</strong></td><td>Shuffle, cut.</td><td><strong>Almost never</strong> for chemistry. Legitimate only if the deployment population really is drawn from the same series — rare. Report it as an upper bound if you report it at all.</td></tr>
+    <tr><td><strong>Scaffold</strong></td><td>Group by Murcko scaffold; whole groups go to one side.</td><td><strong>The default.</strong> Simulates "a new chemical series arrives".</td></tr>
+    <tr><td><strong>Cluster</strong></td><td>Butina-cluster, then split by cluster.</td><td>Stricter than scaffold, since it also separates different scaffolds that are structurally close. Good when scaffolds are too fine-grained.</td></tr>
+    <tr><td><strong>Time</strong></td><td>Train on everything before a date, test on everything after.</td><td><strong>The most honest, when you have dates.</strong> It is exactly what deployment looks like, and it captures series drift that scaffold splits miss.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="warn">
+  <span class="tag">The corollary most people miss</span>
+  <p><strong>Cross-validation must respect the grouping too.</strong> A scaffold split followed by
+  ordinary k-fold CV <em>inside</em> the training set leaks scaffolds between folds, and your
+  hyperparameter choice is then tuned on a leak. Use <code>GroupKFold</code> with the scaffold as the
+  group — this is a one-word change that people routinely omit.</p>
+</div>
+
+<header class="mod" id="l6">
+  <span class="mn">Lesson 06</span>
+  <h2>Writing a scaffold split</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · the function, and the invariant it must satisfy</span>
+  <div class="body">
+<pre><code>from collections import defaultdict
+from rdkit.Chem.Scaffolds import MurckoScaffold
+
+def scaffold_split(mols, frac_train=0.8):
+    # 1. group molecule indices by scaffold
+    groups = defaultdict(list)
+    for i, m in enumerate(mols):
+        scaf = Chem.MolToSmiles(MurckoScaffold.GetScaffoldForMol(m))
+        groups[scaf].append(i)
+
+    # 2. biggest groups first — so the largest series lands in TRAIN
+    ordered = sorted(groups.values(), key=len, reverse=True)
+
+    # 3. fill train until it is full, then everything else is test
+    n_train = int(frac_train * len(mols))
+    train, test = [], []
+    for g in ordered:
+        (train if len(train) + len(g) &lt;= n_train else test).extend(g)
+    return train, test
+
+
+# THE INVARIANT — assert it, every time
+def scaffolds_of(idx):
+    return {Chem.MolToSmiles(MurckoScaffold.GetScaffoldForMol(mols[i])) for i in idx}
+
+assert not (scaffolds_of(train) &amp; scaffolds_of(test))</code></pre>
+    <p><strong>Why biggest-first:</strong> putting the largest series in training and the rarer
+    scaffolds in test makes the test set deliberately harder and more like reality — you are usually
+    asked about unusual compounds, not about more of what you already have.</p>
+    <p><strong>Why the assert matters:</strong> a scaffold split that silently fails still produces a
+    number, and the number looks fine. This is the bug profile that does real damage, so the invariant
+    is checked rather than assumed. It was the fourth test in Volume 07 for the same reason.</p>
+  </div>
+</div>
+
+<details class="try">
+  <summary>Try it · Your scaffold split gives R² = 0.41. Your manager says "the random split gave 0.82, use that one, it's the same data". What do you say?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>Do not argue about statistics. Reframe it as a question about what the model is for.</strong></p>
+    <p>"Both numbers are correct. They answer different questions. The 0.82 tells us how well we
+    predict <em>more compounds from series we already know</em>. The 0.41 tells us how well we predict
+    <em>a new series</em>. Which one the project needs depends on what we are going to do with it —
+    and since we are planning to use it on new chemistry, 0.41 is the number that predicts our
+    experience."</p>
+    <p>Then make it concrete and testable: <strong>"if we report 0.82 and it performs at 0.41 in
+    practice, we lose the chemists' trust and they stop using it."</strong> That is the real cost, and
+    it is an argument about outcomes rather than about methodology.</p>
+    <p><strong>Offer the constructive path too:</strong> report both, clearly labelled, and hold out
+    the project's genuinely most recent compounds as a third, honest check. Being the person who
+    reports both numbers with their meanings is how you build the credibility that makes your
+    next recommendation land.</p>
+  </div>
+</details>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>The metric</h2>
+</header>
+
+<header class="mod" id="l7">
+  <span class="mn">Lesson 07</span>
+  <h2>Regression metrics</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:20%">Metric</th><th style="width:30%">Says</th><th>Use when</th></tr></thead>
+  <tbody>
+    <tr><td><strong>RMSE</strong></td><td>Typical error, in pIC₅₀ units, punishing large misses.</td><td>You care about magnitude. <strong>Report this — it is interpretable.</strong> RMSE 0.7 means "typically wrong by a factor of five".</td></tr>
+    <tr><td><strong>MAE</strong></td><td>Median-ish error, robust to outliers.</td><td>Alongside RMSE. If MAE ≪ RMSE, a few compounds are badly wrong — go and look at them.</td></tr>
+    <tr><td><strong>R²</strong></td><td>Fraction of variance explained.</td><td>Conventional, but <strong>depends on the spread of your test set</strong>: a narrow-range test set gives a low R² even with good predictions. Never report it alone.</td></tr>
+    <tr><td><strong>Spearman ρ</strong></td><td>Rank correlation.</td><td><strong>Often the metric that matters most</strong>, because the decision is usually "which do I make first?" — a ranking question, not a magnitude one.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="l8">
+  <span class="mn">Lesson 08</span>
+  <h2>Classification metrics — and why accuracy is useless here</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · the base-rate trap, in chemistry</span>
+  <div class="body">
+<pre><code>A screening library: 100,000 compounds, 1,000 of them active (1%).
+
+MODEL A: predicts "inactive" for everything.
+    accuracy = 99.0%              &lt;-- and it is completely worthless
+
+MODEL B: picks 500 compounds, 100 of them active.
+    accuracy = 99.1%              &lt;-- barely different!
+    but: hit rate 20% vs 1% at random  =  20x ENRICHMENT
+    this model just saved the project a great deal of money
+
+⭐ ACCURACY CANNOT TELL THESE APART. Never use it on
+   imbalanced chemical data, which is all chemical data.</code></pre>
+  </div>
+</div>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:22%">Metric</th><th>What it is for</th></tr></thead>
+  <tbody>
+    <tr><td><strong>ROC-AUC</strong></td><td>Overall ranking quality. Conventional and comparable — but <strong>insensitive to the top of the list</strong>, which is the only part you will act on.</td></tr>
+    <tr><td><strong>PR-AUC</strong></td><td>Better than ROC-AUC under heavy imbalance. Its baseline is the active rate, so a PR-AUC of 0.15 at a 1% active rate is a strong result.</td></tr>
+    <tr><td><strong>Enrichment factor at 1%</strong></td><td><strong>The field's own metric.</strong> "How many times more actives in my top 1% than at random?" Directly answers the business question.</td></tr>
+    <tr><td><strong>BEDROC</strong></td><td>Like ROC-AUC but weighted towards the top of the ranking. Has a tunable α; report it, because the value changes the number a lot.</td></tr>
+    <tr><td><strong>MCC</strong></td><td>A balanced single number for a fixed threshold. Better than F1 when both classes matter.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="good">
+  <span class="tag">The rule for choosing</span>
+  <p><strong>Pick the metric that matches the decision.</strong> If you will buy the top 500,
+  <em>measure the top 500</em> — enrichment at that cut, or precision at k. A model with a worse
+  ROC-AUC but better top-100 precision is the better model for that decision, and reporting only
+  ROC-AUC would have hidden it.</p>
+</div>
+
+<header class="mod" id="l9">
+  <span class="mn">Lesson 09</span>
+  <h2>The noise ceiling</h2>
+</header>
+
+<div class="warn">
+  <span class="tag">You cannot be more accurate than your labels</span>
+  <p>From Volume 06: the median spread among replicate measurements was 0.31 log units. Between
+  different labs, differences of 0.5 log units or more are common for IC₅₀.</p>
+  <p><strong>So an RMSE below roughly 0.5 on literature-derived IC₅₀ data should be treated as a leak
+  until proven otherwise</strong>, not as a triumph. The usual causes: duplicates spanning the split,
+  a random split, or the same compound in train and test under two tautomers.</p>
+  <p><strong>Report the noise floor next to the model's RMSE.</strong> "RMSE 0.62 against an
+  experimental noise floor of 0.31" is a far more informative and more credible sentence than "RMSE
+  0.62", and it tells the reader how much room is left.</p>
+</div>
+
+<header class="part" id="part4">
+  <span class="pn">Part IV</span>
+  <h2>Honesty</h2>
+</header>
+
+<header class="mod" id="l10">
+  <span class="mn">Lesson 10</span>
+  <h2>Applicability domain — the field's defining idea</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The problem it solves</span>
+    <p>A model will return a number for <strong>any</strong> molecule you give it, including one
+    utterly unlike anything it was trained on. It has no way of refusing. Feed a random peptide to a
+    kinase-inhibitor model and you get a confident pIC₅₀ that means nothing.</p></div>
+  <div class="b"><span class="k">The definition</span>
+    <p><strong>The applicability domain is the region of chemical space where the model's predictions
+    are supported by training data.</strong> Reporting a prediction from outside it, without saying
+    so, is the field's cardinal sin — and it is the fastest way to lose a chemist's trust permanently.</p></div>
+  <div class="b junior"><span class="k">How to compute one — the simple version that works</span>
+<pre><code>def in_domain(test_fp, train_fps, threshold=0.35):
+    sims = DataStructs.BulkTanimotoSimilarity(test_fp, train_fps)
+    return max(sims) &gt;= threshold          # nearest training neighbour
+
+# calibrate the threshold on data you have, do not guess it:
+#   bin the TEST compounds by their max-similarity to train,
+#   plot prediction error against that bin,
+#   the similarity at which error rises sharply IS your threshold.</code></pre>
+    <p>Other approaches — distance to the training centroid, leverage, the variance across random
+    forest trees, or a conformal predictor for calibrated intervals — are more sophisticated. The
+    nearest-neighbour version above captures most of the value and is easy to explain.</p></div>
+  <div class="b check"><span class="k">What you actually ship</span>
+    <p><strong>Predictions with a flag, and a refusal for the worst cases.</strong></p>
+<pre><code>compound   predicted pIC50   nearest train sim   status
+  A            7.8                0.62           IN DOMAIN
+  B            6.4                0.41           IN DOMAIN
+  C            8.9                0.19           ** OUT OF DOMAIN — do not use **</code></pre>
+    <p>Compound C is the dangerous one: the highest predicted activity, and the least support. That
+    pattern is common, because extrapolation tends to produce extreme values — which is exactly why
+    the most exciting prediction deserves the most scrutiny.</p></div>
+</div>
+
+<header class="mod" id="l11">
+  <span class="mn">Lesson 11</span>
+  <h2>Y-randomisation — the ten-minute sanity check</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · proving the signal is real</span>
+  <div class="body">
+<pre><code>real_score = evaluate(model, X, y)                 # e.g. R2 = 0.41
+
+scores = []
+for _ in range(50):
+    y_shuffled = np.random.permutation(y)          # break the structure-activity link
+    scores.append(evaluate(fresh_model(), X, y_shuffled))
+
+print("real:", real_score)
+print("shuffled:", np.mean(scores), "+/-", np.std(scores))
+
+  real:      0.41
+  shuffled: -0.02 +/- 0.05        &lt;-- GOOD. the signal is real.
+
+  real:      0.41
+  shuffled:  0.33 +/- 0.08        &lt;-- ALARM. your pipeline can "predict"
+                                      random labels. Something leaks.</code></pre>
+    <p><strong>The second case means you have a leak, and it is nearly always one of three things:</strong>
+    duplicates spanning the split, feature selection performed before splitting, or a target that is
+    partly encoded in the features. Y-randomisation cannot tell you which — but it tells you to stop
+    and look, which is the point.</p>
+    <p>Run it once per project. It costs ten minutes and it has saved a great many people from
+    presenting a model built on a leak.</p>
+  </div>
+</div>
+
+<header class="mod" id="l12">
+  <span class="mn">Lesson 12</span>
+  <h2>The OECD principles — the checklist regulators use</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:8%">#</th><th style="width:30%">Principle</th><th>In practice</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><strong>A defined endpoint</strong></td><td>"IC₅₀, human AChE, binding assay" — not "activity". Volume 06, Lesson 03.</td></tr>
+    <tr><td>2</td><td><strong>An unambiguous algorithm</strong></td><td>Anyone can reproduce it: features, parameters, versions, seed. Volume 02, Lesson 10.</td></tr>
+    <tr><td>3</td><td><strong>A defined domain of applicability</strong></td><td>Lesson 10. Note that this is a <em>requirement</em>, not a nicety.</td></tr>
+    <tr><td>4</td><td><strong>Appropriate measures of goodness-of-fit, robustness and predictivity</strong></td><td>Three distinct things: fit on training, stability under resampling and Y-randomisation, and performance on a proper external test set.</td></tr>
+    <tr><td>5</td><td><strong>A mechanistic interpretation, if possible</strong></td><td>"If possible" is doing real work — but being able to say <em>why</em> the model predicts what it does is what makes a chemist act on it.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="tag">Why this matters even outside regulation</span>
+  <p>These five principles were written for regulatory acceptance of QSAR models, but they are simply
+  <strong>a good checklist for any model.</strong> Auditing yourself against them before presenting is
+  the cheapest way to find the hole someone else would have found.</p>
+</div>
+
+<header class="mod" id="l13">
+  <span class="mn">Lesson 13</span>
+  <h2>Interpretation — making a chemist act on it</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Feature importance</h4><p>Which fingerprint bits mattered. Then map the bits back to substructures and <strong>draw them</strong>. A picture of "the model likes this fragment" is worth more than any table. Beware bit collisions from Volume 05 — a collided bit gives a confident, wrong explanation.</p></div>
+  <div class="card"><h4>SHAP values</h4><p>Per-prediction attribution: why <em>this</em> compound got <em>this</em> score. More useful than global importance, because the chemist's question is always about a specific molecule.</p></div>
+  <div class="card"><h4>Similar training compounds</h4><p>The most underrated. Alongside every prediction, show the three most similar training compounds and their measured values. <strong>A chemist can evaluate that instantly</strong>, and it makes the applicability domain visible rather than abstract.</p></div>
+  <div class="card"><h4>Matched molecular pairs</h4><p>From Volume 07. Often more actionable than the model itself, and it requires no trust in a black box.</p></div>
+</div>
+
+<header class="mod" id="recipe">
+  <span class="mn">Reference</span>
+  <h2>The full recipe</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">A QSAR model you can defend — the whole checklist</div>
+<pre><code>  □  ONE endpoint, ONE assay type, ONE organism            (Vol 06)
+  □  Curated, standardised, deduplicated; counts recorded  (Vol 06)
+  □  Noise floor computed from replicate measurements      (Vol 06)
+  □  Baseline chosen BEFORE modelling — nearest neighbour  (L02)
+  □  Scaffold or time split, with the invariant ASSERTED   (L06)
+  □  GroupKFold inside training for any tuning             (L05)
+  □  Metric matched to the decision, not to convention     (L07-08)
+  □  Y-randomisation run and reported                      (L11)
+  □  Applicability domain defined and calibrated           (L10)
+  □  Predictions shipped WITH domain flags                 (L10)
+  □  Three nearest training compounds shown per prediction (L13)
+  □  RDKit version, fingerprint parameters, seed saved     (Vol 02)
+  □  README says what the model does NOT cover             (Vol 02)
+
+⭐ THE LAST LINE IS THE ONE THAT EARNS TRUST. A model with a
+   clearly stated boundary gets used. A model that answers
+   everything gets used once.</code></pre>
+</div>
+
+<div class="chk" id="chk">
+  <span class="cap">Checkpoint · you should now be able to</span>
+  <ul>
+    <li>Explain in two sentences why a random split inflates chemical model performance.</li>
+    <li>Write a scaffold split and the assertion that proves it worked.</li>
+    <li>Say why accuracy is the wrong metric on a 1%-active library, and name two better ones.</li>
+    <li>Compute a nearest-neighbour applicability domain and calibrate its threshold from data.</li>
+    <li>Run Y-randomisation and interpret both possible outcomes.</li>
+    <li>Recite the five OECD principles and audit one of your own models against them.</li>
+  </ul>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 09 · Virtual screening and ADMET</h4><p>Applying models at scale — filter cascades, enrichment, and the properties that kill drugs long after potency stopped being the problem.</p></div>
+  <div class="card"><h4>The source material</h4><p><code>phase-2-ml-for-chemistry/11-qsar-qspr-fundamentals.md</code> (1,847 lines) and <code>12-molecular-property-prediction.md</code> (1,682 lines).</p></div>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

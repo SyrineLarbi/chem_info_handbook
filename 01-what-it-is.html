@@ -1,0 +1,1000 @@
+<title>What Cheminformatics Is</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 01</p>
+  <p class="rail-sub">What cheminformatics is</p>
+  <span class="rail-vol">Start here</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+  <a href="#how"><span class="n">—</span>How to use this course</a>
+
+  <div class="rail-group">I · The field</div>
+  <a href="#l1"><span class="n">01</span>What the word means</a>
+  <a href="#l2"><span class="n">02</span>The three neighbours</a>
+  <a href="#l3"><span class="n">03</span>Why a computer at all</a>
+
+  <div class="rail-group">II · The problem it serves</div>
+  <a href="#l4"><span class="n">04</span>How a drug gets made</a>
+  <a href="#l5"><span class="n">05</span>Where you sit in that</a>
+  <a href="#l6"><span class="n">06</span>The economics</a>
+
+  <div class="rail-group">III · The vocabulary</div>
+  <a href="#l7"><span class="n">07</span>Twenty words, defined</a>
+  <a href="#l8"><span class="n">08</span>The five molecules</a>
+
+  <div class="rail-group">IV · The work</div>
+  <a href="#l9"><span class="n">09</span>The roles</a>
+  <a href="#l10"><span class="n">10</span>A week in the job</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#vids"><span class="n">—</span>Watch these</a>
+  <a href="#chk"><span class="n">—</span>Checkpoint</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 01 of 17 · start here</p>
+  <h1>What cheminformatics is. <span class="thin">And why anyone pays for it.</span></h1>
+  <p class="lede">A molecule is a physical object. A computer cannot hold one. Everything in this
+  field follows from that single inconvenience — so this first volume is about what the field is
+  trying to do, the problem it exists to serve, and the twenty words you need before the rest of
+  the course will make sense.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · no chemistry</span>
+    <span><b>Teaches</b> · the map and the vocabulary</span>
+    <span><b>Time</b> · 3–4 hours</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<div class="vol here"><span class="vn">Vol 01 · here</span><b>What it is</b></div>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<div class="obj">
+  <span class="cap">By the end of this volume you will be able to</span>
+  <ul>
+    <li>Say what cheminformatics is, and how it differs from computational chemistry and bioinformatics — without hedging.</li>
+    <li>Draw the drug discovery pipeline from target to market and point at the two stages where this work actually happens.</li>
+    <li>Read a sentence like <em>"we screened 2M compounds, took the top 500 by docking score, and filtered on ADMET"</em> and know what every word means.</li>
+    <li>Recognise five molecules by their SMILES string, which is the notation the entire course runs on.</li>
+  </ul>
+</div>
+
+<header class="mod" id="how">
+  <span class="mn">Before you start</span>
+  <h2>How to use this course</h2>
+</header>
+
+<p>Fifteen volumes, in order. Each one assumes the volumes before it and nothing else. There is a
+<strong>cheat sheet at the end</strong> — Volume 17 — and it is meant to be the thing you keep open
+once you are working, not something you read now.</p>
+
+<p>Three habits will make the difference between finishing this and abandoning it:</p>
+
+<ol class="stepn">
+  <li><strong>Type the examples.</strong> Every worked example in this course is a real string you
+  can paste into a Python session. Reading <code>Descriptors.MolWt(mol)</code> teaches you nothing;
+  running it on a molecule you chose teaches you the whole lesson.</li>
+  <li><strong>Do the try-it blocks before opening them.</strong> They are collapsed for a reason.
+  Getting one wrong and finding out why is the entire mechanism by which this becomes yours.</li>
+  <li><strong>Accept that you will not understand chemistry deeply, and that this is fine.</strong>
+  You need enough chemistry to avoid producing nonsense and to talk to a chemist. You do not need
+  to be one. The course tells you which is which.</li>
+</ol>
+
+<div class="note">
+  <span class="tag">What this course is not</span>
+  <p>It is not a chemistry degree, and it is not a machine-learning course. It assumes you can write
+  Python and have seen a train/test split. Where a machine-learning idea matters — leakage, the
+  choice of metric, what a split really controls for — this course explains the <em>chemical</em>
+  version of it, because that is where people who know ML still get it wrong.</p>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>The field</h2>
+  <p class="lede">Three lessons to fix what the word means, what it is next to, and why the computer
+  is involved at all.</p>
+</header>
+
+<header class="mod" id="l1">
+  <span class="mn">Lesson 01</span>
+  <h2>What the word means</h2>
+</header>
+
+<p><strong>Cheminformatics is the use of computers to store, search, and learn from information
+about molecules.</strong> That is the whole definition. The three verbs are worth separating,
+because they arrived in that order historically and they are still three different jobs:</p>
+
+<div class="terms">
+  <div class="cap">The three jobs, oldest first</div>
+  <dl>
+    <dt>Store</dt>
+    <dd>Get a molecule into a computer at all, unambiguously, so that two people writing down the
+    same molecule produce the same thing. This sounds trivial and is not — Volume 03 is entirely
+    about it.</dd>
+    <dt>Search</dt>
+    <dd>Find molecules. Not by name, but <em>by structure</em> — "everything containing this ring",
+    "everything similar to this one". A chemical database where you can only search by name is
+    almost useless, because the interesting question is always structural.</dd>
+    <dt>Learn</dt>
+    <dd>Predict something you have not measured. Given 4,000 molecules whose solubility was
+    measured in a lab, predict the solubility of a molecule nobody has made yet. This is the part
+    that has "AI" in front of it, and it is Volumes 08 through 11.</dd>
+  </dl>
+</div>
+
+<p>The thing that makes it a distinct field rather than "data science applied to chemistry" is the
+awkwardness of the object. A molecule is not a row of numbers, not a sentence, and not an image.
+It is a <strong>graph</strong> — atoms joined by bonds — with physical rules about which graphs are
+possible and a three-dimensional shape that the graph does not fully determine. Almost every
+technique in this course is a different answer to <em>"so how do we turn that into numbers?"</em></p>
+
+<div class="wex">
+  <span class="cap">Worked example · why a molecule is not just a formula</span>
+  <div class="body">
+    <p class="q">Here are two molecules. Both have the molecular formula C₂H₆O.</p>
+<pre><code>ETHANOL                        DIMETHYL ETHER
+  CCO                            COC
+  H H                            H   H
+  | |                            |   |
+H-C-C-O-H                      H-C-O-C-H
+  | |                            |   |
+  H H                            H   H
+
+  drinkable                      a gas at room temperature
+  boils at 78 °C                 boils at -24 °C</code></pre>
+    <p><strong>Same atoms. Same counts. Completely different substances.</strong> The difference is
+    only in which atom is bonded to which. This is why a molecular formula is not a useful
+    representation, and why the entire field is built on representing <em>connectivity</em>.</p>
+    <p>Those short strings — <span class="mol">CCO</span> and <span class="mol">COC</span> — are
+    SMILES, the notation you will use for the rest of the course. Volume 03 teaches you to read
+    them properly. For now just note that they differ, and that the formula does not.</p>
+  </div>
+</div>
+
+<header class="mod" id="l2">
+  <span class="mn">Lesson 02</span>
+  <h2>The three neighbours, and how to tell them apart</h2>
+</header>
+
+<p>Four field names get used loosely and interchangeably in job adverts, which is confusing when you
+are starting. Here is the honest separation:</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:20%">Field</th><th style="width:26%">What it computes</th><th style="width:26%">What it is built on</th><th>The tell</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>Cheminformatics</strong></td>
+      <td>Statistical relationships between <em>structure</em> and <em>property</em>, over many molecules</td>
+      <td>Graph theory, databases, machine learning</td>
+      <td>Works on <strong>thousands to millions</strong> of molecules at once. Fast and approximate.</td>
+    </tr>
+    <tr>
+      <td><strong>Computational chemistry</strong></td>
+      <td>Physical properties from first principles — energies, geometries, reaction barriers</td>
+      <td>Quantum mechanics, physics</td>
+      <td>Works on <strong>one molecule at a time</strong>, slowly. Minutes to days per molecule.</td>
+    </tr>
+    <tr>
+      <td><strong>Bioinformatics</strong></td>
+      <td>Sequences — DNA, RNA, protein</td>
+      <td>String algorithms, statistics, ML</td>
+      <td>The objects are <strong>letters in a line</strong>, not graphs. Different maths entirely.</td>
+    </tr>
+    <tr>
+      <td><strong>Structural bioinformatics</strong></td>
+      <td>The 3D shape of proteins, and what binds to them</td>
+      <td>Geometry, physics, deep learning</td>
+      <td>Where cheminformatics meets biology — Volume 12 lives here.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<div class="good">
+  <span class="tag">The one-sentence discriminator</span>
+  <p><strong>Computational chemistry asks "what does physics say about this molecule?" Cheminformatics
+  asks "what do the other molecules say about this molecule?"</strong> One is a simulation; the other
+  is an inference from neighbours. That difference explains their speeds, their failure modes, and
+  why a project usually needs both.</p>
+</div>
+
+<header class="mod" id="l3">
+  <span class="mn">Lesson 03</span>
+  <h2>Why use a computer at all</h2>
+</header>
+
+<p>The honest answer is <strong>arithmetic</strong>. The number of small organic molecules that could
+plausibly be drugs is often quoted as around <strong>10⁶⁰</strong> — a figure from a 1996 estimate
+that is rough by many orders of magnitude but right in the only way that matters: it is
+unimaginably larger than what anyone can make.</p>
+
+<div class="sheet">
+  <div class="cap">The scale problem, in numbers you can hold</div>
+<pre><code>MOLECULES THAT COULD EXIST (drug-like)      ~10^60   (an estimate; treat as "effectively infinite")
+MOLECULES EVER SYNTHESISED BY HUMANS        ~10^8    (CAS registry, order of magnitude)
+MOLECULES YOU CAN BUY TODAY                 ~10^10   (make-on-demand catalogues, e.g. Enamine REAL)
+MOLECULES IN A BIG PUBLIC BIOACTIVITY SET   ~10^6    (ChEMBL, with measured activity)
+MOLECULES A LAB CAN TEST PROPERLY PER YEAR  ~10^3-10^5
+
+⭐ THE GAP BETWEEN LINE 1 AND LINE 5 IS THE ENTIRE JUSTIFICATION
+   FOR THE FIELD. You cannot test your way through it. You can
+   only PREDICT your way through it, then test what the prediction
+   says is worth testing.</code></pre>
+</div>
+
+<p>So the job is <strong>triage</strong>, not oracle. A model that ranks ten million compounds and
+puts the good ones near the top is enormously valuable even if it is wrong about most individual
+compounds. A model that is right 90% of the time about which compounds to <em>ignore</em> saves more
+money than one that is right 60% of the time about which will succeed. Keep that framing — it comes
+back in Volume 09 when you meet enrichment factors, and it is the reason chemists judge these models
+differently from how a data scientist would expect.</p>
+
+<div class="warn">
+  <span class="tag">The mistake to not make in month one</span>
+  <p>Do not describe your work as "designing drugs with AI". You are <strong>narrowing a search
+  space</strong>. Every experienced person in this field will judge how seriously to take you by
+  whether you understand that distinction, because the field has a long history of overclaiming and
+  the people hiring you have been burned by it.</p>
+</div>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>The problem it serves</h2>
+  <p class="lede">You cannot make good decisions about a model without knowing what happens downstream
+  of it. Three lessons on the pipeline your work feeds.</p>
+</header>
+
+<header class="mod" id="l4">
+  <span class="mn">Lesson 04</span>
+  <h2>How a drug actually gets made</h2>
+</header>
+
+<p>Most cheminformatics work exists inside this pipeline, so it is worth knowing even if you end up
+in materials or agrochemicals instead. Read it as a funnel: each stage costs more per compound than
+the one before, so the whole game is <strong>killing bad compounds as early as possible</strong>.</p>
+
+<pre class="ascii">
+  TARGET IDENTIFICATION          "Which protein, if we blocked it, would treat this disease?"
+        |                         Biology. Years. You are usually not here.
+        v
+  HIT IDENTIFICATION             "Which molecules bind that protein at all?"
+        |                         ~10^6 - 10^9 candidates -> a few hundred "hits"
+        |                         ** VIRTUAL SCREENING LIVES HERE  (Volume 09) **
+        v
+  HIT-TO-LEAD                    "Which hits are worth investing in?"
+        |                         Confirm they are real; kill the artefacts
+        v
+  LEAD OPTIMISATION              "Make it more potent, less toxic, better absorbed."
+        |                         Hundreds of designed analogues, measured one by one
+        |                         ** QSAR AND ADMET MODELS LIVE HERE  (Volumes 08, 09) **
+        v
+  PRECLINICAL                    Animal safety and pharmacokinetics
+        |
+        v
+  CLINICAL PHASE I / II / III    Humans. Safety, then efficacy, then scale.
+        |                         ~90% of what enters Phase I never reaches market
+        v
+  APPROVAL &amp; MARKET
+
+  TOTAL: commonly cited as 10-15 years and $1-2.6 billion per approved drug
+         (the cost figure includes the failures, which is the point)
+</pre>
+
+<div class="note">
+  <span class="tag">Why the cost number is so large</span>
+  <p>The often-quoted ~$2.6 billion is not what one drug costs to make. It is the <strong>capitalised
+  cost per success, including every failure along the way</strong>, which is why reducing failure
+  rates early is worth so much. If a computational filter kills a compound in month six that would
+  otherwise have failed in Phase II in year nine, it has paid for the entire team. That is the
+  business case for your job, and it is worth being able to state it in one sentence.</p>
+</div>
+
+<header class="mod" id="l5">
+  <span class="mn">Lesson 05</span>
+  <h2>Where you sit in that</h2>
+</header>
+
+<p>Two places, mostly. Both are about narrowing, and neither is about being right.</p>
+
+<div class="sen">
+  <div class="b knows"><span class="k">Position 1 · the funnel top — virtual screening</span>
+    <p>Someone has a protein target and a catalogue of ten million purchasable compounds. Buying and
+    testing all of them is impossible. <strong>Your job is to produce a ranked list of 500 to buy.</strong></p>
+    <p>You are judged on <em>hit rate</em>: of the 500 you picked, how many turned out active,
+    compared with 500 picked at random. A 20× improvement over random is a good day. Being wrong
+    about 470 of them is normal and expected.</p></div>
+  <div class="b"><span class="k">Position 2 · the middle — property and ADMET prediction</span>
+    <p>A chemist has a promising molecule and twelve ideas for how to modify it. Making and testing
+    all twelve takes six weeks. <strong>Your job is to say which three to make first</strong>, and to
+    flag any that will fail for a boring reason — too insoluble, metabolised too fast, likely to hit
+    the heart channel that ends careers.</p>
+    <p>You are judged on whether the chemist's time was well spent, which is a much softer measure
+    and much more about trust than about AUC.</p></div>
+  <div class="b check"><span class="k">What both have in common</span>
+    <p><strong>Your output is a decision about what to do next, not a number.</strong> A model whose
+    predictions are never acted on has no value regardless of its metrics — and the way you lose the
+    right to be acted on is by being confidently wrong about a compound the chemist knew was silly.
+    Volume 08's applicability domain is the formal version of this worry.</p></div>
+</div>
+
+<header class="mod" id="l6">
+  <span class="mn">Lesson 06</span>
+  <h2>The economics, and why it shapes the technical choices</h2>
+</header>
+
+<p>Three asymmetries govern almost every methodological decision in this field. They are worth
+learning now because they explain choices that otherwise look arbitrary.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:26%">Asymmetry</th><th style="width:34%">What it means</th><th>What it causes</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><strong>False negatives are invisible</strong></td>
+      <td>If your model discards a compound that would have been a blockbuster, nobody ever finds out.</td>
+      <td>A systematic bias towards filters that look safe. It is also why <em>diversity</em> in a selected set is valued — it hedges against a wrong model.</td>
+    </tr>
+    <tr>
+      <td><strong>Data is small, expensive and biased</strong></td>
+      <td>A typical target has 200–2,000 measured compounds, produced by chemists who were <em>trying</em> to find actives, not sampling randomly.</td>
+      <td>Random train/test splits lie (Volume 08). Deep learning often loses to a random forest. Public data is dominated by what was publishable.</td>
+    </tr>
+    <tr>
+      <td><strong>Testing costs money and time</strong></td>
+      <td>Making one new compound can be weeks of a chemist's work.</td>
+      <td>Precision at the top of the ranking is what matters; overall accuracy mostly does not. And a prediction with an honest uncertainty beats a better point estimate without one.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<details class="try">
+  <summary>Try it · A colleague reports a solubility model with R² = 0.91 on a random 20% test split of 1,200 measured compounds. Why should you be sceptical, before seeing anything else?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>Because a random split almost certainly put near-identical molecules on both sides of
+    it.</strong> Chemical datasets are built from <em>series</em> — a core structure with twenty
+    small variations around it, made by one chemist over one project. Split those at random and the
+    test set contains compounds whose close siblings are in training. The model can score well by
+    recognising the series rather than learning solubility.</p>
+    <p>The fix is a <strong>scaffold split</strong> — group by core structure, keep whole groups
+    together — and R² normally falls a long way when you do it. That drop is not the model getting
+    worse; it is the first honest number you have seen. Volume 08 covers this properly.</p>
+    <p>Second, smaller point: R² of 0.91 on measured solubility is suspicious on its own, because
+    <em>experimental</em> solubility measurements from different labs often disagree with each other
+    by around half a log unit. A model cannot be meaningfully more consistent than its own labels.</p>
+  </div>
+</details>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>The vocabulary</h2>
+  <p class="lede">Two lessons that do the unglamorous work. Everything after this assumes them.</p>
+</header>
+
+<header class="mod" id="l7">
+  <span class="mn">Lesson 07</span>
+  <h2>Twenty words, defined once</h2>
+</header>
+
+<p>These appear constantly from Volume 02 onwards. You do not need to memorise them — you need to
+stop being stopped by them. The full 300-term glossary is condensed into Volume 17.</p>
+
+<div class="terms">
+  <div class="cap">Structures and notation</div>
+  <dl>
+    <dt>SMILES</dt><dd>A molecule written as a line of text. <span class="mol">CCO</span> is ethanol. The workhorse notation of the field.</dd>
+    <dt>SMARTS</dt><dd>SMILES with wildcards — a <em>search pattern</em> for substructures, the way a regular expression is a pattern for text.</dd>
+    <dt>InChI</dt><dd>A different string, designed so that one molecule has exactly <em>one</em> possible InChI. Used as a database key; unreadable by humans.</dd>
+    <dt>SDF / MOL</dt><dd>A file format that stores atoms, bonds and optionally 3D coordinates, plus arbitrary data fields. The format datasets actually arrive in.</dd>
+    <dt>Scaffold</dt><dd>The core ring system of a molecule once you strip the decorations. How chemists group compounds into families.</dd>
+  </dl>
+  <div class="cap" style="margin-top:14px;">Turning structures into numbers</div>
+  <dl>
+    <dt>Descriptor</dt><dd>A single number computed from a structure — molecular weight, number of rotatable bonds, calculated greasiness.</dd>
+    <dt>Fingerprint</dt><dd>A long vector of bits, each recording "is this particular fragment present?". The standard way to make molecules comparable.</dd>
+    <dt>Tanimoto similarity</dt><dd>How alike two fingerprints are, from 0 to 1. The field's default notion of "similar molecule". Roughly: shared bits over total bits.</dd>
+    <dt>ECFP / Morgan fingerprint</dt><dd>The most widely used fingerprint family. Volume 05 explains how it is built.</dd>
+  </dl>
+  <div class="cap" style="margin-top:14px;">Models and their judgement</div>
+  <dl>
+    <dt>QSAR</dt><dd><em>Quantitative Structure–Activity Relationship.</em> A model predicting biological activity from structure. The field's bread and butter.</dd>
+    <dt>QSPR</dt><dd>The same thing for a physical <em>property</em> rather than biological activity.</dd>
+    <dt>Applicability domain</dt><dd>The region of chemical space where a model's predictions can be trusted. Reporting a prediction outside it, without saying so, is the field's cardinal sin.</dd>
+    <dt>Activity cliff</dt><dd>Two nearly identical molecules with wildly different activity. The thing that breaks similarity-based reasoning, and the reason models plateau.</dd>
+  </dl>
+  <div class="cap" style="margin-top:14px;">Drug discovery words</div>
+  <dl>
+    <dt>Target</dt><dd>The protein you are trying to affect.</dd>
+    <dt>Ligand</dt><dd>The small molecule that binds to it. In practice, "the drug".</dd>
+    <dt>Hit</dt><dd>A compound confirmed to do something to the target, at all. Usually weakly.</dd>
+    <dt>Lead</dt><dd>A hit that has survived scrutiny and is worth optimising.</dd>
+    <dt>Potency (IC₅₀, Kᵢ, EC₅₀)</dt><dd>How little of the compound you need. <strong>Lower is better</strong> — this trips up every newcomer. Usually converted to pIC₅₀ = −log₁₀(IC₅₀ in molar), where <em>higher</em> is better.</dd>
+    <dt>ADMET</dt><dd>Absorption, Distribution, Metabolism, Excretion, Toxicity — everything that determines whether a potent molecule can actually be a drug. Most failures are here, not in potency.</dd>
+    <dt>Docking</dt><dd>Predicting how a ligand sits in a protein's binding pocket, and scoring how well it fits.</dd>
+    <dt>Virtual screening</dt><dd>Ranking a large library computationally to choose what to test.</dd>
+  </dl>
+</div>
+
+<div class="bad">
+  <span class="tag">The unit trap that will bite you</span>
+  <p><strong>IC₅₀ = 10 nM is a <em>better</em> compound than IC₅₀ = 10 µM</strong>, by a factor of a
+  thousand. Potency values are concentrations — the amount needed for an effect — so small is good.
+  Worse, public datasets mix nM, µM and M in the same column. Volume 06 shows the curation code for
+  this, and it is the single most common way a beginner's model ends up learning nothing but the
+  unit column.</p>
+</div>
+
+<header class="mod" id="l8">
+  <span class="mn">Lesson 08</span>
+  <h2>The five molecules this course uses</h2>
+</header>
+
+<p>Rather than a new example every time, this course reuses five familiar molecules throughout, so
+that by Volume 08 you have intuition about them. Learn to recognise these strings.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:16%">Molecule</th><th style="width:30%">SMILES</th><th style="width:12%">MW</th><th>Why it is in the set</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Ethanol</strong></td><td><span class="mol">CCO</span></td><td>46.07</td><td>The smallest thing worth writing down. Good for checking that your code runs at all.</td></tr>
+    <tr><td><strong>Benzene</strong></td><td><span class="mol">c1ccccc1</span></td><td>78.11</td><td>Introduces aromaticity and the lowercase convention. Six atoms, one ring.</td></tr>
+    <tr><td><strong>Aspirin</strong></td><td><span class="mol">CC(=O)Oc1ccccc1C(=O)O</span></td><td>180.16</td><td>A real drug, small enough to read by eye. The course's default example.</td></tr>
+    <tr><td><strong>Paracetamol</strong></td><td><span class="mol">CC(=O)Nc1ccc(O)cc1</span></td><td>151.16</td><td>Similar size to aspirin, different chemistry — a natural comparison pair.</td></tr>
+    <tr><td><strong>Caffeine</strong></td><td><span class="mol">Cn1cnc2c1c(=O)n(C)c(=O)n2C</span></td><td>194.19</td><td>Two fused rings and several nitrogens. Where reading SMILES stops being easy.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="wex">
+  <span class="cap">Worked example · reading aspirin, character by character</span>
+  <div class="body">
+    <p class="q">You do not need to write SMILES yet. You need to stop finding them opaque.</p>
+<pre><code>CC(=O)Oc1ccccc1C(=O)O
+
+C          a carbon atom
+C(=O)      a carbon double-bonded to an oxygen      -- this is a C=O group
+O          an oxygen, joining that group to what follows
+c1ccccc1   six aromatic carbons forming a ring      -- lowercase means aromatic
+                                                       the 1s mark where the ring closes
+C(=O)O     another C=O, this one also carrying an -OH  -- a carboxylic acid
+
+READ ALOUD: "an acetyl group, attached through an oxygen to a benzene ring,
+             which also carries a carboxylic acid"
+             ...which is the chemical name: acetylsalicylic acid.</code></pre>
+    <p><strong>Three rules explain most of what you just read:</strong> letters are atoms; brackets
+    are branches hanging off the main chain; a digit marks a ring opening and the matching digit
+    closes it. Hydrogens are not written — they are assumed to fill whatever is left over.</p>
+  </div>
+</div>
+
+<details class="try">
+  <summary>Try it · Which of these two is paracetamol, and how can you tell without knowing any chemistry?  (a) <span class="mol">CC(=O)Nc1ccc(O)cc1</span>  (b) <span class="mol">CC(=O)Oc1ccccc1C(=O)O</span></summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>(a).</strong> Two tells, both purely structural:</p>
+    <ul>
+      <li>(b) contains <code>C(=O)O</code> at the end — a carboxylic acid — and (a) does not. From the
+      table above, the acid is aspirin's distinguishing feature.</li>
+      <li>(a) contains an <strong>N</strong>. Paracetamol has a nitrogen; aspirin has none. Counting
+      element letters is often enough to tell two molecules apart.</li>
+    </ul>
+    <p>Also worth noticing: in (a) the ring is written <code>c1ccc(O)cc1</code> — the <code>(O)</code>
+    sits <em>inside</em> the ring's character run, meaning an OH hangs off that ring atom. Branches
+    in brackets can appear anywhere, including mid-ring.</p>
+  </div>
+</details>
+
+<header class="part" id="part4">
+  <span class="pn">Part IV</span>
+  <h2>The work</h2>
+</header>
+
+<header class="mod" id="l9">
+  <span class="mn">Lesson 09</span>
+  <h2>The roles, and which one you are aiming at</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:22%">Title</th><th style="width:32%">What they actually do</th><th>What they are hired for</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Cheminformatician / Computational chemist</strong></td><td>Builds models, runs screens, supports project teams of medicinal chemists.</td><td>Chemistry judgement first, coding second. Usually needs real chemistry background.</td></tr>
+    <tr><td><strong>ML scientist, drug discovery</strong></td><td>Builds and trains the models — GNNs, generative models, foundation models.</td><td>ML depth first. Chemistry learned on the job, and the good ones learn it fast.</td></tr>
+    <tr><td><strong>Scientific software engineer</strong></td><td>Builds the platforms the scientists use — pipelines, data layers, internal tools.</td><td>Software engineering, with enough domain fluency to model the data correctly.</td></tr>
+    <tr><td><strong>Data engineer, chemistry data</strong></td><td>Ingests, normalises and serves compound and assay data at scale.</td><td>Data engineering plus an unusual tolerance for messy scientific units.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="proj">
+  <span class="tag">If you are arriving from software rather than chemistry</span>
+  <p>The third and fourth rows are the realistic entry points, and they are not a consolation prize —
+  chemistry organisations are chronically short of people who can build reliable software, and the
+  data problems are genuinely hard. <strong>The route in is to be the person who can do both halves
+  of a conversation</strong>: enough chemistry to know why the units matter, enough engineering to
+  make the pipeline that fixes them. Volume 16 covers the portfolio that demonstrates this.</p>
+</div>
+
+<header class="mod" id="l10">
+  <span class="mn">Lesson 10</span>
+  <h2>What the work actually looks like</h2>
+</header>
+
+<p>A realistic composite week, because the job is less glamorous and more interesting than the
+papers suggest:</p>
+
+<pre class="ascii">
+  MON   A chemist asks: "can you predict solubility for these 40 ideas?"
+        You check whether the 40 fall inside your model's applicability domain.
+        Eleven do not. You say so. This is the most valuable thing you do all week.
+
+  TUE   Assay data arrives from a partner. Three different units, two molecules
+        drawn as different tautomers of the same thing, one SMILES that will not
+        parse. You spend the day on curation.        &lt;-- Volume 06
+
+  WED   Retrain. The new model is slightly worse on the scaffold split and slightly
+        better on the random split. You go with the scaffold number and explain why.
+
+  THU   A generative run produced 5,000 "novel" molecules. 4,100 are unsynthesisable
+        or silly. You build a filter cascade and hand over 60.   &lt;-- Volumes 09, 11
+
+  FRI   You write down what the model does NOT cover, and put it in the README.
+</pre>
+
+<div class="good">
+  <span class="tag">The pattern in that week</span>
+  <p>Four of the five days are <strong>data curation, honest evaluation, and saying what you do not
+  know</strong>. Roughly one is modelling. That ratio is not a sign of an immature team — it is the
+  job. The volumes in this course are weighted the same way on purpose.</p>
+</div>
+
+<header class="mod" id="vids">
+  <span class="mn">Reference</span>
+  <h2>Watch these alongside Volume 01</h2>
+</header>
+
+<p>The source knowledge base contains no video links, so these are curated and checked for this
+course. One is enough for this volume — the second is long, and is the practical companion to
+Volumes 06 and 08 rather than to this one.</p>
+
+<div class="vids">
+  <a class="vid" href="https://www.youtube.com/watch?v=jBlTQjcKuaY" target="_blank" rel="noopener">
+    <span class="src">YouTube · freeCodeCamp</span>
+    <b>Python for Bioinformatics — Drug Discovery Using Machine Learning and Data Analysis</b>
+    <p>A full end-to-end project: pull bioactivity data from ChEMBL, compute descriptors, build a
+    model, deploy it. Long. Watch the first 30 minutes now for the shape of the work, and come back
+    to the rest during Volumes 06 and 08.</p>
+  </a>
+  <a class="vid" href="https://www.youtube.com/watch?v=10BQTL99z_E" target="_blank" rel="noopener">
+    <span class="src">YouTube · course introduction</span>
+    <b>RDKit: Cheminformatics &amp; Drug Discovery in Python (Course Intro)</b>
+    <p>A short orientation to the library that Volumes 04 and 05 are built on. Useful now purely to
+    see what the tooling looks like before you install it in Volume 02.</p>
+  </a>
+</div>
+
+<div class="chk" id="chk">
+  <span class="cap">Checkpoint · you should now be able to</span>
+  <ul>
+    <li>Explain to a non-specialist, in three sentences, what cheminformatics is and why it exists.</li>
+    <li>Say which is better, IC₅₀ of 5 nM or 5 µM — and why the question catches people out.</li>
+    <li>Point at the two stages of drug discovery where this work happens, and name what you are judged on at each.</li>
+    <li>Look at <span class="mol">CC(=O)Oc1ccccc1C(=O)O</span> and identify the ring, the branch and the acid.</li>
+    <li>Give the reason a random train/test split is suspect on chemical data.</li>
+  </ul>
+</div>
+
+<div class="note">
+  <span class="tag">If any of those are shaky</span>
+  <p>Re-read the lesson rather than pushing on. This is the only volume whose vocabulary every other
+  volume assumes — the cost of a gap here compounds.</p>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 02 · The toolchain</h4><p>Conda, RDKit, Jupyter — and why the chemistry stack has its own installation culture. You will have a working environment by the end of it.</p></div>
+  <div class="card"><h4>Volume 17 · The cheat sheet</h4><p>Skim it now, do not study it. Knowing what is in there changes how much you try to memorise from here on.</p></div>
+  <div class="card"><h4>The source material</h4><p><code>docs/ai-cheminformatics-knowledge-base/phase-0-setup/01-cheminformatics-landscape.md</code> — 1,205 lines, with the salary and regional-market detail this volume compresses.</p></div>
+  <div class="card"><h4>If you want the chemistry deeper</h4><p>This course deliberately teaches only the chemistry you need to not make mistakes. Volume 17 lists where to go for the real thing.</p></div>
+</div>
+
+<div class="disclaimer">
+  <p><strong>On the numbers in this volume.</strong> The 10⁶⁰ chemical-space figure, the 10–15 year
+  timeline and the ~$1–2.6 billion cost-per-approval are widely cited estimates with wide error bars
+  and active methodological disputes behind them. They are used here for <em>order of magnitude</em>,
+  which is all the argument needs. Do not quote them as precise in an interview — quote them as
+  approximate and you will sound like someone who has read the arguments.</p>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

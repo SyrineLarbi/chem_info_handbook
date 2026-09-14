@@ -1,0 +1,1297 @@
+<title>Generation and Retrosynthesis</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 11</p>
+  <p class="rail-sub">Generation and retrosynthesis</p>
+  <span class="rail-vol">Phase 2</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+  <a href="#obj"><span class="n">—</span>What you will be able to do</a>
+
+  <div class="rail-group">I · Making molecules up</div>
+  <a href="#l1"><span class="n">01</span>From ranking to designing</a>
+  <a href="#l2"><span class="n">02</span>SMILES as a language</a>
+  <a href="#l3"><span class="n">03</span>Temperature and sampling</a>
+  <a href="#l4"><span class="n">04</span>Generating the graph instead</a>
+
+  <div class="rail-group">II · Steering it</div>
+  <a href="#l5"><span class="n">05</span>REINVENT and the leash</a>
+  <a href="#l6"><span class="n">06</span>The scoring function</a>
+  <a href="#l7"><span class="n">07</span>Wanting six things at once</a>
+  <a href="#l8"><span class="n">08</span>Keeping the scaffold</a>
+
+  <div class="rail-group">III · Is it any good?</div>
+  <a href="#l9"><span class="n">09</span>The four metrics</a>
+  <a href="#l10"><span class="n">10</span>Mode collapse</a>
+  <a href="#l11"><span class="n">11</span>Benchmarks, and their limits</a>
+
+  <div class="rail-group">IV · Can it be made?</div>
+  <a href="#l12"><span class="n">12</span>The paper-molecule problem</a>
+  <a href="#l13"><span class="n">13</span>SA Score and SCScore</a>
+  <a href="#l14"><span class="n">14</span>Retrosynthesis, the idea</a>
+  <a href="#l15"><span class="n">15</span>Template versus template-free</a>
+  <a href="#l16"><span class="n">16</span>CASP and the stock question</a>
+  <a href="#l17"><span class="n">17</span>Scoring a route</a>
+
+  <div class="rail-group">V · Together</div>
+  <a href="#l18"><span class="n">18</span>The whole pipeline</a>
+  <a href="#mistakes"><span class="n">—</span>The mistakes that cost most</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#drill"><span class="n">—</span>Rapid drill</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 11 of 17 · phase 2</p>
+  <h1>Generation and retrosynthesis. <span class="thin">Designing molecules instead of ranking them.</span></h1>
+  <p class="lede">Every volume so far has taken molecules that already exist and sorted them. This one
+  invents new ones. That sounds like the exciting part, and it is — but it comes with a bill that
+  nobody warns beginners about: <strong>a generated molecule is a picture until someone can make
+  it.</strong> So half this volume is generation, and half is the harder question of whether the
+  thing you generated can exist outside a screen.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · Volumes 01–10</span>
+    <span><b>Teaches</b> · generate, steer, then check it is real</span>
+    <span><b>Time</b> · 8–10 hours</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<div class="vol here"><span class="vn">Vol 11 · here</span><b>Generation</b></div>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<div class="obj" id="obj">
+  <span class="cap">By the end of this volume you will be able to</span>
+  <ul>
+    <li>Explain how a model that only knows SMILES text can produce a chemically valid molecule.</li>
+    <li>Describe REINVENT's four parts and say what the <span class="mol">sigma</span> parameter is actually holding back.</li>
+    <li>Report validity, uniqueness and novelty — and explain why all three can be perfect while the output is worthless.</li>
+    <li>Spot mode collapse from the output alone, before anyone asks.</li>
+    <li>Say what SA Score and SCScore each measure, and why they disagree.</li>
+    <li>Read a proposed synthetic route and explain why the shorter one may be the worse one.</li>
+  </ul>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>Making molecules up</h2>
+</header>
+
+<header class="mod" id="l1">
+  <span class="mn">Lesson 01</span>
+  <h2>From ranking to designing</h2>
+</header>
+
+<p>Volume 09 built a screening funnel: take a catalogue of ten million molecules that already exist,
+score them, keep the best thousand. That approach has a hard ceiling — <strong>you can only ever find
+what is already in the catalogue.</strong></p>
+
+<pre class="ascii">
+  VIRTUAL SCREENING  (Volume 09)
+
+     [ 10 million existing molecules ]
+                 |
+            score each
+                 |
+         [ keep the best 1,000 ]
+
+     ⭐ CEILING: the best molecule you can find is the best
+        molecule someone already made.
+
+
+  GENERATIVE DESIGN  (this volume)
+
+     [ a model that has read 1.5 million drug-like molecules ]
+                 |
+          invent new ones
+                 |
+     [ 1,000 molecules that have never existed ]
+                 |
+          ⚠ and may never exist
+</pre>
+
+<p>The size of the prize is easy to state. The number of drug-like molecules that could exist is
+usually quoted at around <strong>10<sup>60</sup></strong>. Every molecule ever made by every chemist in
+history is somewhere around 10<sup>8</sup>. Screening searches the 10<sup>8</sup>. Generation is an
+attempt at the rest.</p>
+
+<div class="warn">
+  <span class="tag">The catch, stated once, early</span>
+  <p>A generative model optimises whatever you score. It does not know what a chemist is. If your
+  scoring function says "high predicted activity, low molecular weight", it will happily hand you a
+  molecule with six adjacent quaternary carbons that no reaction on earth can assemble — and it will
+  score beautifully. <strong>Everything in Part IV exists because of this sentence.</strong></p>
+</div>
+
+<header class="mod" id="l2">
+  <span class="mn">Lesson 02</span>
+  <h2>SMILES as a language</h2>
+</header>
+
+<p>The simplest generative approach reuses a trick from text. A SMILES string is a sequence of
+characters obeying rules — like a sentence. So train a model to predict the next character, the way
+a phone keyboard predicts the next word, then let it write its own strings.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · how a model writes <span class="mol">CCO</span></span>
+  <div class="body">
+<pre><code>The model has read ~1.5M SMILES from ChEMBL. It has learned
+nothing about chemistry — only which characters follow which.
+
+STEP 1   context: "&lt;START&gt;"
+         model's guesses:  C 62%   O 9%   N 8%   c 7%   ...
+         sample -&gt; C
+
+STEP 2   context: "&lt;START&gt;C"
+         model's guesses:  C 41%   (  14%   O 11%   =  6%  ...
+         sample -&gt; C
+
+STEP 3   context: "&lt;START&gt;CC"
+         model's guesses:  O 22%   C 19%   N 14%  &lt;END&gt; 9% ...
+         sample -&gt; O
+
+STEP 4   context: "&lt;START&gt;CCO"
+         model's guesses:  &lt;END&gt; 71%   C 12%  ...
+         sample -&gt; &lt;END&gt;
+
+RESULT   "CCO"  -&gt; Chem.MolFromSmiles("CCO") -&gt; ethanol. Valid.
+
+⭐ NOTE WHAT DID NOT HAPPEN: nobody told the model that carbon
+   makes four bonds. It learned that "CC(C)(C)(C)C" never appears
+   in the training data, so it assigns that pattern a low
+   probability. Valency is learned as a STATISTICAL HABIT,
+   not enforced as a RULE.</code></pre>
+  </div>
+</div>
+
+<p>That last point is the whole character of this approach, and it explains its main failure. Because
+valency is only a habit, the model breaks it sometimes: an unclosed ring, a five-bonded carbon, a
+bracket that never closes. Those strings fail to parse and are simply discarded. A well-trained
+model produces <strong>valid strings above 95% of the time</strong>; early ones managed 70%.</p>
+
+<div class="note">
+  <span class="tag">Why this works better than it has any right to</span>
+  <p>It is genuinely surprising that a model with no chemistry in it produces chemistry. The
+  explanation is that SMILES is a <em>very</em> constrained language — far more constrained than
+  English. There are roughly 40 usable characters and the grammar is rigid, so with a million examples
+  the statistical habits end up encoding most of the real rules.</p>
+</div>
+
+<header class="mod" id="l3">
+  <span class="mn">Lesson 03</span>
+  <h2>Temperature — the one sampling knob to understand</h2>
+</header>
+
+<p>At each step the model gives a probability for every possible next character. How you pick from
+that distribution decides what kind of output you get, and beginners routinely leave it at the default
+and then wonder why every generated molecule looks the same.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · the same step, three temperatures</span>
+  <div class="body">
+<pre><code>Model's raw guesses after "&lt;START&gt;C":
+        C 41%    ( 14%    O 11%    N 9%    = 6%    others 19%
+
+TEMPERATURE 0.5 — sharpen the distribution (confident)
+        C 68%    ( 12%    O  8%    N 5%    = 2%    others 5%
+        -&gt; almost always picks C
+        -&gt; output: safe, drug-like, REPETITIVE
+
+TEMPERATURE 1.0 — use it exactly as the model gave it
+        C 41%    ( 14%    O 11%    N 9%    = 6%    others 19%
+        -&gt; the honest middle. Sensible default.
+
+TEMPERATURE 1.5 — flatten the distribution (adventurous)
+        C 27%    ( 15%    O 13%    N 12%   = 10%   others 23%
+        -&gt; picks unusual characters more often
+        -&gt; output: novel, weirder, MORE INVALID STRINGS
+
+⭐ THE TRADE, IN ONE LINE
+   low temperature  = valid and boring
+   high temperature = interesting and often broken
+
+   If your generated set has 99.9% validity and 30% uniqueness,
+   your temperature is too low. That is not a good model —
+   it is a model reciting its training data.</code></pre>
+  </div>
+</div>
+
+<header class="mod" id="l4">
+  <span class="mn">Lesson 04</span>
+  <h2>Generating the graph instead of the string</h2>
+</header>
+
+<p>If broken valency is the problem with strings, an obvious fix is to build the molecule as a graph —
+adding atoms and bonds directly, checking valency at every step. Then invalid molecules are
+<em>impossible</em> rather than merely unlikely.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:22%">Approach</th><th style="width:30%">How it builds</th><th>The trade</th></tr></thead>
+  <tbody>
+    <tr><td><strong>SMILES RNN / Transformer</strong></td><td>One character at a time</td><td>Simple, fast, well understood. ~95%+ validity. The workhorse, and what REINVENT uses.</td></tr>
+    <tr><td><strong>Graph autoregressive</strong></td><td>One atom or bond at a time, valency checked</td><td>Validity by construction. Slower, more complex, and the ordering of atoms turns out to matter more than expected.</td></tr>
+    <tr><td><strong>JT-VAE (junction tree)</strong></td><td>Assembles from a vocabulary of valid fragments — rings and functional groups</td><td><strong>100% validity</strong>, and fragments are chemically sensible. But it can only build from fragments it has seen.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="bad">
+  <span class="tag">The trap in that 100%</span>
+  <p>JT-VAE advertises 100% validity, and beginners read that as "the best model". It is not a quality
+  measure — it is a statement about the <em>construction method</em>. A model that assembles molecules
+  from a fixed fragment vocabulary cannot produce an invalid molecule, in the same way that a Lego set
+  cannot produce a broken brick. <strong>When validity is guaranteed by construction, the metric
+  carries no information and you must judge the model on uniqueness, novelty and synthesizability
+  instead.</strong></p>
+</div>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>Steering it</h2>
+</header>
+
+<header class="mod" id="l5">
+  <span class="mn">Lesson 05</span>
+  <h2>REINVENT, and the leash</h2>
+</header>
+
+<p>A model trained on ChEMBL generates <em>drug-like</em> molecules. It does not generate molecules
+that hit <em>your</em> target. Getting from one to the other is what REINVENT (Olivecrona et al., 2017;
+Blaschke et al., 2020) does, and it is the tool actually used in pharma — AstraZeneca, Novartis, Merck.
+If you learn one generative system, learn this one.</p>
+
+<pre class="ascii">
+  THE FOUR PARTS
+
+    1. PRIOR      a SMILES model pretrained on ChEMBL.
+                  Knows what "drug-like" looks like. FROZEN — never changes.
+
+    2. AGENT      starts as an exact copy of the Prior.
+                  This is the one that learns.
+
+    3. SCORING    any function: a QSAR model, a docking score,
+       FUNCTION   a rule, or a mix. Returns a number in [0, 1].
+
+    4. RL LOOP    agent generates  -&gt;  score them  -&gt;  nudge the
+                  agent toward the high scorers  -&gt;  repeat.
+
+  THE LOSS, IN WORDS
+
+    loss = -(score x how likely the agent was to write it)
+           + sigma x (how far the agent has drifted from the prior)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ⭐ THE LEASH
+</pre>
+
+<div class="sen">
+  <div class="b knows"><span class="k">What the leash is for</span>
+    <p>Without the second term the agent will find a degenerate way to score well and collapse onto
+    it — generating the same molecule, or an absurd one that happens to fool the scoring model. The
+    prior term says: <strong>"stay recognisably drug-like while you optimise."</strong></p></div>
+  <div class="b"><span class="k">The parameter</span>
+    <p><span class="mol">sigma</span> sets how hard the leash pulls. The standard value is
+    <strong>128</strong>. Too low and the agent wanders off into nonsense that scores well; too high
+    and it never moves away from the prior and you get no optimisation at all.</p></div>
+  <div class="b junior"><span class="k">What juniors do</span>
+    <p>Leave sigma at the default, watch the score climb, and report success. The score climbing is
+    not the result — <strong>the score is the thing you asked it to maximise, so of course it
+    climbed.</strong> The result is whether the molecules are any good, which the score cannot tell
+    you, because the score is exactly what was gamed.</p></div>
+  <div class="b check"><span class="k">The question to be able to answer</span>
+    <p>"Your reward went from 0.2 to 0.9 — how do you know the model did not just learn to exploit
+    your scoring function?" The answer involves holding out a scorer, checking the molecules against a
+    second model, and looking at them with a chemist.</p></div>
+</div>
+
+<header class="mod" id="l6">
+  <span class="mn">Lesson 06</span>
+  <h2>The scoring function is the whole experiment</h2>
+</header>
+
+<p>Beginners treat the scoring function as configuration. It is not — it is the hypothesis. The model
+will satisfy exactly what you wrote down, including the parts you did not mean.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · a scoring function, and how it gets gamed</span>
+  <div class="body">
+<pre><code>WHAT YOU WROTE
+    score = 0.6 x QSAR_activity(mol)      # want it active
+          + 0.2 x (1 if MW &lt; 500 else 0)  # want it small
+          + 0.2 x (1 if logP &lt; 5 else 0)  # want it not greasy
+
+WHAT THE MODEL FOUND
+    A molecule scoring 0.94 that:
+      - sits far outside the QSAR model's applicability domain,
+        where the model extrapolates and predicts high activity
+        with no evidence at all              (Volume 08, Lesson 11)
+      - has MW 499                            (the cliff edge)
+      - has logP 4.98                         (the cliff edge)
+
+⭐ TWO LESSONS
+
+  1. HARD CUTOFFS GET SAT ON. A step function at 500 tells the
+     model that 499 is perfect and 501 is worthless. Use a smooth
+     ramp instead, so 520 is slightly worse rather than fatal.
+
+  2. AN UNGUARDED PREDICTOR IS AN INVITATION. Any QSAR model in a
+     scoring function MUST carry an applicability-domain check, or
+     the generator will find the region where the model is
+     confidently wrong and live there. This is the single most
+     common way a generative campaign fails.</code></pre>
+  </div>
+</div>
+
+<header class="mod" id="l7">
+  <span class="mn">Lesson 07</span>
+  <h2>Wanting six things at once</h2>
+</header>
+
+<p>Real projects never optimise one property. They want potency <em>and</em> solubility <em>and</em>
+metabolic stability <em>and</em> no hERG liability <em>and</em> synthesizability — and several of those
+genuinely fight each other.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:24%">Method</th><th style="width:32%">What it does</th><th>When it is the right choice</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Weighted sum</strong></td><td>Multiply each property by a weight, add them up</td><td>Simple and usually where you start. Its flaw: a high score can hide a fatal weakness, because a brilliant potency score can pay for an unacceptable toxicity score.</td></tr>
+    <tr><td><strong>Weighted product</strong></td><td>Multiply the scores together</td><td>Better when any single failure should be fatal — one zero makes the whole thing zero. Closer to how a project actually decides.</td></tr>
+    <tr><td><strong>Pareto</strong></td><td>Keeps every molecule that is not beaten on <em>all</em> properties at once</td><td>When you genuinely do not know the trade-off yet, and want to hand chemists a set of options instead of one answer.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="tag">The intuition for Pareto, without the maths</span>
+  <p>Molecule A is potent but poorly soluble. Molecule B is soluble but weaker. Neither is
+  <em>beaten on everything</em>, so both survive — they sit on the <strong>Pareto front</strong>. But
+  molecule C, which is both weaker than A and less soluble than A, is beaten on every axis and is
+  discarded. The front is the set of honest options; picking among them is a project decision, not a
+  computational one.</p>
+</div>
+
+<header class="mod" id="l8">
+  <span class="mn">Lesson 08</span>
+  <h2>Keeping the scaffold you already like</h2>
+</header>
+
+<p>Most real design work is not "invent a molecule from nothing". It is "we have a compound that works;
+give me variations that keep the core and fix the solubility". That is <strong>scaffold
+decoration</strong>, and it is the mode chemists actually ask for.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · what you hand the model</span>
+  <div class="body">
+<pre><code>THE SCAFFOLD (fixed — the part that must not change)
+
+    c1ccc2[nH]ccc2c1        an indole core, say
+
+THE REQUEST
+    "Fill these two attachment points. Keep MW under 450.
+     Improve predicted solubility. Do not touch the core."
+
+WHAT THE MODEL GENERATES
+    c1ccc2[nH]c(CCN)cc2c1        + an aminoethyl arm
+    c1ccc2[nH]c(CCO)cc2c1        + a hydroxyethyl arm
+    c1ccc2[nH]c(CC(=O)N)cc2c1    + an amide arm
+                ^^^^^^^^^ only this part varies
+
+⭐ WHY THIS IS THE MOST USEFUL MODE IN PRACTICE
+
+  · the core is already known to bind — you keep what works
+  · the search space is small enough to explore properly
+  · the results are immediately recognisable to a chemist,
+    which matters more than it sounds: a suggestion a medicinal
+    chemist can read in two seconds gets acted on. A novel
+    scaffold from nowhere gets ignored, however well it scores.</code></pre>
+  </div>
+</div>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>Is any of it good?</h2>
+</header>
+
+<details class="try">
+  <summary>Try it · Your generator reports 99.9% validity, 100% novelty and a reward that rose from 0.2 to 0.9. Your manager calls it a success. Is it?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>None of those three numbers is evidence of anything useful, and two of them are mildly
+    worrying.</strong></p>
+<pre><code>VALIDITY 99.9%   ⚠ suspiciously high for a SMILES model.
+                 Either the temperature is very low — so the
+                 model is reciting training data — or validity
+                 is guaranteed by construction, in which case
+                 the number carries no information.
+
+NOVELTY 100%     measured against the TRAINING SET only. Every
+                 molecule could still be in ChEMBL, or patented.
+
+REWARD 0.2 -> 0.9  the model maximised the function I wrote.
+                 That is what optimisation does. It says
+                 nothing about whether the molecules are good,
+                 because the score is precisely what was gamed.
+
+THE NUMBER NOBODY QUOTED: UNIQUENESS.
+   With 99.9% validity and a rising reward, my first check is
+   uniqueness and distinct scaffold count. If uniqueness is
+   30% and 10,000 molecules gave 12 scaffolds, this is mode
+   collapse being reported as success.</code></pre>
+    <p>The answer that closes it: <strong>"how many of them have a solved retrosynthetic route?"</strong>
+    Until that number exists, there is no result — only a picture gallery.</p>
+  </div>
+</details>
+
+<header class="mod" id="l9">
+  <span class="mn">Lesson 09</span>
+  <h2>The four metrics, and what each misses</h2>
+</header>
+
+<div class="terms">
+  <dl>
+    <dt>Validity</dt><dd>The fraction of generated strings that parse into a molecule. <strong>Target &gt; 95%.</strong> Uninformative when the method guarantees it by construction.</dd>
+    <dt>Uniqueness</dt><dd>Of the valid ones, the fraction that are distinct after canonicalisation. <strong>Target &gt; 90%.</strong> Low uniqueness is the fingerprint of mode collapse.</dd>
+    <dt>Novelty</dt><dd>The fraction not present in the training set. <strong>Target &gt; 80%.</strong> Measures novelty against <em>your training data only</em> — a molecule can be "novel" here and well known in the literature.</dd>
+    <dt>Synthesizability</dt><dd>Whether it can actually be made. Not part of the standard trio, and the reason Part IV exists.</dd>
+  </dl>
+</div>
+
+<div class="bad">
+  <span class="tag">The sentence to internalise</span>
+  <p><strong>These metrics are necessary but nowhere near sufficient.</strong> A model can score 100%
+  validity, 100% uniqueness and 100% novelty by generating a million distinct, parseable, unprecedented
+  molecules that are all unmakeable garbage. Every one of those numbers would be perfect. The
+  report would look excellent. The output would be worth nothing.</p>
+</div>
+
+<header class="mod" id="l10">
+  <span class="mn">Lesson 10</span>
+  <h2>Mode collapse — how to spot it yourself</h2>
+</header>
+
+<p>Mode collapse is when the model finds one region that scores well and stops exploring. It is the
+most common failure of a reinforcement-learning run, and it is easy to miss because the reward curve
+looks <em>better</em> as it happens.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · reading the symptoms</span>
+  <div class="body">
+<pre><code>RUN REPORT, EPOCH 400
+
+    mean reward ................ 0.91   ↑ (was 0.22)
+    validity ................... 99.8%
+    uniqueness ................. 31%      ⚠
+    mean pairwise Tanimoto ..... 0.78     ⚠⚠
+    distinct Murcko scaffolds .. 12       ⚠⚠⚠
+      (out of 10,000 generated molecules)
+
+READ IT LIKE THIS
+
+  reward up + uniqueness down     = collapsing
+  pairwise similarity above ~0.6  = they are all the same
+                                    molecule wearing hats
+  12 scaffolds from 10,000        = conclusive
+
+⭐ THE HABIT: never judge a run by its reward curve. Track
+   uniqueness and scaffold count ON THE SAME CHART as reward.
+   Collapse is obvious the moment you plot them together, and
+   invisible if you do not.
+
+THE USUAL FIXES
+  · raise sigma — pull the agent back toward the prior
+  · add a diversity term to the score itself
+  · penalise molecules similar to ones already generated
+    ("experience replay" with a similarity penalty)
+  · stop earlier — the best set is often 200 epochs before
+    the best reward</code></pre>
+  </div>
+</div>
+
+<header class="mod" id="l11">
+  <span class="mn">Lesson 11</span>
+  <h2>The benchmarks, and why not to trust a leaderboard</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:20%">Suite</th><th style="width:34%">What it measures</th><th>The limitation</th></tr></thead>
+  <tbody>
+    <tr><td><strong>GuacaMol</strong><br><span class="lbl">Brown et al., 2019</span></td><td>Distribution learning plus <em>goal-directed</em> tasks — rediscover a known drug, optimise a stated property</td><td>The goal-directed tasks are scored by the same computed property being optimised, so a model that games the property wins.</td></tr>
+    <tr><td><strong>MOSES</strong><br><span class="lbl">Polykovskiy et al., 2020</span></td><td>Distribution learning — does the generated set look statistically like real drug-like chemistry</td><td>Says nothing about whether the molecules are useful, only whether they resemble the training distribution.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="tag">Use them for what they are</span>
+  <p>These suites are good at one job: telling you your implementation is not broken. If your model
+  scores far below published numbers on MOSES, you have a bug. If it scores at or above them, you have
+  a working implementation — <strong>and still no evidence that it will produce a useful molecule for
+  your project.</strong> Benchmarks validate machinery, not discoveries.</p>
+</div>
+
+<header class="part" id="part4">
+  <span class="pn">Part IV</span>
+  <h2>Can it actually be made?</h2>
+</header>
+
+<header class="mod" id="l12">
+  <span class="mn">Lesson 12</span>
+  <h2>The paper-molecule problem</h2>
+</header>
+
+<p>This is the part of the field where computational people most often embarrass themselves, so it is
+worth being blunt about the mechanism.</p>
+
+<pre class="ascii">
+  WHAT HAPPENS
+
+    generative model  -&gt;  1,000 molecules, all scoring &gt; 0.9
+                              |
+                     hand them to a chemist
+                              |
+    ┌─────────────────────────┴──────────────────────────┐
+    │  "I cannot make any of these."                     │
+    └────────────────────────────────────────────────────┘
+
+  WHY IT HAPPENS
+
+    The model optimises a SCORE. Nothing in that score knows
+    about reactions. The model has no concept of a synthesis,
+    a starting material, a protecting group, or a yield.
+    It draws. It does not build.
+
+  ⭐ THE COST, CONCRETELY
+     A medicinal chemist's time reviewing garbage is expensive,
+     but the real cost is credibility: a computational group that
+     hands over unmakeable molecules twice does not get asked a
+     third time.
+</pre>
+
+<header class="mod" id="l13">
+  <span class="mn">Lesson 13</span>
+  <h2>SA Score and SCScore</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:18%"></th><th style="width:34%">SA Score</th><th>SCScore</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Source</strong></td><td>Ertl &amp; Schuffenhauer, 2009 · in RDKit Contrib as <code>sascorer</code></td><td>Coley et al., 2018 · a small neural network</td></tr>
+    <tr><td><strong>Range</strong></td><td><strong>1 (easy) → 10 (hard)</strong></td><td><strong>1 (simple) → 5 (complex)</strong></td></tr>
+    <tr><td><strong>How</strong></td><td>Heuristic: how common are this molecule's fragments in PubChem, plus penalties for rings, stereocentres and size</td><td>Learned from reaction data — trained so that a product always scores higher than its reactants</td></tr>
+    <tr><td><strong>Blind spot</strong></td><td>Optimistic about molecules built from common fragments joined in an uncommon way — every piece looks familiar, the assembly is impossible</td><td>Optimistic about anything resembling its training reactions; inherits the historical bias of what chemists have already made</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="wex">
+  <span class="cap">Worked example · reading SA Score honestly</span>
+  <div class="body">
+<pre><code>from rdkit import Chem
+from rdkit.Chem import RDConfig
+import sys, os
+sys.path.append(os.path.join(RDConfig.RDContribDir, 'SA_Score'))
+import sascorer                      # not a normal import — it lives in Contrib
+
+for name, smi in [("aspirin",   "CC(=O)Oc1ccccc1C(=O)O"),
+                  ("caffeine",  "Cn1cnc2c1c(=O)n(C)c(=O)n2C"),
+                  ("a generated molecule", "...")]:
+    m = Chem.MolFromSmiles(smi)
+    print(name, round(sascorer.calculateScore(m), 2))
+
+ROUGH INTERPRETATION
+    &lt; 3.0   easy, likely 1-3 steps
+    3 - 4   routine
+    4 - 5   getting involved
+    5 - 6   hard; question whether it is worth it
+    &gt; 6     assume not, unless a chemist says otherwise
+
+PRACTICAL FILTER FOR GENERATIVE OUTPUT
+    hit finding        SA &lt; 5.0, &lt;= 4 stereocentres, &lt;= 6 rings
+    lead optimisation  SA &lt; 4.0, &lt;= 2 stereocentres, &lt;= 4 rings
+
+⭐ AND THE RULE THAT MATTERS MOST
+   NEITHER SCORE IS RELIABLE ALONE. They disagree, and they
+   disagree in different directions. Use both, and treat them as
+   a triage filter that removes the obviously impossible — not
+   as a verdict that something IS makeable. Only a route is that.</code></pre>
+  </div>
+</div>
+
+<header class="mod" id="l14">
+  <span class="mn">Lesson 14</span>
+  <h2>Retrosynthesis — working backwards</h2>
+</header>
+
+<p>A score says "this looks hard". A <em>route</em> says "here is how". Retrosynthesis is the chemist's
+method for finding one, and it runs backwards: take the target, break a bond to get simpler pieces,
+repeat until everything is something you can buy.</p>
+
+<pre class="ascii">
+  THE DISCONNECTION IDEA
+
+     TARGET          an amide:   R-C(=O)-NH-R'
+        |
+        |  disconnect the C-N bond
+        v
+     PRECURSORS      R-C(=O)-OH   +   H2N-R'
+                     an acid          an amine
+                         |                |
+                    can I buy these?      |
+                         |                |
+                    yes -&gt; done      no -&gt; disconnect again
+
+  ⭐ WHY BACKWARDS: there are millions of possible molecules you
+     could start from, but only a handful of sensible ways to take
+     THIS molecule apart. Working backwards makes the search small
+     enough to actually do.
+
+  THE THING BEGINNERS MISS
+     A "disconnection" is not any bond break. It is a bond break
+     that corresponds to a REAL REACTION run in reverse. Amide
+     bonds disconnect easily because amide coupling is reliable
+     chemistry. Two adjacent quaternary carbons do not disconnect
+     at all, because no reliable reaction makes that bond.
+</pre>
+
+<header class="mod" id="l15">
+  <span class="mn">Lesson 15</span>
+  <h2>Template-based versus template-free</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:20%"></th><th style="width:38%">Template-based</th><th>Template-free</th></tr></thead>
+  <tbody>
+    <tr><td><strong>The idea</strong></td><td>A library of reaction rules written as SMARTS, extracted from reaction databases. Match a rule, apply it in reverse.</td><td>Treat it as translation: feed the product SMILES to a Transformer, get reactant SMILES out.</td></tr>
+    <tr><td><strong>Strength</strong></td><td>Every proposal corresponds to a documented reaction. Interpretable — you can see which rule fired.</td><td>Not limited to the rule library; can propose disconnections nobody templated.</td></tr>
+    <tr><td><strong>Weakness</strong></td><td>Cannot propose anything outside its templates. Template extraction is fiddly and stereochemistry is easy to get wrong.</td><td>Can produce confident nonsense. No guarantee the proposed reaction exists.</td></tr>
+    <tr><td><strong>Accuracy</strong></td><td colspan="2">Molecular Transformer (Schwaller et al., 2019) on USPTO-50K: <strong>top-1 ≈ 43–47%, top-5 ≈ 65–70%, top-10 ≈ 75–80%</strong>.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="tag">Why 45% is not as bad as it sounds</span>
+  <p>Top-1 accuracy is measured against <em>the single route recorded in the patent</em>. Most molecules
+  have several valid routes, so a model can propose a perfectly good synthesis and be scored wrong.
+  For calibration: <strong>human experts disagree with each other on the best route roughly 30% of the
+  time.</strong> Read top-10 accuracy instead — it is closer to the question you actually care about,
+  which is "is a usable route somewhere in the suggestions?"</p>
+</div>
+
+<header class="mod" id="l16">
+  <span class="mn">Lesson 16</span>
+  <h2>CASP tools, and the question everyone forgets</h2>
+</header>
+
+<p>Computer-Aided Synthesis Planning tools chain single steps into full routes.
+<strong>AiZynthFinder</strong> (Genheden et al., 2020, AstraZeneca) is the open-source standard.</p>
+
+<pre class="ascii">
+  HOW AIZYNTHFINDER WORKS
+
+    1. EXPANSION POLICY   a neural net trained on USPTO proposes
+                          plausible one-step disconnections
+    2. FILTER POLICY      a second net removes chemically
+                          unreasonable proposals
+    3. STOCK              the list of molecules you can BUY
+    4. MCTS               Monte Carlo tree search explores the
+                          tree of routes, balancing promising
+                          paths against unexplored ones
+
+    A route is SOLVED when every leaf is in the stock.
+
+  ⭐ THE QUESTION EVERYONE FORGETS: WHAT IS IN YOUR STOCK?
+
+     The default stock is ZINC — roughly 290,000 commercially
+     available compounds. So "solved" means "solved, assuming you
+     can buy anything in ZINC."
+
+     If your lab buys from two vendors and has an in-house
+     compound collection, the default answer is wrong in both
+     directions: it proposes starting materials you cannot get,
+     and it misses routes through compounds already on your shelf.
+
+     SWAPPING IN YOUR OWN STOCK FILE IS THE SINGLE HIGHEST-VALUE
+     THING YOU CAN DO WITH THIS TOOL, and it takes an afternoon.
+</pre>
+
+<header class="mod" id="l17">
+  <span class="mn">Lesson 17</span>
+  <h2>Scoring a route — why shorter is often worse</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · three steps versus six</span>
+  <div class="body">
+<pre><code>ROUTE A — 3 steps, all difficult
+    asymmetric Ir-catalysed C-H borylation   ~50% yield
+    challenging Suzuki coupling              ~50% yield
+    sensitive reductive amination            ~50% yield
+
+    overall yield = 0.50 x 0.50 x 0.50 = 0.125  -&gt;  12.5%
+
+ROUTE B — 6 steps, all routine
+    six reliable, well-precedented reactions  ~90% each
+
+    overall yield = 0.90 ^ 6 = 0.531           -&gt;  53.1%
+
+⭐ ROUTE B WINS, AND IT IS NOT CLOSE.
+   Four times the material from twice the steps.
+
+AND THE ARITHMETIC UNDERSTATES IT, because a "difficult" step
+also carries a real chance of not working at all, costing weeks.
+
+THE OTHER THING THE STEP COUNT HIDES: PROTECTING GROUPS.
+   A 3-step route on a molecule with both a free amine and an
+   acid chloride actually needs protection and deprotection —
+   2 extra steps each way. The honest count is 7, not 3, and
+   most AI tools will not tell you this.
+
+⭐ SO SCORE ROUTES BY: step reliability, starting material cost
+   and availability, protecting-group burden, and scalability —
+   not by length.</code></pre>
+  </div>
+</div>
+
+<div class="note">
+  <span class="tag">On reaction data, briefly</span>
+  <p>Essentially every ML retrosynthesis model is trained on <strong>USPTO</strong> — reactions text-mined
+  from US patents by Daniel Lowe. <code>USPTO-50K</code> is the standard benchmark, <code>USPTO-Full</code>
+  is around a million reactions. Know its flaws: the extraction is automated so there are parsing
+  errors, atom mapping is often wrong, <strong>yields are unreported or flattering because patents are
+  not written to be honest about yield</strong>, and coverage is heavily biased toward pharmaceutical
+  chemistry. There is no free alternative with comparable coverage, which is why everyone uses it
+  anyway. The Open Reaction Database is the modern successor and is growing.</p>
+</div>
+
+<header class="part" id="part5">
+  <span class="pn">Part V</span>
+  <h2>Putting it together</h2>
+</header>
+
+<header class="mod" id="l18">
+  <span class="mn">Lesson 18</span>
+  <h2>The whole pipeline</h2>
+</header>
+
+<pre class="ascii">
+  GENERATE -&gt; FILTER -&gt; ROUTE -&gt; HUMAN
+
+   1. GENERATE          REINVENT with a scoring function that
+                        ALREADY includes an SA Score term, so
+                        synthesizability steers generation rather
+                        than only filtering it afterwards
+                              |
+                        100,000 molecules
+                              v
+   2. VALIDITY &amp; DEDUP  parse, canonicalise, drop duplicates
+                              |
+                        ~70,000
+                              v
+   3. PROPERTY FILTER   MW, logP, TPSA, PAINS, toxicophores
+                        (Volume 09)
+                              |
+                        ~8,000
+                              v
+   4. SYNTH FILTER      SA Score &lt; 4.5, stereocentres &lt;= 3
+                              |
+                        ~2,000
+                              v
+   5. NOVELTY CHECK     not in ChEMBL, not in your own compound
+                        collection, and — CHECK THE PATENT
+                        LANDSCAPE, which nobody remembers
+                              |
+                        ~1,500
+                              v
+   6. CLUSTER           pick diverse representatives, not the
+                        top 100 by score (they will all be the
+                        same molecule — Volume 07)
+                              |
+                        ~200
+                              v
+   7. FULL RETROSYNTH   AiZynthFinder WITH YOUR OWN STOCK.
+                        Keep only what solves.
+                              |
+                        ~60
+                              v
+   8. MEDICINAL CHEMIST 60 molecules with routes attached is a
+                        conversation. 100,000 SMILES is spam.
+
+  ⭐ NOTE STEP 1. Putting synthesizability INSIDE the scoring
+     function is the difference between a pipeline that works
+     and one that discards 98% of its output at step 4.
+</pre>
+
+<header class="mod" id="mistakes">
+  <span class="mn">Reference</span>
+  <h2>The mistakes that cost most</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:28%">Mistake</th><th style="width:36%">Why it is wrong</th><th>The fix</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Not checking synthesizability at all</strong></td><td>The output is a picture gallery. Chemists stop answering your emails.</td><td>SA Score inside the scoring function, full retrosynthesis before anyone sees the list.</td></tr>
+    <tr><td><strong>Mode collapse denial</strong></td><td>The reward curve looks great while diversity dies.</td><td>Plot uniqueness and scaffold count next to reward. Always.</td></tr>
+    <tr><td><strong>Evaluating only validity</strong></td><td>Validity is the easiest metric to max and says least.</td><td>Report all four, and show the molecules.</td></tr>
+    <tr><td><strong>Confusing predicted with real activity</strong></td><td>A QSAR score is a hypothesis, and the generator has been actively hunting for where that hypothesis breaks.</td><td>Applicability-domain check in the scoring function; hold out an independent scorer.</td></tr>
+    <tr><td><strong>No medicinal chemist involved</strong></td><td>Six months of work that a chemist could have redirected in an hour.</td><td>Show 20 molecules in week one, not 2,000 in month six.</td></tr>
+    <tr><td><strong>Cherry-picking the output</strong></td><td>Showing the five good molecules from 100,000 is not a result; it is a selection effect.</td><td>Report the distribution and the hit rate, then show examples.</td></tr>
+    <tr><td><strong>Ignoring the patent landscape</strong></td><td>A novel, makeable, potent molecule that is already claimed is worth nothing commercially.</td><td>A patent search before the list goes anywhere.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="drill">
+  <span class="mn">Reference</span>
+  <h2>Rapid drill</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">One-sentence answers to have ready</div>
+<pre><code>How does a SMILES model produce valid molecules?
+  It learns which characters follow which. Valency becomes a
+  statistical habit, not an enforced rule — which is why ~5% of
+  its strings do not parse.
+
+What does temperature do?
+  Sharpens or flattens the next-character distribution. Low =
+  valid and repetitive. High = novel and often broken.
+
+What is sigma in REINVENT?
+  The leash to the prior. Standard 128. Too low, the agent drifts
+  into nonsense that games the score; too high, nothing optimises.
+
+Why is 100% validity not a good sign?
+  Because JT-VAE-style methods guarantee it by construction, so
+  the number carries no information about quality.
+
+Your reward went 0.2 -&gt; 0.9. What did you prove?
+  That the model maximised my scoring function. Nothing else.
+  Whether the molecules are good is a separate question, and the
+  score cannot answer it because the score is what was gamed.
+
+How do you spot mode collapse?
+  Uniqueness falling while reward rises; mean pairwise Tanimoto
+  above ~0.6; a handful of distinct scaffolds from thousands of
+  molecules.
+
+SA Score versus SCScore?
+  SA: heuristic, 1 easy to 10 hard, fragment frequency in PubChem.
+  SC: learned from reactions, 1 simple to 5 complex. They
+  disagree; use both, and only a route settles it.
+
+Why is a 6-step route often better than a 3-step one?
+  0.9^6 = 53% versus 0.5^3 = 12.5%. Reliability beats brevity,
+  and the short route hides protecting-group steps.
+
+What is the first thing to change in AiZynthFinder?
+  The stock file. The default is ZINC (~290k); your lab's actual
+  availability is a different list, and "solved" is meaningless
+  against the wrong one.
+
+Why is USPTO flawed but universal?
+  Text-mined from patents: parsing errors, bad atom mapping,
+  unreliable yields, pharma bias. There is no free alternative
+  with comparable coverage.</code></pre>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 12 · Proteins, docking and simulation</h4><p>Everything so far has looked only at the molecule. Volume 12 adds the thing it binds to — and with it, geometry, physics, and a different set of ways to be wrong.</p></div>
+  <div class="card"><h4>The source material</h4><p><code>phase-2-ml-for-chemistry/17-molecular-generation-and-design.md</code> (2,354 lines) and <code>18-retrosynthesis-and-synthesizability.md</code> (2,614 lines), which carry the full REINVENT implementation, the SMARTS retro-templates and the AiZynthFinder configuration.</p></div>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

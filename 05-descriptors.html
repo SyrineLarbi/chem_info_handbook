@@ -1,0 +1,932 @@
+<title>Descriptors and Fingerprints</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 05</p>
+  <p class="rail-sub">Descriptors and fingerprints</p>
+  <span class="rail-vol">Phase 1</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+
+  <div class="rail-group">I · Descriptors</div>
+  <a href="#l1"><span class="n">01</span>What a descriptor is</a>
+  <a href="#l2"><span class="n">02</span>The eight that matter</a>
+  <a href="#l3"><span class="n">03</span>Lipinski, properly understood</a>
+  <a href="#l4"><span class="n">04</span>The other rules</a>
+
+  <div class="rail-group">II · Fingerprints</div>
+  <a href="#l5"><span class="n">05</span>The idea</a>
+  <a href="#l6"><span class="n">06</span>How Morgan is built</a>
+  <a href="#l7"><span class="n">07</span>The naming trap</a>
+  <a href="#l8"><span class="n">08</span>The fingerprint families</a>
+  <a href="#l9"><span class="n">09</span>Collisions and counts</a>
+
+  <div class="rail-group">III · Similarity</div>
+  <a href="#l10"><span class="n">10</span>Tanimoto and friends</a>
+  <a href="#l11"><span class="n">11</span>The 0.85 myth</a>
+  <a href="#l12"><span class="n">12</span>The similarity principle</a>
+
+  <div class="rail-group">IV · Choosing</div>
+  <a href="#l13"><span class="n">13</span>Which representation, when</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#chk"><span class="n">—</span>Checkpoint</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 05 of 17 · phase 1</p>
+  <h1>Descriptors and fingerprints. <span class="thin">Turning a graph into numbers.</span></h1>
+  <p class="lede">A model cannot consume a molecule. It consumes a vector. Everything between those
+  two sentences is this volume — and the choice you make here constrains how good your model can
+  possibly be, more than the choice of algorithm does.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · Volumes 01–04</span>
+    <span><b>Teaches</b> · descriptors, fingerprints, similarity</span>
+    <span><b>Time</b> · 6–8 hours</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<div class="vol here"><span class="vn">Vol 05 · here</span><b>Descriptors</b></div>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<div class="obj">
+  <span class="cap">By the end of this volume you will be able to</span>
+  <ul>
+    <li>Compute the eight descriptors that appear in almost every paper, and say what each one is a proxy for.</li>
+    <li>State Lipinski's rule correctly — including the two things almost everyone gets wrong about it.</li>
+    <li>Explain how a Morgan fingerprint is built, well enough to know what it can and cannot see.</li>
+    <li>Say what ECFP4 means, and why the 4 is not a radius.</li>
+    <li>Compute Tanimoto similarity and explain why 0.85 is not a universal threshold.</li>
+    <li>Choose between descriptors and fingerprints for a given problem, with a reason.</li>
+  </ul>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>Descriptors</h2>
+</header>
+
+<header class="mod" id="l1">
+  <span class="mn">Lesson 01</span>
+  <h2>What a descriptor is</h2>
+</header>
+
+<p><strong>A descriptor is one number computed from a structure.</strong> That is all. Molecular
+weight is a descriptor. So is the number of rings, the count of nitrogen atoms, and an estimate of
+how greasy the molecule is.</p>
+
+<p>RDKit ships around 200 of them. You will use about eight regularly, and the temptation to throw
+all 200 at a model is one this volume will argue you out of.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:24%">Family</th><th style="width:32%">Examples</th><th>What they are for</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Constitutional</strong></td><td>MW, atom counts, ring count, heavy atoms</td><td>Crude size and composition. Cheap and interpretable.</td></tr>
+    <tr><td><strong>Physicochemical</strong></td><td>LogP, TPSA, HBD, HBA</td><td>Proxies for how the molecule behaves in water and in fat — which is what governs absorption.</td></tr>
+    <tr><td><strong>Topological</strong></td><td>Connectivity indices, Balaban J, Kappa shape</td><td>Numbers summarising the shape of the graph. Historically important, hard to interpret.</td></tr>
+    <tr><td><strong>Electronic</strong></td><td>Partial charges, Gasteiger charges</td><td>Where the molecule is electron-rich. Approximate without quantum chemistry.</td></tr>
+    <tr><td><strong>3D</strong></td><td>Radius of gyration, PMI, solvent-accessible surface</td><td>Require a conformer, so they inherit the conformer problem from Volume 03.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="l2">
+  <span class="mn">Lesson 02</span>
+  <h2>The eight that matter</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · profiling the course molecules</span>
+  <div class="body">
+<pre><code>from rdkit import Chem
+from rdkit.Chem import Descriptors, Crippen, rdMolDescriptors as rdmd
+
+def profile(smi):
+    m = Chem.MolFromSmiles(smi)
+    return {
+      "MW":       round(Descriptors.MolWt(m), 1),        # size
+      "LogP":     round(Crippen.MolLogP(m), 2),          # greasiness (calculated)
+      "TPSA":     round(rdmd.CalcTPSA(m), 1),            # polar surface area
+      "HBD":      rdmd.CalcNumHBD(m),                    # H-bond DONORS
+      "HBA":      rdmd.CalcNumHBA(m),                    # H-bond ACCEPTORS
+      "RotB":     rdmd.CalcNumRotatableBonds(m),         # flexibility
+      "Rings":    rdmd.CalcNumRings(m),
+      "HeavyAt":  m.GetNumHeavyAtoms(),
+    }
+
+  aspirin      MW 180.2  LogP  1.31  TPSA  63.6  HBD 1  HBA 3  RotB 2  Rings 1
+  paracetamol  MW 151.2  LogP  1.35  TPSA  49.3  HBD 2  HBA 2  RotB 1  Rings 1
+  caffeine     MW 194.2  LogP -1.03  TPSA  58.4  HBD 0  HBA 3  RotB 0  Rings 2
+
+(values are RDKit's; other toolkits differ slightly — see the warning below)</code></pre>
+    <p><strong>Read the caffeine row.</strong> Its LogP is <em>negative</em> — it prefers water to
+    fat — and it has zero rotatable bonds, because its two fused rings and three methyls leave nothing
+    free to turn. That combination of rigid and water-loving is exactly why caffeine crosses into the
+    brain quickly and is cleared quickly. <strong>The descriptors are telling you something real
+    about the substance</strong>, and learning to read them that way is the skill.</p>
+  </div>
+</div>
+
+<div class="terms">
+  <div class="cap">What each one is a proxy for</div>
+  <dl>
+    <dt>LogP</dt><dd>How the molecule splits between oil and water. Higher = greasier. Too low and it will not cross a membrane; too high and it will not dissolve, and it starts binding to things it should not. <strong>It is calculated, not measured</strong> — the measured quantity is logP and the estimate is usually written cLogP.</dd>
+    <dt>TPSA</dt><dd>Total polar surface area, summed from the polar atoms. A remarkably good proxy for whether a molecule can cross a membrane. Below ~140 Å² for oral absorption; below ~90 Å² to have a chance of reaching the brain.</dd>
+    <dt>HBD / HBA</dt><dd>Hydrogen-bond donors and acceptors. Every hydrogen bond a molecule makes with water is one it must break to enter a membrane — so more of them means harder absorption.</dd>
+    <dt>Rotatable bonds</dt><dd>Flexibility. A floppy molecule pays a bigger entropy cost to lock into a binding site, and tends to be orally absorbed less well.</dd>
+  </dl>
+</div>
+
+<div class="warn">
+  <span class="tag">Descriptors are not universal constants</span>
+  <p><strong>LogP from RDKit is not LogP from another toolkit.</strong> They use different atom-typing
+  schemes and can differ by half a unit or more. HBD and HBA counts differ too, because "what counts
+  as an acceptor" is a definition, not a fact. So: never mix descriptor values from two sources in
+  one dataset, and always record which implementation produced them.</p>
+</div>
+
+<header class="mod" id="l3">
+  <span class="mn">Lesson 03</span>
+  <h2>Lipinski's Rule of Five, properly understood</h2>
+</header>
+
+<p>The most cited — and most misused — heuristic in the field. Here it is, then here is what it
+actually means.</p>
+
+<div class="sheet">
+  <div class="cap">The rule itself</div>
+<pre><code>POOR ORAL ABSORPTION IS MORE LIKELY WHEN TWO OR MORE OF THESE ARE TRUE:
+
+    MW   &gt; 500 Da
+    LogP &gt;   5
+    HBD  &gt;   5
+    HBA  &gt;  10
+
+⭐ IT IS CALLED "RULE OF FIVE" BECAUSE EVERY THRESHOLD IS A MULTIPLE OF 5,
+   NOT BECAUSE THERE ARE FIVE RULES. There are four.
+
+  aspirin      MW 180  LogP 1.31  HBD 1  HBA 3    -> 0 violations
+  paracetamol  MW 151  LogP 1.35  HBD 2  HBA 2    -> 0 violations
+  caffeine     MW 194  LogP -1.03 HBD 0  HBA 3    -> 0 violations</code></pre>
+</div>
+
+<div class="sen">
+  <div class="b knows"><span class="k">What it actually says</span>
+    <p>Lipinski analysed compounds that had <strong>reached Phase II clinical trials</strong> and
+    noticed they clustered inside those bounds. It is an observation about <em>oral bioavailability</em>
+    — whether a pill survives the gut and gets into the blood.</p></div>
+  <div class="b junior"><span class="k">The first thing everyone gets wrong</span>
+    <p><strong>It says nothing about whether a molecule is active.</strong> A compound can pass all
+    four and do nothing at all; a compound can fail all four and be a superb drug. Using Ro5 to filter
+    a screening library for <em>activity</em> is a category error, and it is common.</p></div>
+  <div class="b bad"><span class="k">The second thing everyone gets wrong</span>
+    <p><strong>It only applies to orally administered small molecules.</strong> Injectables are
+    exempt. So are antibiotics, antifungals, vitamins and most natural products — Lipinski said so in
+    the original paper. Roughly a sixth of marketed oral drugs violate it anyway.</p>
+    <p>And it is irrelevant to the whole modern class of larger molecules — peptides, PROTACs — where
+    people now speak of "beyond Rule of Five" space deliberately.</p></div>
+  <div class="b check"><span class="k">How to use it correctly</span>
+    <p>As a <strong>flag, not a filter</strong>. Compute the violation count, keep it as a column,
+    sort by it, look at what is extreme. Do not delete rows with it. The one-sentence version to have
+    ready: <em>"Ro5 is a statistical observation about oral bioavailability from 1997, not a law, and
+    it is a reason to look twice rather than a reason to discard."</em></p></div>
+</div>
+
+<details class="try">
+  <summary>Try it · A colleague filters a 2-million-compound virtual screening library down to 1.4M by removing all Ro5 violators, before docking. Give two reasons this may have been a mistake.</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <ol>
+      <li><strong>The target may not need an oral drug.</strong> If the programme is aiming at an
+      injectable, an inhaled therapy, or a topical one, oral bioavailability is not a constraint and
+      600,000 compounds were discarded for a property nobody needed.</li>
+      <li><strong>Screening hits are meant to be small and weak.</strong> Hit-to-lead optimisation
+      <em>adds</em> molecular weight — typically a lot of it. Filtering the starting library at
+      MW ≤ 500 means anything you improve will breach the limit. Screening libraries are usually
+      filtered more tightly than Ro5 and in the other direction: "lead-like" criteria of roughly
+      MW ≤ 350 and LogP ≤ 3 leave room to grow.</li>
+    </ol>
+    <p><strong>The deeper point:</strong> a filter applied at the wrong stage removes compounds whose
+    value was in what they would <em>become</em>. And because false negatives are invisible
+    (Volume 01, Lesson 06), nobody will ever know.</p>
+  </div>
+</details>
+
+<header class="mod" id="l4">
+  <span class="mn">Lesson 04</span>
+  <h2>The other rules worth knowing</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:20%">Rule</th><th style="width:34%">Says</th><th>Use</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Veber</strong></td><td>Rotatable bonds ≤ 10 and TPSA ≤ 140 Å²</td><td>Complements Ro5 by capturing flexibility, which Lipinski's four miss entirely.</td></tr>
+    <tr><td><strong>Lead-likeness</strong></td><td>Roughly MW ≤ 350, LogP ≤ 3</td><td>For <em>starting points</em>, not final drugs. What to filter a screening library with.</td></tr>
+    <tr><td><strong>Rule of Three</strong></td><td>MW &lt; 300, LogP ≤ 3, HBD ≤ 3, HBA ≤ 3</td><td>Fragment screening, where you start deliberately tiny.</td></tr>
+    <tr><td><strong>QED</strong></td><td>A single 0–1 score combining eight properties into "drug-likeness"</td><td>Convenient for ranking. Opaque — a low QED does not tell you <em>which</em> property is the problem, so keep the components too.</td></tr>
+    <tr><td><strong>CNS MPO</strong></td><td>A weighted score for brain penetration</td><td>Only if your target is in the brain, where the constraints are much tighter.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>Fingerprints</h2>
+</header>
+
+<header class="mod" id="l5">
+  <span class="mn">Lesson 05</span>
+  <h2>The idea</h2>
+</header>
+
+<p>Descriptors summarise a molecule into a handful of numbers, and in doing so throw away the
+structure. A fingerprint keeps the structure by asking a long list of yes/no questions:</p>
+
+<pre class="ascii">
+  A FINGERPRINT IS A LONG VECTOR OF BITS. EACH BIT ANSWERS:
+      "does this molecule contain THIS particular fragment?"
+
+  molecule ---> [0,1,1,0,0,0,1,0,1,0, ... ] 2048 bits
+
+  bit 41   = "contains a carbon bonded to an aromatic ring"       -> 1
+  bit 812  = "contains a carbonyl next to an oxygen"              -> 1
+  bit 1337 = "contains a nitrogen in a five-membered ring"        -> 0
+  ...
+
+  ⭐ TWO MOLECULES ARE SIMILAR IF THEY SWITCH ON THE SAME BITS.
+     That single idea is the basis of virtual screening, clustering,
+     diversity selection, and most of Volume 09.
+</pre>
+
+<header class="mod" id="l6">
+  <span class="mn">Lesson 06</span>
+  <h2>How a Morgan fingerprint is built</h2>
+</header>
+
+<p>Morgan (also called circular, or ECFP) fingerprints are the default in modern practice. The
+algorithm is worth understanding because it tells you exactly what the fingerprint can and cannot
+see.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · the algorithm, on ethanol</span>
+  <div class="body">
+<pre><code>MOLECULE: CCO        atoms:  0=C   1=C   2=O
+
+ROUND 0 — describe each atom by ITSELF
+  atom 0: "carbon, 1 neighbour, 3 H"        -> hash -> 2246728737
+  atom 1: "carbon, 2 neighbours, 2 H"       -> hash -> 3542456614
+  atom 2: "oxygen, 1 neighbour, 1 H"        -> hash ->  864662311
+
+ROUND 1 (radius 1) — redescribe each atom by ITSELF + ITS NEIGHBOURS
+  atom 0: (its own hash) + (atom 1's hash)              -> new hash
+  atom 1: (its own hash) + (atoms 0 and 2's hashes)     -> new hash
+  atom 2: (its own hash) + (atom 1's hash)              -> new hash
+
+ROUND 2 (radius 2) — again, now reaching two bonds away
+  ... each atom's identifier now encodes its whole 2-bond neighbourhood
+
+COLLECT every identifier produced in every round.
+FOLD them into a fixed length (e.g. 2048) by taking hash % 2048.
+SET those bits to 1.
+
+⭐ SO EACH BIT MEANS: "some atom in this molecule has THIS exact
+   circular neighbourhood out to radius r."
+</code></pre>
+    <p><strong>Three consequences fall straight out of that description</strong>, and they explain
+    most fingerprint behaviour:</p>
+    <ul>
+      <li><strong>It is local.</strong> With radius 2, no bit encodes anything about atoms more than
+      two bonds apart. Two molecules identical locally but arranged completely differently overall
+      can look similar.</li>
+      <li><strong>It is a set, not a sequence.</strong> Nothing records where in the molecule a
+      fragment was, or how many times it occurred — unless you use the count version (Lesson 09).</li>
+      <li><strong>It is sparse and high-dimensional.</strong> A typical drug-sized molecule sets
+      perhaps 50–90 of 2048 bits. Most of the vector is zero, which is why bit-vector similarity
+      measures rather than Euclidean distance are used.</li>
+    </ul>
+  </div>
+</div>
+
+<div class="sheet">
+  <div class="cap">Computing one, in practice</div>
+<pre><code>from rdkit.Chem import rdFingerprintGenerator
+
+# the current API — the older AllChem.GetMorganFingerprintAsBitVect is deprecated
+gen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+
+fp = gen.GetFingerprint(mol)                # an explicit bit vector
+arr = gen.GetFingerprintAsNumPy(mol)        # a NumPy array, for sklearn
+
+print(fp.GetNumOnBits())                    # aspirin: ~30 bits set</code></pre>
+</div>
+
+<header class="mod" id="l7">
+  <span class="mn">Lesson 07</span>
+  <h2>The naming trap — ECFP4 is radius 2</h2>
+</header>
+
+<div class="bad">
+  <span class="tag">This catches everyone exactly once</span>
+  <p><strong>ECFP4 means diameter 4, which is radius 2.</strong> ECFP6 means diameter 6, radius 3.
+  The number in the name is twice the radius you pass to RDKit.</p>
+<pre><code>  PAPER SAYS        YOU PASS
+  ECFP4             radius=2       &lt;-- the common default
+  ECFP6             radius=3
+  ECFP2             radius=1
+
+  A paper reporting ECFP4 that you reproduce with radius=4 is
+  reproducing something else entirely — and it will not error,
+  it will just give worse results you cannot explain.</code></pre>
+  <p>FCFP is the same algorithm with atoms typed by <em>function</em> (donor, acceptor, aromatic)
+  rather than element — more tolerant of substitutions, so slightly fuzzier and sometimes better for
+  scaffold hopping.</p>
+</div>
+
+<header class="mod" id="l8">
+  <span class="mn">Lesson 08</span>
+  <h2>The fingerprint families</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:20%">Fingerprint</th><th style="width:26%">Encodes</th><th style="width:14%">Length</th><th>Use it when</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Morgan / ECFP</strong></td><td>Circular neighbourhoods around each atom</td><td>1024–4096, foldable</td><td><strong>The default.</strong> Similarity search, ML features, clustering.</td></tr>
+    <tr><td><strong>MACCS keys</strong></td><td>166 predefined, human-written structural questions</td><td>167 bits (bit 0 unused)</td><td>Interpretability — you can look up what each bit means. Small and fast; less discriminating.</td></tr>
+    <tr><td><strong>RDKit fingerprint</strong></td><td>Linear paths through the molecule up to some length</td><td>2048 typical</td><td>Substructure screening. Different failure modes from Morgan, which makes it a useful cross-check.</td></tr>
+    <tr><td><strong>Atom pairs</strong></td><td>Pairs of atom types plus the bond distance between them</td><td>Sparse</td><td>Captures <em>long-range</em> relationships that Morgan's locality misses.</td></tr>
+    <tr><td><strong>Topological torsions</strong></td><td>Four-atom linear fragments</td><td>Sparse</td><td>Sensitive to local shape and flexibility.</td></tr>
+    <tr><td><strong>Avalon</strong></td><td>A mixed, tuned feature set</td><td>512–1024</td><td>Often performs well; a reasonable second opinion.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="good">
+  <span class="tag">The practical advice</span>
+  <p><strong>Start with Morgan radius 2 at 2048 bits.</strong> It is the default for a reason, and
+  beating it takes evidence. If a project matters, benchmark two or three fingerprints on <em>your</em>
+  data with a scaffold split — the ranking between them is dataset-dependent and cannot be read off a
+  paper. Combining Morgan with a handful of physicochemical descriptors is a strong, cheap baseline
+  and is what Volume 08 builds.</p>
+</div>
+
+<header class="mod" id="l9">
+  <span class="mn">Lesson 09</span>
+  <h2>Collisions, and bits versus counts</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">What a collision is</span>
+    <p>The algorithm generates far more distinct fragment identifiers than you have bits. Folding
+    them with <code>hash % 2048</code> means <strong>different fragments land on the same bit</strong>.
+    Bit 1337 might mean "this nitrogen environment" <em>or</em> "that ester environment", with no way
+    to tell which.</p></div>
+  <div class="b"><span class="k">Why it usually does not matter</span>
+    <p>Because you are comparing whole patterns of ~60 set bits, not individual bits. A few
+    ambiguous positions wash out. Models tolerate it; similarity search tolerates it.</p></div>
+  <div class="b junior"><span class="k">When it does matter</span>
+    <p><strong>Interpretation.</strong> If you ask "which bit drove this prediction?" and map it back
+    to a substructure, a collided bit gives you a confident and wrong answer. If interpretability is
+    the goal, use unfolded/sparse fingerprints, or MACCS where every bit has a published meaning.</p></div>
+  <div class="b check"><span class="k">Bits versus counts</span>
+    <p>A bit vector says "present or not". A <strong>count vector</strong> says how many times. For a
+    molecule with six methyl groups versus one, that difference is real information.</p>
+    <p>Counts often help tree-based models slightly, and cost nothing:
+    <code>gen.GetCountFingerprintAsNumPy(mol)</code>. They matter more for physical properties like
+    solubility — where "how much of this group" is meaningful — than for binding, where presence
+    usually dominates.</p></div>
+</div>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>Similarity</h2>
+</header>
+
+<header class="mod" id="l10">
+  <span class="mn">Lesson 10</span>
+  <h2>Tanimoto and its relatives</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · how similar are our molecules?</span>
+  <div class="body">
+<pre><code>from rdkit import DataStructs
+from rdkit.Chem import rdFingerprintGenerator
+
+gen = rdFingerprintGenerator.GetMorganGenerator(radius=2, fpSize=2048)
+fps = {n: gen.GetFingerprint(Chem.MolFromSmiles(s)) for n, s in mols.items()}
+
+DataStructs.TanimotoSimilarity(fps["aspirin"], fps["paracetamol"])   # ~0.22
+DataStructs.TanimotoSimilarity(fps["aspirin"], fps["caffeine"])      # ~0.07
+DataStructs.TanimotoSimilarity(fps["aspirin"], fps["aspirin"])       # 1.00
+
+# bulk — one query against thousands, in C++
+sims = DataStructs.BulkTanimotoSimilarity(query_fp, list_of_fps)</code></pre>
+    <p><strong>Aspirin and paracetamol score only 0.22</strong> — despite both being small
+    benzene-ring painkillers that a chemist would call obviously related. This is the single most
+    useful number in this volume, because it calibrates your expectations: <strong>Tanimoto values on
+    ECFP are much lower than intuition suggests.</strong> 0.22 is not "unrelated". It is
+    "recognisably different molecules".</p>
+    <p>Use <code>BulkTanimotoSimilarity</code> for anything at scale — it loops in C++ rather than
+    Python and is the difference between seconds and hours on a million-compound library.</p>
+  </div>
+</div>
+
+<div class="terms">
+  <div class="cap">The three you will meet</div>
+  <dl>
+    <dt>Tanimoto (Jaccard)</dt><dd>shared ÷ (in either). <strong>The default.</strong> Penalises size differences — a small molecule and a large one containing it score low.</dd>
+    <dt>Dice</dt><dd>2 × shared ÷ (total in both). More forgiving of size differences. Always ≥ Tanimoto.</dd>
+    <dt>Cosine / Tversky</dt><dd>Tversky is asymmetric and has tunable weights — the right choice for "is this small fragment contained in that large molecule?", where Tanimoto is misleading.</dd>
+  </dl>
+</div>
+
+<header class="mod" id="l11">
+  <span class="mn">Lesson 11</span>
+  <h2>The 0.85 myth</h2>
+</header>
+
+<div class="warn">
+  <span class="tag">A number repeated far past its evidence</span>
+  <p>You will read that <strong>"Tanimoto ≥ 0.85 means similar"</strong>. It appears in papers,
+  tutorials and code comments. It comes from work in the 1990s on <em>a specific fingerprint</em>
+  (MDL-style keys) and a specific dataset, and it does not transfer.</p>
+  <p><strong>On ECFP4, 0.85 is an extremely high bar</strong> — usually close analogues of the same
+  compound. Reasonable working thresholds on ECFP4 are more like 0.4–0.5 for "structurally related",
+  and even that is dataset-dependent.</p>
+  <p><strong>What to do instead:</strong> calibrate on your own data. Take 1,000 random pairs from
+  your library, plot the distribution of similarities, and see where your data actually sits. Then
+  pick a threshold you can defend with that plot — and state the fingerprint and its parameters
+  whenever you quote a similarity, because the number is meaningless without them.</p>
+</div>
+
+<header class="mod" id="l12">
+  <span class="mn">Lesson 12</span>
+  <h2>The similarity principle — the assumption underneath everything</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The principle</span>
+    <p><strong>Structurally similar molecules tend to have similar properties.</strong> Every
+    similarity search, every QSAR model, and every nearest-neighbour prediction in this field rests
+    on it.</p></div>
+  <div class="b"><span class="k">Why it is mostly true</span>
+    <p>Because binding is physical. A molecule fits a pocket because of its shape and the groups on
+    its surface — so a molecule with nearly the same shape and groups usually fits similarly.</p></div>
+  <div class="b junior"><span class="k">Where it fails: activity cliffs</span>
+    <p><strong>Two molecules differing by one atom, with a hundred-fold difference in activity.</strong>
+    Add a methyl group in the wrong place and it collides with the protein; move a hydrogen-bond donor
+    one position and the whole interaction network breaks.</p>
+    <p>These are not rare edge cases. They are concentrated exactly where a project is working — in
+    a well-explored series, where every remaining question is a cliff. That is why models plateau:
+    the easy structure–activity relationship is learned early, and what is left is the part that
+    violates the assumption the model is built on.</p></div>
+  <div class="b check"><span class="k">What follows for you</span>
+    <p>Expect similarity-based methods to be good at <em>triage over diverse libraries</em> and poor
+    at <em>fine discrimination within a series</em> — which is unfortunate, because the second is what
+    medicinal chemists want most. Say so up front rather than discovering it in a review. Volume 15
+    carries the fuller treatment of cliffs as a field insight.</p></div>
+</div>
+
+<header class="part" id="part4">
+  <span class="pn">Part IV</span>
+  <h2>Choosing</h2>
+</header>
+
+<header class="mod" id="l13">
+  <span class="mn">Lesson 13</span>
+  <h2>Which representation, when</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:26%">Situation</th><th style="width:26%">Use</th><th>Why</th></tr></thead>
+  <tbody>
+    <tr><td>Predicting a physical property (solubility, LogP, melting point)</td><td><strong>Descriptors</strong>, or descriptors + fingerprints</td><td>These properties are genuinely driven by bulk properties like size and polarity, which descriptors capture directly and interpretably.</td></tr>
+    <tr><td>Predicting binding to a specific protein</td><td><strong>Fingerprints</strong></td><td>Binding depends on specific substructures in specific arrangements. Descriptors are too coarse.</td></tr>
+    <tr><td>Similarity search / virtual screening</td><td><strong>Morgan fingerprints</strong></td><td>Purpose-built for it, and fast in bulk.</td></tr>
+    <tr><td>Clustering or diversity selection</td><td><strong>Morgan fingerprints</strong></td><td>Same reason — plus Butina clustering expects them.</td></tr>
+    <tr><td>You need to explain the model to a chemist</td><td><strong>Descriptors</strong>, or MACCS</td><td>"Too greasy" is a sentence. "Bit 1337 is high" is not.</td></tr>
+    <tr><td>You have &gt; 50,000 data points</td><td><strong>Learned representations</strong> (Volume 10)</td><td>Graph networks start to beat fixed fingerprints only with substantial data.</td></tr>
+    <tr><td>You have &lt; 1,000 data points</td><td><strong>Fingerprints + random forest</strong></td><td>This is most real projects, and it is very hard to beat.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="proj">
+  <span class="tag">The default that wins more often than it should</span>
+  <p><strong>Morgan radius 2, 2048 bits, plus about ten physicochemical descriptors, into a random
+  forest.</strong> Build that first, always. It takes twenty minutes, it is hard to beat on typical
+  dataset sizes, and it is the number every fancier approach has to justify itself against. Volume 08
+  builds exactly this and then tries to break it honestly.</p>
+</div>
+
+<div class="chk" id="chk">
+  <span class="cap">Checkpoint · you should now be able to</span>
+  <ul>
+    <li>Compute eight descriptors for a molecule and explain what each is a proxy for.</li>
+    <li>State Lipinski's rule and name two classes of drug it does not apply to.</li>
+    <li>Describe the Morgan algorithm in four sentences, and name two things it cannot see.</li>
+    <li>Convert "ECFP6" into the argument you pass RDKit.</li>
+    <li>Say why aspirin and paracetamol score 0.22, and why that is not "unrelated".</li>
+    <li>Explain what an activity cliff is and why it caps model performance.</li>
+  </ul>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 06 · Chemical data and its curation</h4><p>Where the data comes from — ChEMBL, PubChem, ZINC — and the curation pipeline that makes it usable. The volume that decides whether your model means anything.</p></div>
+  <div class="card"><h4>The source material</h4><p><code>phase-1-foundations/06-molecular-descriptors-and-fingerprints.md</code> — 2,250 lines, with the full descriptor catalogue and more similarity metrics.</p></div>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

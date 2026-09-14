@@ -1,0 +1,925 @@
+<title>Deep Learning and Graph Networks</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 10</p>
+  <p class="rail-sub">Deep learning and graph networks</p>
+  <span class="rail-vol">Phase 2</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+
+  <div class="rail-group">I · The idea</div>
+  <a href="#l1"><span class="n">01</span>Learned vs fixed features</a>
+  <a href="#l2"><span class="n">02</span>Message passing</a>
+  <a href="#l3"><span class="n">03</span>It is Morgan, learned</a>
+
+  <div class="rail-group">II · The architectures</div>
+  <a href="#l4"><span class="n">04</span>Featurising atoms and bonds</a>
+  <a href="#l5"><span class="n">05</span>GCN, GAT, MPNN, D-MPNN</a>
+  <a href="#l6"><span class="n">06</span>Readout</a>
+  <a href="#l7"><span class="n">07</span>Over-smoothing and depth</a>
+
+  <div class="rail-group">III · Using them honestly</div>
+  <a href="#l8"><span class="n">08</span>When they actually help</a>
+  <a href="#l9"><span class="n">09</span>Multi-task learning</a>
+  <a href="#l10"><span class="n">10</span>Uncertainty</a>
+  <a href="#l11"><span class="n">11</span>Attribution</a>
+
+  <div class="rail-group">IV · Practice</div>
+  <a href="#l12"><span class="n">12</span>The tools</a>
+  <a href="#l13"><span class="n">13</span>A fair comparison</a>
+
+  <a href="#larch"><span class="n">14</span>The architecture zoo</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#vids"><span class="n">—</span>Watch these</a>
+  <a href="#chk"><span class="n">—</span>Checkpoint</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 10 of 17 · phase 2</p>
+  <h1>Deep learning and graph networks. <span class="thin">Learning the representation instead of choosing it.</span></h1>
+  <p class="lede">A fingerprint is a fixed recipe someone wrote in 2010. A graph neural network learns
+  the recipe from your data. That is the whole idea — and this volume covers how it works, when it
+  genuinely beats a random forest, and why the literature's answer to that question is more
+  optimistic than the evidence.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · Volumes 01–09, and neural network basics</span>
+    <span><b>Teaches</b> · message passing, honestly benchmarked</span>
+    <span><b>Time</b> · 8–10 hours</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<div class="vol here"><span class="vn">Vol 10 · here</span><b>Deep learning</b></div>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<a class="vol" href="12-structure-based.html"><span class="vn">Vol 12</span><b>Structure-based</b></a>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<div class="obj">
+  <span class="cap">By the end of this volume you will be able to</span>
+  <ul>
+    <li>Explain message passing in four sentences, and to a chemist in one.</li>
+    <li>Say precisely how a GNN relates to the Morgan fingerprint you learned in Volume 05.</li>
+    <li>Name the conditions under which a GNN beats a random forest — and recognise that most projects do not meet them.</li>
+    <li>Set up a fair comparison between the two, with the same split and a tuned baseline.</li>
+    <li>Get a usable uncertainty estimate and an atom-level attribution out of a trained model.</li>
+  </ul>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>The idea</h2>
+</header>
+
+<header class="mod" id="l1">
+  <span class="mn">Lesson 01</span>
+  <h2>Learned versus fixed features</h2>
+</header>
+
+<pre class="ascii">
+  THE FIXED PIPELINE (Volumes 05 and 08)
+
+    molecule --> [Morgan fingerprint] --> [random forest] --> prediction
+                  ^ fixed recipe            ^ learned
+                  decided in advance,
+                  identical for every task
+
+
+  THE LEARNED PIPELINE (this volume)
+
+    molecule --> [graph neural network] ----------------> prediction
+                  ^ the representation AND the model are
+                    learned together, from THIS task's data
+
+  ⭐ THE BET: that a representation tuned to your endpoint beats a
+     general-purpose one. Whether that bet pays depends almost
+     entirely on HOW MUCH DATA YOU HAVE — because a learned
+     representation has to be learned from something.
+</pre>
+
+<header class="mod" id="l2">
+  <span class="mn">Lesson 02</span>
+  <h2>Message passing — the core algorithm</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · the algorithm, on a small molecule</span>
+  <div class="body">
+<pre><code>START: every atom gets a feature vector describing ITSELF
+       element, degree, charge, aromatic?, ring?, H count ...
+
+       h(C1) = [...]   h(C2) = [...]   h(O3) = [...]
+
+LAYER 1 — each atom collects MESSAGES from its neighbours
+       m(C2) = MESSAGE( h(C1), bond type ) + MESSAGE( h(O3), bond type )
+       h'(C2) = UPDATE( h(C2), m(C2) )
+
+       ...where MESSAGE and UPDATE are small neural networks
+          whose weights are LEARNED.
+
+       Now every atom's vector encodes itself + its neighbours.
+
+LAYER 2 — do it again, using the UPDATED vectors
+       Now every atom's vector encodes its 2-bond neighbourhood,
+       because its neighbours already knew about THEIR neighbours.
+
+LAYER k — the receptive field is k bonds.
+
+READOUT — combine all atom vectors into ONE vector for the molecule
+       sum, mean, max, or a learned attention-weighted pool
+
+       --> feed that to a normal neural network --> prediction</code></pre>
+    <p><strong>The one-sentence version for a chemist:</strong> <em>"Each atom repeatedly updates its
+    description by looking at its neighbours, so after three rounds every atom knows about its
+    surroundings three bonds out — and we learn what parts of that neighbourhood matter, instead of
+    deciding in advance."</em></p>
+  </div>
+</div>
+
+<header class="mod" id="l3">
+  <span class="mn">Lesson 03</span>
+  <h2>It is the Morgan algorithm, with learned functions</h2>
+</header>
+
+<div class="good">
+  <span class="tag">The connection that makes GNNs click</span>
+  <p>Put the two algorithms side by side:</p>
+<pre><code>MORGAN FINGERPRINT (Volume 05)          GRAPH NEURAL NETWORK
+  start: atom identifier                  start: atom feature vector
+  round: combine with neighbours'         layer: combine with neighbours'
+         identifiers, then HASH                  vectors, then a LEARNED
+                                                 NEURAL NETWORK
+  collect: all identifiers -> bits        readout: pool all vectors
+  radius r = how far it reaches           k layers = how far it reaches
+
+⭐ SAME ALGORITHM. The difference is that Morgan uses a FIXED HASH
+   and a GNN uses a LEARNED FUNCTION.</code></pre>
+  <p><strong>Three things follow immediately from that equivalence</strong>, and they explain most GNN
+  behaviour:</p>
+  <ul>
+    <li><strong>A GNN inherits Morgan's locality.</strong> Three layers means three bonds. Long-range
+    relationships are invisible to both, which is why atom-pair fingerprints and, later, attention
+    mechanisms exist.</li>
+    <li><strong>A GNN can only beat Morgan if the learned function beats the hash</strong> — and
+    learning a function takes data. With 500 compounds there is not enough signal to learn anything
+    better than a hash.</li>
+    <li><strong>With enough data it should win</strong>, because the hash throws away information the
+    learned function can keep.</li>
+  </ul>
+</div>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>The architectures</h2>
+</header>
+
+<header class="mod" id="l4">
+  <span class="mn">Lesson 04</span>
+  <h2>Featurising atoms and bonds</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">The standard starting features</div>
+<pre><code>PER ATOM
+  element                  one-hot over C, N, O, S, F, Cl, Br, I, P, other
+  degree                   0-5, one-hot
+  formal charge            -2..+2
+  chirality tag            one-hot
+  number of hydrogens      0-4
+  hybridisation            sp, sp2, sp3, ...
+  aromatic                 boolean
+  in a ring                boolean
+                           -> a vector of ~30-130 numbers per atom
+
+PER BOND
+  bond type                single / double / triple / aromatic
+  conjugated               boolean
+  in a ring                boolean
+  stereo                   one-hot
+
+⭐ NOTE WHAT IS ABSENT: no molecular weight, no LogP, no global
+   property. The network is expected to derive what it needs from
+   local structure. In practice, CONCATENATING A FEW GLOBAL
+   DESCRIPTORS ONTO THE READOUT VECTOR OFTEN HELPS -- especially
+   for physical properties that genuinely are bulk properties.</code></pre>
+</div>
+
+<header class="mod" id="l5">
+  <span class="mn">Lesson 05</span>
+  <h2>GCN, GAT, MPNN, D-MPNN</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:18%">Architecture</th><th style="width:34%">What distinguishes it</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><strong>GCN</strong><br>graph convolutional</td><td>Averages neighbour vectors with a fixed normalisation.</td><td>Simplest. <strong>Ignores bond features entirely</strong>, which for chemistry is a real loss — a single and a double bond are treated alike.</td></tr>
+    <tr><td><strong>GAT</strong><br>graph attention</td><td>Learns <em>how much</em> to weight each neighbour.</td><td>More expressive; the attention weights are a bonus interpretability signal, though a weak one.</td></tr>
+    <tr><td><strong>MPNN</strong><br>message passing NN</td><td>The general framework — messages are functions of both atoms and the bond between them.</td><td>The umbrella the others sit under. Uses bond features properly.</td></tr>
+    <tr><td><strong>D-MPNN</strong><br>directed, as in Chemprop</td><td>Messages travel along <strong>directed bonds</strong> rather than atoms.</td><td><strong>The strong practical default for molecular property prediction.</strong> The direction stops a message from immediately bouncing back to where it came from, which reduces a form of redundancy that hurts atom-centred message passing.</td></tr>
+    <tr><td><strong>3D / equivariant</strong><br>SchNet, DimeNet, EGNN</td><td>Use actual atomic coordinates, respecting rotation and translation.</td><td>Necessary for quantum properties and protein–ligand work. Inherit the conformer problem from Volume 03.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="l6">
+  <span class="mn">Lesson 06</span>
+  <h2>Readout — turning atoms into a molecule</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:22%">Readout</th><th style="width:30%">Behaviour</th><th>When it is right</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Sum</strong></td><td>Grows with molecule size</td><td>Extensive properties — things that genuinely scale with size, like total energy.</td></tr>
+    <tr><td><strong>Mean</strong></td><td>Size-independent</td><td>Intensive properties. The safer default for activity.</td></tr>
+    <tr><td><strong>Max</strong></td><td>"Is any part of this molecule like X?"</td><td>When one substructure dominates the property — toxicity alerts, for instance.</td></tr>
+    <tr><td><strong>Attention pooling</strong></td><td>Learns which atoms matter</td><td>Best performance and the most interpretable, at the cost of parameters and data.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="tag">A real decision, not a detail</span>
+  <p><strong>Sum versus mean is the difference between a model that thinks bigger molecules are more
+  active and one that does not.</strong> If your dataset happens to correlate size with activity — and
+  many do, because chemists add mass while optimising — a sum readout will learn "bigger is better"
+  and generalise badly to a new series. Prefer mean unless the property is genuinely extensive.</p>
+</div>
+
+<header class="mod" id="l7">
+  <span class="mn">Lesson 07</span>
+  <h2>Over-smoothing — why deeper is not better</h2>
+</header>
+
+<div class="warn">
+  <span class="tag">The failure mode specific to graph networks</span>
+  <p>Each layer mixes each atom's vector with its neighbours'. Stack enough layers and <strong>every
+  atom's vector converges towards the same thing</strong> — the network has averaged the molecule into
+  mush and lost the local detail it was supposed to capture.</p>
+  <p><strong>This is why molecular GNNs are shallow.</strong> Three to five message-passing layers is
+  typical, and adding more usually makes performance worse rather than better. Given that drug-sized
+  molecules are only 10–15 bonds across, three layers already reaches most of the molecule.</p>
+  <p>Residual connections and jumping-knowledge layers mitigate it, but the practical advice stands:
+  <strong>if you are reaching for a tenth layer, the problem is not depth.</strong></p>
+</div>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>Using them honestly</h2>
+</header>
+
+<header class="mod" id="l8">
+  <span class="mn">Lesson 08</span>
+  <h2>When they actually help</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The honest benchmark position</span>
+    <p><strong>On typical medicinal chemistry datasets of a few hundred to a few thousand compounds,
+    a well-tuned random forest on Morgan fingerprints is competitive with — and often beats — a graph
+    neural network.</strong> This result has been reproduced repeatedly, and it is not a fringe
+    position.</p></div>
+  <div class="b"><span class="k">Where the literature overstates it</span>
+    <ul>
+      <li><strong>Under-tuned baselines.</strong> The GNN gets a hyperparameter sweep; the random forest gets defaults.</li>
+      <li><strong>Random splits.</strong> Deep models are better at memorising series, so a random split flatters them specifically.</li>
+      <li><strong>Benchmark sets, not project data.</strong> MoleculeNet sets are large, clean and public. Your project data is small, messy and proprietary.</li>
+      <li><strong>Publication bias.</strong> "Our GNN matched a random forest" is not a paper.</li>
+    </ul></div>
+  <div class="b check"><span class="k">When to reach for one anyway</span>
+    <ul>
+      <li><strong>Large data</strong> — tens of thousands of compounds and up.</li>
+      <li><strong>Multi-task</strong> — many related endpoints sharing one representation. This is where GNNs earn their place most clearly (Lesson 09).</li>
+      <li><strong>Pretraining available</strong> — a model pretrained on millions of unlabelled molecules, then fine-tuned on your few hundred. Volume 13.</li>
+      <li><strong>You need atom-level attribution</strong> — which colours a molecule directly, and is genuinely more useful to a chemist than fingerprint-bit importance.</li>
+      <li><strong>3D matters</strong> — quantum properties, binding poses. Fingerprints simply cannot express this.</li>
+    </ul></div>
+</div>
+
+<header class="mod" id="l9">
+  <span class="mn">Lesson 09</span>
+  <h2>Multi-task learning — the clearest win</h2>
+</header>
+
+<div class="wex">
+  <span class="cap">Worked example · why sharing helps</span>
+  <div class="body">
+<pre><code>THE SITUATION — a typical ADMET panel
+
+  solubility        4,200 compounds measured
+  permeability      2,800
+  hERG              3,100
+  CYP3A4            2,400
+  microsomal        1,900
+  YOUR TARGET         340   &lt;-- the one you care about
+
+SINGLE-TASK: train on 340 compounds. Almost certainly too few.
+
+MULTI-TASK:  one shared GNN trunk, six output heads.
+             The trunk learns molecular representation from
+             ALL 14,740 measurements; the small head learns
+             your specific endpoint from its 340.
+
+⭐ THE SHARED TRUNK IS TRAINED ON 40x MORE DATA THAN YOUR TASK HAS.
+   This is the single most reliable way a neural approach beats a
+   random forest on small chemical data -- and it is unavailable
+   to a per-task random forest by construction.</code></pre>
+    <p><strong>The caution:</strong> negative transfer is real. If one task is unrelated to the rest,
+    it can degrade the shared representation. Check by comparing each task's multi-task performance
+    against its own single-task baseline, and drop tasks that hurt.</p>
+  </div>
+</div>
+
+<header class="mod" id="l10">
+  <span class="mn">Lesson 10</span>
+  <h2>Uncertainty — because a prediction without one is not usable</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:26%">Method</th><th style="width:30%">How</th><th>Trade-off</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Ensemble</strong></td><td>Train 5–10 models with different seeds; use the spread of their predictions.</td><td><strong>The most reliable, and the standard.</strong> Costs 5–10× the training time — which for these model sizes is usually acceptable.</td></tr>
+    <tr><td><strong>MC dropout</strong></td><td>Leave dropout active at prediction time and sample repeatedly.</td><td>Cheap. Known to be less well calibrated than ensembles.</td></tr>
+    <tr><td><strong>Evidential / mean-variance</strong></td><td>The network predicts its own variance.</td><td>Single model, one pass. Calibration varies; check it before trusting it.</td></tr>
+    <tr><td><strong>Conformal prediction</strong></td><td>Wraps any model to produce intervals with a guaranteed coverage rate.</td><td><strong>Statistically principled and increasingly the preferred answer.</strong> Gives "90% of true values will fall in this interval", which is exactly what a chemist wants.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="good">
+  <span class="tag">The link back to Volume 08</span>
+  <p><strong>Uncertainty and applicability domain answer the same question by different routes.</strong>
+  A high predicted variance and a low nearest-neighbour similarity usually flag the same compounds.
+  Report both — they fail differently, and a compound flagged by both is one you should refuse to
+  predict rather than merely caveat.</p>
+</div>
+
+<header class="mod" id="l11">
+  <span class="mn">Lesson 11</span>
+  <h2>Attribution — colouring the molecule</h2>
+</header>
+
+<p>The most chemist-friendly output any model in this course produces: <strong>a picture of the
+molecule with atoms coloured by how much they contributed.</strong> Red for atoms pushing the
+prediction down, green for up.</p>
+
+<div class="note">
+  <span class="tag">Use it, and distrust it a little</span>
+  <p>Attribution methods disagree with each other, and they explain <em>the model</em> rather than
+  <em>the chemistry</em>. A model that learned a spurious correlation will produce a confident,
+  beautiful and wrong attribution map.</p>
+  <p><strong>The right use is as a conversation starter.</strong> Show it to a chemist and ask "does
+  this make sense?" If it highlights the group they already know matters, your model has probably
+  learned something real. If it highlights a methyl on the far side of the molecule, you have found a
+  problem — which is also valuable.</p>
+</div>
+
+<header class="part" id="part4">
+  <span class="pn">Part IV</span>
+  <h2>Practice</h2>
+</header>
+
+<header class="mod" id="l12">
+  <span class="mn">Lesson 12</span>
+  <h2>The tools</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:22%">Tool</th><th style="width:30%">What it is</th><th>Use when</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Chemprop</strong></td><td>A D-MPNN implementation built specifically for molecular property prediction</td><td><strong>Start here.</strong> Sensible defaults, a command-line interface, and it is the model most published comparisons use. You can get a real result the same day.</td></tr>
+    <tr><td><strong>DeepChem</strong></td><td>A broad library: datasets, splitters, featurisers, many model types</td><td>Benchmarking several approaches, or when you want its scaffold splitters and MoleculeNet loaders for free.</td></tr>
+    <tr><td><strong>PyTorch Geometric</strong></td><td>General graph deep learning in PyTorch</td><td>You are building a custom architecture. Maximum flexibility, maximum work.</td></tr>
+    <tr><td><strong>DGL-LifeSci</strong></td><td>Chemistry models on the DGL graph library</td><td>An alternative to PyG with good pretrained model coverage.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="l13">
+  <span class="mn">Lesson 13</span>
+  <h2>Setting up a fair comparison</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">The protocol — do this before believing any claim, including your own</div>
+<pre><code>  □  SAME SPLIT for both models — scaffold or time, and the same
+     random seed. Not "a scaffold split" each; THE SAME ONE.
+
+  □  TUNE THE BASELINE TOO. Give the random forest the same
+     hyperparameter search budget as the GNN. This single step
+     closes most reported gaps.
+
+  □  REPEAT over 5+ different splits and report mean and spread.
+     A single split difference of 0.03 R2 is noise, and on small
+     chemical datasets the spread across splits is often larger
+     than the difference between methods.
+
+  □  COMPARE TRAINING COST. If the GNN wins by 0.02 R2 and costs
+     100x the compute and a week of your time, that is a finding
+     about the project, not just about the models.
+
+  □  CHECK PERFORMANCE ON THE HARD SUBSET — the compounds whose
+     nearest training neighbour is distant. Averages hide the
+     part you actually care about.
+
+⭐ IF THE GNN STILL WINS AFTER ALL FIVE, IT REALLY WINS.
+   Most of the time, on most project datasets, it will not —
+   and knowing that saves you months you can spend on the data
+   instead, where the gains actually are.</code></pre>
+</div>
+
+<header class="mod" id="vids">
+  <span class="mn">Reference</span>
+  <h2>Watch alongside this volume</h2>
+</header>
+
+<div class="vids">
+  <a class="vid" href="https://www.youtube.com/playlist?list=PLoROMvodv4rPLKxIpqhjhPgdQy7imNkDn" target="_blank" rel="noopener">
+    <span class="src">YouTube · Stanford (playlist)</span>
+    <b>Stanford CS224W — Machine Learning with Graphs</b>
+    <p>The full university course on graph learning. The message-passing and GNN lectures are the
+    rigorous version of Lessons 02–07. Long, and the best single resource if you want the theory
+    properly rather than operationally.</p>
+  </a>
+  <a class="vid" href="https://www.youtube.com/watch?v=AHVJv5RNqKs" target="_blank" rel="noopener">
+    <span class="src">YouTube · MIT</span>
+    <b>AI for Drug Design — Lecture 16, Deep Learning in the Life Sciences</b>
+    <p>A single lecture aimed squarely at this volume's subject: deep learning applied to molecules
+    and drug design. The fastest way to hear a researcher frame the problem.</p>
+  </a>
+  <a class="vid" href="https://www.youtube.com/watch?v=pVHu9jDAoEs" target="_blank" rel="noopener">
+    <span class="src">YouTube · DeepChem</span>
+    <b>DeepChem tutorial — building a neural network to predict molecular solubility</b>
+    <p>Short and practical: the featurise → train → evaluate loop on a real endpoint. Watch this before
+    you write any code for Lesson 12.</p>
+  </a>
+</div>
+
+<details class="try">
+  <summary>Try it · Your GNN gets R² 0.71; a random forest on ECFP4 gets 0.69 on the same scaffold split. Which do you ship?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>The random forest — unless you can show the 0.02 is real, and you almost certainly
+    cannot.</strong></p>
+<pre><code>FIRST, IS THE DIFFERENCE EVEN THERE?
+   Re-run both across several random seeds and report the
+   spread. A 0.02 gap with a seed-to-seed spread of 0.04 is
+   not a result, it is noise. This check takes an hour and
+   settles most GNN-versus-baseline arguments.
+
+THEN, THE COSTS THE METRIC DOES NOT SHOW
+   · the RF trains in seconds on a laptop; the GNN needs a
+     GPU and an environment someone must maintain
+   · the RF gives feature importances a chemist can read
+   · the RF has no epochs, no learning rate, no checkpoint
+     to go stale
+   · someone else must be able to retrain this in a year
+
+⭐ SHIP THE GNN WHEN IT WINS BY A MARGIN THAT SURVIVES
+   RESEEDING, or when it brings something the RF cannot —
+   multi-task sharing, atom-level attribution, or a
+   pretrained starting point.</code></pre>
+    <p>And the thing to actually say: <strong>"the GNN is not better yet — here is the data size at
+    which I would expect it to be."</strong> That answer is more impressive than the model.</p>
+  </div>
+</details>
+
+<header class="mod" id="larch">
+  <span class="mn">Lesson 14</span>
+  <h2>The architecture zoo, and which ones matter</h2>
+</header>
+
+<p>There are dozens of published GNN architectures. Six are worth recognising, and the useful axis is
+not "newest" — it is <strong>what geometry the model can see</strong>.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:16%">Model</th><th style="width:26%">The idea</th><th style="width:16%">Sees</th><th>Use it when</th></tr></thead>
+  <tbody>
+    <tr><td><strong>GCN</strong><br><span class="lbl">2017</span></td><td>The simplest convolution over a graph</td><td>2D only</td><td>A teaching baseline. Its flaw: messages lose track of where they came from.</td></tr>
+    <tr><td><strong>MPNN</strong><br><span class="lbl">2017</span></td><td>Edge-conditioned messages — bonds carry information</td><td>2D</td><td>The general framework the others are variations on.</td></tr>
+    <tr><td><strong>D-MPNN</strong><br><span class="lbl">2019</span></td><td><strong>Directed</strong> message passing, so a message never flows back where it came from</td><td>2D</td><td><strong>The best 2D architecture, and what Chemprop implements.</strong> This is the sensible default.</td></tr>
+    <tr><td><strong>AttentiveFP</strong><br><span class="lbl">2020</span></td><td>Attention-based readout instead of averaging every atom</td><td>2D</td><td>When the property is decided by <em>one part</em> of the molecule — pK<sub>a</sub> by the ionisable group, say — rather than by the whole thing.</td></tr>
+    <tr><td><strong>SchNet</strong><br><span class="lbl">2017</span></td><td>Continuous-filter convolutions over interatomic distances</td><td>3D distances</td><td>Energies and forces.</td></tr>
+    <tr><td><strong>DimeNet / SphereNet</strong><br><span class="lbl">2020 / 2022</span></td><td>Adds <strong>angles</strong>, then full spherical geometry</td><td>3D angles</td><td>Conformer-dependent properties, where distance alone genuinely is not enough.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="warn">
+  <span class="tag">The trap in the 3D column</span>
+  <p>A 3D architecture needs 3D coordinates, and for most drug-discovery datasets <strong>you do not
+  have the bioactive conformer</strong> — you have a generated one (Volume 12, Lesson 11). So a
+  geometric model is reasoning about a shape you guessed. That is why D-MPNN on 2D graphs remains
+  competitive on ordinary property prediction, and why the 3D models earn their place mainly where the
+  geometry is known or is itself the label, as in energies and forces.</p>
+</div>
+
+<div class="chk" id="chk">
+  <span class="cap">Checkpoint · you should now be able to</span>
+  <ul>
+    <li>Explain message passing to a chemist in one sentence.</li>
+    <li>State precisely how a GNN differs from a Morgan fingerprint, and what follows from the similarity.</li>
+    <li>Say why molecular GNNs are shallow.</li>
+    <li>Give the three reasons published GNN-vs-RF comparisons are optimistic.</li>
+    <li>Describe multi-task learning and why it is the clearest case for a neural approach.</li>
+    <li>List the five steps of a fair comparison.</li>
+  </ul>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 11 · Generation and retrosynthesis</h4><p>Designing molecules rather than ranking them — and the two questions that decide whether a generated molecule is worth anything: can it be made, and is it actually new?</p></div>
+  <div class="card"><h4>The source material</h4><p><code>phase-2-ml-for-chemistry/15-deep-learning-for-molecules.md</code> (2,020 lines) and <code>16-graph-neural-networks-for-chemistry.md</code> (2,061 lines).</p></div>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>

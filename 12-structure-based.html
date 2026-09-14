@@ -1,0 +1,1229 @@
+<title>Proteins, Docking and Simulation</title>
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="favicon-32.png" type="image/png" sizes="32x32">
+<link rel="icon" href="favicon-16.png" type="image/png" sizes="16x16">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Petrona:ital,wght@0,400;0,500;0,600;1,400&family=Anonymous+Pro:wght@400;700&display=swap">
+
+<style>
+/* ===== tokens · the bare :root is the complete light palette ===== */
+:root {
+  --display: "Sora", "Segoe UI", system-ui, sans-serif;
+  --body: "Petrona", Georgia, "Times New Roman", serif;
+  --mono: "Anonymous Pro", "SFMono-Regular", Consolas, monospace;
+
+  --ground:   #F4F3F2;
+  --ground-2: #FCFBFB;
+  --panel:    #EBE8E7;
+  --panel-2:  #E1DDDC;
+
+  --ink:   #191718;
+  --ink-2: #413C3E;
+  --ink-3: #746E70;
+
+  --rule:   #D7D2D3;
+  --rule-2: #E6E2E2;
+
+  --accent:      #0B6B52;
+  --accent-soft: #E2F0EA;
+  --accent-deep: #06402F;
+
+  --bad:      #A6342A;
+  --bad-soft: #F8E7E4;
+  --warn:      #8A6206;
+  --warn-soft: #F7EEDA;
+  --good:      #1C6B4A;
+  --good-soft: #E1F0E8;
+
+  --focus: #0B6B52;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ground:   #121011;
+    --ground-2: #191718;
+    --panel:    #211E1F;
+    --panel-2:  #2A2627;
+
+    --ink:   #ECE8E9;
+    --ink-2: #C3BDBF;
+    --ink-3: #8A8385;
+
+    --rule:   #342F30;
+    --rule-2: #2A2627;
+
+    --accent:      #4FC6A0;
+    --accent-soft: #0E1A17;
+    --accent-deep: #7FDBC0;
+
+    --bad:      #E4948A;
+    --bad-soft: #26140F;
+    --warn:      #D2A64F;
+    --warn-soft: #221A0B;
+    --good:      #6DBF98;
+    --good-soft: #101F18;
+
+    --focus: #4FC6A0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ground:   #121011;
+  --ground-2: #191718;
+  --panel:    #211E1F;
+  --panel-2:  #2A2627;
+
+  --ink:   #ECE8E9;
+  --ink-2: #C3BDBF;
+  --ink-3: #8A8385;
+
+  --rule:   #342F30;
+  --rule-2: #2A2627;
+
+  --accent:      #4FC6A0;
+  --accent-soft: #0E1A17;
+  --accent-deep: #7FDBC0;
+
+  --bad:      #E4948A;
+  --bad-soft: #26140F;
+  --warn:      #D2A64F;
+  --warn-soft: #221A0B;
+  --good:      #6DBF98;
+  --good-soft: #101F18;
+
+  --focus: #4FC6A0;
+}
+
+/* ===== base ===== */
+* { box-sizing: border-box; }
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 18.8px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 2px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+strong { font-weight: 600; color: var(--ink); }
+h1, h2, h3, h4 { font-family: var(--display); text-wrap: balance; letter-spacing: -.015em; }
+p { margin: 0 0 12px; }
+code, kbd { font-family: var(--mono); font-size: .87em; background: var(--panel); padding: 1px 4px; border-radius: 2px; }
+
+/* ===== shell ===== */
+.shell { display: grid; grid-template-columns: 256px minmax(0, 1fr); max-width: none; margin: 0; }
+.rail {
+  position: sticky; top: 0; align-self: start; height: 100vh; overflow-y: auto;
+  padding: 24px 14px 40px 20px; border-right: 1px solid var(--rule);
+  font-family: var(--mono); font-size: 13.1px; line-height: 1.3;
+}
+.rail-title { font-family: var(--display); font-weight: 700; font-size: 15.4px; margin: 0 0 2px; }
+.rail-sub { color: var(--ink-3); font-size: 10.8px; letter-spacing: .08em; text-transform: uppercase; margin: 0 0 6px; }
+.rail-vol { display: inline-block; font-size: 10.3px; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); border: 1px solid var(--accent); padding: 1px 5px; border-radius: 2px; margin-bottom: 16px; }
+.rail-group { color: var(--ink-3); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin: 16px 0 5px; padding-bottom: 4px; border-bottom: 1px solid var(--rule-2); }
+.rail a { display: block; color: var(--ink-2); text-decoration: none; padding: 3px 6px 3px 8px; border-left: 2px solid transparent; margin-left: -2px; }
+.rail a:hover { color: var(--ink); background: var(--panel); }
+.rail a.on { color: var(--accent); border-left-color: var(--accent); background: var(--accent-soft); font-weight: 700; }
+.rail a .n { color: var(--ink-3); margin-right: 5px; }
+.rail a.on .n { color: var(--accent); }
+
+.doc { padding: 38px 56px 100px; max-width: none; }
+.doc > * { max-width: none; }
+
+@media (max-width: 940px) {
+  .shell { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--rule); padding: 18px 20px 22px; }
+  .doc { padding: 24px 20px 70px; }
+}
+
+/* ===== hero + band ===== */
+.hero { border-bottom: 2px solid var(--ink); padding-bottom: 24px; margin-bottom: 20px; }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin: 0 0 10px; }
+.hero h1 { font-size: clamp(33px, 4.8vw, 50px); font-weight: 700; line-height: 1.05; margin: 0 0 14px; }
+.hero h1 .thin { font-weight: 500; color: var(--ink-3); }
+.lede { font-size: 19.4px; color: var(--ink-2); margin: 0 0 4px; }
+.hero-meta { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 22px; padding-top: 15px; border-top: 1px solid var(--rule-2); font-family: var(--mono); font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: .04em; }
+.hero-meta b { color: var(--ink-2); font-weight: 400; }
+
+.band { display: grid; grid-template-columns: repeat(auto-fit, minmax(158px, 1fr)); gap: 8px; margin: 0 0 30px; }
+.vol { border: 1px solid var(--rule); border-radius: 2px; padding: 10px 12px 11px; background: var(--ground-2); font-size: 15.4px; text-decoration: none; color: var(--ink-2); display: block; }
+.vol:hover { background: var(--panel); }
+.vol .vn { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 3px; }
+.vol b { font-family: var(--display); font-weight: 600; font-size: 14.8px; display: block; line-height: 1.25; }
+.vol em { font-style: normal; color: var(--ink-3); font-size: 14.8px; }
+.vol.here { border-color: var(--accent); background: var(--accent-soft); color: var(--ink); border-left: 3px solid var(--accent); }
+.vol.here .vn { color: var(--accent); }
+
+/* ===== structure ===== */
+.part { margin: 58px 0 24px; padding-top: 20px; border-top: 2px solid var(--ink); }
+.part .pn { display: block; font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+.part h2 { font-size: 33.1px; font-weight: 700; margin: 0 0 9px; }
+.part .lede { font-size: 18.8px; }
+
+.mod { margin: 40px 0 14px; padding-top: 15px; border-top: 1px solid var(--rule); }
+.mod .mn { display: block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 5px; }
+.mod h2 { font-size: 24.5px; font-weight: 600; margin: 0 0 7px; }
+.mod .lede { font-size: 18.2px; margin-bottom: 0; }
+
+h3 { font-size: 19.4px; font-weight: 600; margin: 24px 0 8px; }
+h4 { font-size: 16.5px; font-weight: 600; margin: 0 0 5px; font-family: var(--display); }
+hr.rule { border: 0; border-top: 1px solid var(--rule); margin: 32px 0; }
+
+/* ===== the four-band senior block — this library's signature here ===== */
+.sen { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 22px 0; overflow: hidden; }
+.sen > .b { padding: 12px 16px 13px; border-bottom: 1px solid var(--rule-2); }
+.sen > .b:last-child { border-bottom: 0; }
+.sen > .b > .k { display: block; font-family: var(--mono); font-size: 10.3px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 7px; color: var(--ink-3); }
+.sen > .b.knows { background: var(--accent-soft); }
+.sen > .b.knows > .k { color: var(--accent); }
+.sen > .b.junior { background: var(--bad-soft); }
+.sen > .b.junior > .k { color: var(--bad); }
+.sen > .b.check { background: var(--good-soft); }
+.sen > .b.check > .k { color: var(--good); }
+.sen p, .sen li { font-size: 16.9px; }
+.sen p:last-child, .sen ul:last-child, .sen ol:last-child { margin-bottom: 0; }
+.sen ul, .sen ol { margin: 0 0 10px; padding-left: 21px; }
+.sen li { margin-bottom: 5px; }
+
+
+/* ===== graded question block — the signature component here ===== */
+.qa { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.qa > .qh { padding: 12px 16px 13px; background: var(--accent-soft); border-bottom: 1px solid var(--rule); }
+.qa > .qh > .lvl { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; color: var(--accent); margin-bottom: 5px; }
+.qa > .qh p { font-family: var(--display); font-weight: 600; font-size: 17.7px; line-height: 1.3; margin: 0; color: var(--ink); }
+.qa > .b { padding: 11px 16px 12px; border-bottom: 1px solid var(--rule-2); }
+.qa > .b:last-child { border-bottom: 0; }
+.qa > .b > .k { display: block; font-family: var(--mono); font-size: 10px; letter-spacing: .13em; text-transform: uppercase; margin-bottom: 6px; color: var(--ink-3); }
+.qa > .b.weak { background: var(--bad-soft); }
+.qa > .b.weak > .k { color: var(--bad); }
+.qa > .b.strong { background: var(--good-soft); }
+.qa > .b.strong > .k { color: var(--good); }
+.qa > .b.up { background: var(--panel); }
+.qa > .b.up > .k { color: var(--ink-2); }
+.qa p, .qa li { font-size: 16.9px; }
+.qa > .b p:last-child, .qa > .b ul:last-child, .qa > .b ol:last-child { margin-bottom: 0; }
+.qa ul, .qa ol { margin: 0 0 10px; padding-left: 21px; }
+.qa li { margin-bottom: 5px; }
+
+/* ===== callouts ===== */
+.note, .warn, .bad, .good, .proj {
+  border: 1px solid var(--rule); border-left: 3px solid var(--ink-3); border-radius: 2px;
+  padding: 11px 14px 12px; margin: 18px 0; font-size: 17.7px; background: var(--ground-2);
+}
+.good { border-left-color: var(--good); background: var(--good-soft); }
+.warn { border-left-color: var(--warn); background: var(--warn-soft); }
+.bad  { border-left-color: var(--bad); background: var(--bad-soft); }
+.proj { border-left-color: var(--accent); background: var(--accent-soft); }
+.tag { display: inline-block; font-family: var(--mono); font-size: 10.8px; letter-spacing: .12em; text-transform: uppercase; margin-bottom: 5px; }
+.note .tag { color: var(--ink-3); } .good .tag { color: var(--good); }
+.warn .tag { color: var(--warn); } .bad .tag { color: var(--bad); }
+.proj .tag { color: var(--accent); }
+.note p:last-child, .warn p:last-child, .bad p:last-child, .good p:last-child, .proj p:last-child { margin-bottom: 0; }
+
+/* ===== mono sheets, code, diagrams ===== */
+.sheet { border: 1px solid var(--rule); border-radius: 2px; background: var(--ground-2); margin: 20px 0; overflow: hidden; }
+.sheet > .cap { display: flex; align-items: center; gap: 8px; padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.sheet > .cap::before { content: ""; width: 6px; height: 6px; background: var(--accent); flex: none; }
+.sheet pre { margin: 0; }
+pre { font-family: var(--mono); font-size: 13.7px; line-height: 1.45; overflow-x: auto; padding: 13px 14px; color: var(--ink-2); }
+pre code { background: none; padding: 0; font-size: inherit; }
+.ascii { font-family: var(--mono); font-size: 13.7px; line-height: 1.42; white-space: pre; overflow-x: auto; padding: 14px; border: 1px solid var(--rule); border-radius: 2px; background: var(--panel); margin: 20px 0; color: var(--ink-2); }
+
+/* ===== tables ===== */
+.tw { overflow-x: auto; margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; }
+table { border-collapse: collapse; width: 100%; font-size: 16.5px; min-width: 460px; }
+th, td { text-align: left; vertical-align: top; padding: 8px 12px; border-bottom: 1px solid var(--rule-2); }
+th { font-family: var(--mono); font-size: 10.8px; letter-spacing: .09em; text-transform: uppercase; color: var(--ink-2); background: var(--panel-2); border-bottom: 1px solid var(--rule); font-weight: 400; }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:nth-child(even) td { background: var(--ground-2); }
+td code { background: var(--panel); }
+.ok { color: var(--good); font-weight: 600; }
+.no { color: var(--bad); font-weight: 600; }
+.mid { color: var(--warn); font-weight: 600; }
+
+/* ===== lists, cards, terms ===== */
+ul, ol { margin: 0 0 13px; padding-left: 21px; }
+li { margin-bottom: 6px; }
+li::marker { color: var(--accent); }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 11px; margin: 20px 0; }
+.grid3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(215px, 1fr)); gap: 10px; margin: 20px 0; }
+.card { border: 1px solid var(--rule); border-radius: 2px; padding: 11px 13px 12px; background: var(--ground-2); font-size: 16.5px; }
+.card p:last-child { margin-bottom: 0; }
+.terms { margin: 20px 0; border: 1px solid var(--rule); border-radius: 2px; overflow: hidden; }
+.terms > .cap { padding: 6px 12px; background: var(--panel-2); border-bottom: 1px solid var(--rule); font-family: var(--mono); font-size: 10.8px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-2); }
+.terms dl { margin: 0; padding: 12px 14px; display: grid; grid-template-columns: minmax(150px, 215px) 1fr; gap: 7px 14px; font-size: 16.5px; }
+.terms dt { font-family: var(--mono); font-size: 13.7px; color: var(--accent); font-weight: 700; }
+.terms dd { margin: 0; color: var(--ink-2); }
+@media (max-width: 560px) { .terms dl { grid-template-columns: 1fr; gap: 2px 0; } .terms dd { margin-bottom: 8px; } }
+.disclaimer { margin: 28px 0 0; padding: 11px 14px; border: 1px dashed var(--rule); border-radius: 2px; background: var(--panel); font-size: 15.4px; color: var(--ink-2); }
+.disclaimer p:last-child { margin-bottom: 0; }
+
+/* ===== scrollbars, themed from the same tokens ===== */
+html { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+.rail, .tw, pre, .ascii, .doc { scrollbar-color: var(--rule) var(--panel); scrollbar-width: thin; }
+::-webkit-scrollbar { width: 11px; height: 11px; background: var(--panel); }
+::-webkit-scrollbar-track { background: var(--panel); }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 7px; border: 2px solid var(--panel); }
+::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+::-webkit-scrollbar-corner { background: var(--panel); }
+.rail::-webkit-scrollbar, .rail::-webkit-scrollbar-track { background: var(--ground); }
+.rail::-webkit-scrollbar-thumb { border-color: var(--ground); }
+
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+
+/* ===== course components ===== */
+.obj { border: 1px solid var(--rule); border-left: 3px solid var(--accent); border-radius: 3px;
+       background: var(--accent-soft); padding: 14px 18px 15px; margin: 18px 0 22px; }
+.obj > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.obj ul { margin: 0; padding-left: 20px; }
+.obj li { margin: 0 0 5px; }
+
+.wex { border: 1px solid var(--rule); border-radius: 3px; margin: 20px 0 24px; overflow: hidden; background: var(--ground-2); }
+.wex > .cap { font-family: var(--mono); font-size: 11.6px; letter-spacing: .13em; text-transform: uppercase;
+       color: var(--ground); background: var(--accent); padding: 7px 16px 8px; display: block; font-weight: 700; }
+.wex > .body { padding: 15px 18px 6px; }
+.wex .q { font-weight: 600; margin: 0 0 10px; }
+.wex pre { margin: 12px 0; }
+
+.stepn { counter-reset: stepn; margin: 14px 0 4px; padding: 0; list-style: none; }
+.stepn > li { counter-increment: stepn; position: relative; padding-left: 34px; margin: 0 0 12px; }
+.stepn > li::before { content: counter(stepn); position: absolute; left: 0; top: 1px;
+       font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--ground);
+       background: var(--accent); width: 22px; height: 22px; border-radius: 50%;
+       display: flex; align-items: center; justify-content: center; }
+
+.chk { border: 1px solid var(--rule); border-left: 3px solid var(--ok, var(--accent)); border-radius: 3px;
+       background: var(--ground-2); padding: 14px 18px 15px; margin: 24px 0 8px; }
+.chk > .cap { font-family: var(--mono); font-size: 11.4px; letter-spacing: .14em; text-transform: uppercase;
+       color: var(--ink-3); margin: 0 0 8px; display: block; }
+.chk ul { margin: 0; padding-left: 20px; }
+.chk li { margin: 0 0 5px; }
+
+details.try { border: 1px solid var(--rule); border-radius: 3px; background: var(--ground-2);
+       padding: 0; margin: 18px 0 22px; }
+details.try > summary { cursor: pointer; padding: 12px 16px 13px; font-weight: 600;
+       list-style: none; display: block; position: relative; padding-right: 42px; }
+details.try > summary::-webkit-details-marker { display: none; }
+details.try > summary::after { content: "show"; position: absolute; right: 14px; top: 13px;
+       font-family: var(--mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); }
+details.try[open] > summary::after { content: "hide"; }
+details.try[open] > summary { border-bottom: 1px solid var(--rule); }
+details.try > .ans { padding: 14px 18px 4px; }
+details.try .lbl { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase;
+       color: var(--accent); display: block; margin: 0 0 7px; font-weight: 700; }
+
+.vids { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 12px; margin: 18px 0 24px; }
+.vid { border: 1px solid var(--rule); border-top: 3px solid var(--accent); border-radius: 3px;
+       padding: 13px 16px 15px; background: var(--ground-2); text-decoration: none; color: var(--ink-2); display: block; }
+.vid:hover { background: var(--panel); }
+.vid .src { font-family: var(--mono); font-size: 10.8px; letter-spacing: .11em; text-transform: uppercase;
+       color: var(--ink-3); display: block; margin: 0 0 5px; }
+.vid b { font-family: var(--display); font-weight: 600; font-size: 16.6px; color: var(--ink); display: block; margin: 0 0 5px; line-height: 1.25; }
+.vid p { margin: 0; font-size: 15.4px; }
+
+/* 16 chips need a tighter band than the 11-chip sets */
+.band { grid-template-columns: repeat(auto-fit, minmax(126px, 1fr)); gap: 7px; }
+.vol { padding: 9px 10px 10px; }
+.vol b { font-size: 13.6px; }
+.vol .vn { font-size: 9.8px; }
+
+.mol { font-family: var(--mono); font-size: 15px; background: var(--accent-soft); color: var(--accent-deep);
+       padding: 2px 6px; border-radius: 2px; border: 1px solid var(--rule); white-space: nowrap; }
+
+</style>
+
+<div class="shell">
+<nav class="rail" aria-label="Contents">
+  <p class="rail-title">Course · Volume 12</p>
+  <p class="rail-sub">Proteins, docking and simulation</p>
+  <span class="rail-vol">Phase 3</span>
+  <a href="#open"><span class="n">—</span>Open</a>
+  <a href="#obj"><span class="n">—</span>What you will be able to do</a>
+
+  <div class="rail-group">I · The target</div>
+  <a href="#l1"><span class="n">01</span>What a protein is, for us</a>
+  <a href="#l2"><span class="n">02</span>Where structures come from</a>
+  <a href="#l3"><span class="n">03</span>Preparation — the skipped step</a>
+
+  <div class="rail-group">II · Docking</div>
+  <a href="#l4"><span class="n">04</span>What docking actually does</a>
+  <a href="#l5"><span class="n">05</span>Scoring, and its real error</a>
+  <a href="#l6"><span class="n">06</span>Validating before you trust</a>
+  <a href="#l7"><span class="n">07</span>Reading a pose</a>
+
+  <div class="rail-group">III · The interactions</div>
+  <a href="#l8"><span class="n">08</span>The forces that hold it</a>
+  <a href="#l9"><span class="n">09</span>Interaction fingerprints</a>
+  <a href="#l10"><span class="n">10</span>Water</a>
+
+  <div class="rail-group">IV · The physics</div>
+  <a href="#l11"><span class="n">11</span>Conformers</a>
+  <a href="#l12"><span class="n">12</span>Force fields and QM</a>
+  <a href="#l13"><span class="n">13</span>Molecular dynamics</a>
+  <a href="#l14"><span class="n">14</span>FEP, the gold standard</a>
+
+  <div class="rail-group">V · Designing with it</div>
+  <a href="#l15"><span class="n">15</span>Pharmacophores and fragments</a>
+  <a href="#lpock"><span class="n">16</span>Finding the pocket</a>
+  <a href="#mistakes"><span class="n">—</span>The mistakes that cost most</a>
+
+  <div class="rail-group">Reference</div>
+  <a href="#drill"><span class="n">—</span>Rapid drill</a>
+  <a href="#next"><span class="n">—</span>What next</a>
+</nav>
+
+<main class="doc">
+<header class="hero" id="open">
+  <p class="eyebrow">AI cheminformatics · Volume 12 of 17 · phase 3</p>
+  <h1>Proteins, docking and simulation. <span class="thin">Adding the thing the molecule binds to.</span></h1>
+  <p class="lede">Every volume so far has described molecules alone — a fingerprint, a descriptor, a
+  graph. But a drug does not work by existing; it works by <em>fitting into something</em>. This volume
+  adds the protein, which means adding three dimensions, geometry and physics — and a whole new
+  category of ways to be confidently wrong.</p>
+  <div class="hero-meta">
+    <span><b>Assumes</b> · Volumes 01–11</span>
+    <span><b>Teaches</b> · structure-based design, and its error bars</span>
+    <span><b>Time</b> · 10–12 hours</span>
+  </div>
+</header>
+
+<div class="band">
+<a class="vol" href="index.html"><span class="vn">Library</span><b>All documents</b></a>
+<a class="vol" href="01-what-it-is.html"><span class="vn">Vol 01</span><b>What it is</b></a>
+<a class="vol" href="02-toolchain.html"><span class="vn">Vol 02</span><b>Toolchain</b></a>
+<a class="vol" href="03-molecules-as-data.html"><span class="vn">Vol 03</span><b>Molecules as data</b></a>
+<a class="vol" href="04-rdkit.html"><span class="vn">Vol 04</span><b>RDKit</b></a>
+<a class="vol" href="05-descriptors.html"><span class="vn">Vol 05</span><b>Descriptors</b></a>
+<a class="vol" href="06-data-curation.html"><span class="vn">Vol 06</span><b>Data &amp; curation</b></a>
+<a class="vol" href="07-chemical-space.html"><span class="vn">Vol 07</span><b>Chemical space</b></a>
+<a class="vol" href="08-qsar.html"><span class="vn">Vol 08</span><b>QSAR</b></a>
+<a class="vol" href="09-screening-admet.html"><span class="vn">Vol 09</span><b>Screening &amp; ADMET</b></a>
+<a class="vol" href="10-deep-learning.html"><span class="vn">Vol 10</span><b>Deep learning</b></a>
+<a class="vol" href="11-generation.html"><span class="vn">Vol 11</span><b>Generation</b></a>
+<div class="vol here"><span class="vn">Vol 12 · here</span><b>Structure-based</b></div>
+<a class="vol" href="13-frontiers.html"><span class="vn">Vol 13</span><b>Frontiers</b></a>
+<a class="vol" href="14-exercises.html"><span class="vn">Vol 14</span><b>Exercises</b></a>
+<a class="vol" href="15-capstones-insights.html"><span class="vn">Vol 15</span><b>Capstones</b></a>
+<a class="vol" href="16-portfolio-career.html"><span class="vn">Vol 16</span><b>Portfolio &amp; career</b></a>
+<a class="vol" href="17-cheat-sheet.html"><span class="vn">Vol 17</span><b>Cheat sheet</b></a>
+</div>
+
+<div class="obj" id="obj">
+  <span class="cap">By the end of this volume you will be able to</span>
+  <ul>
+    <li>Explain what docking computes, and state its real accuracy without flinching.</li>
+    <li>Prepare a protein structure properly, and say what goes wrong at each step you skip.</li>
+    <li>Judge whether an AlphaFold structure is usable for your binding site.</li>
+    <li>Name the five interaction types and recognise them in a pose.</li>
+    <li>Say when a conformer set is adequate, and why everything 3D depends on that answer.</li>
+    <li>Choose correctly between docking, MD and FEP — by the question, not by prestige.</li>
+  </ul>
+</div>
+
+<header class="part" id="part1">
+  <span class="pn">Part I</span>
+  <h2>The target</h2>
+</header>
+
+<header class="mod" id="l1">
+  <span class="mn">Lesson 01</span>
+  <h2>What a protein is, for our purposes</h2>
+</header>
+
+<p>You do not need biochemistry to do this work, but you do need a working picture. Here is the
+minimum that makes everything else make sense.</p>
+
+<pre class="ascii">
+  THE FOUR LEVELS
+
+    PRIMARY      the sequence of amino acids. A string, like SMILES.
+                 ...ALA-GLY-SER-LEU-TRP-ASP...
+
+    SECONDARY    local shapes the chain folds into:
+                 alpha helices (coils) and beta sheets (flat strands)
+
+    TERTIARY     the whole chain folded into one 3D shape.
+                 ⭐ THIS IS THE ONE THAT MATTERS TO US.
+
+    QUATERNARY   several folded chains assembled together
+
+
+  WHAT WE ACTUALLY CARE ABOUT: THE BINDING SITE
+
+    Somewhere on that folded shape is a POCKET — a dent lined
+    with amino acid side chains. A drug is a molecule shaped to
+    sit in that dent and stay there.
+
+         protein surface
+        ~~~~~~~~~\        /~~~~~~~~~~
+                  \      /
+                   \    /     &lt;- the pocket
+                    \__/
+                    [LIG]     &lt;- your molecule, sitting in it
+
+  ⭐ THE WHOLE OF STRUCTURE-BASED DESIGN IS ONE QUESTION:
+     does this molecule fit that dent, and does it stay?
+</pre>
+
+<div class="note">
+  <span class="tag">The twenty side chains, grouped the useful way</span>
+  <p>You do not need to memorise all twenty amino acids, but you do need the grouping, because it
+  tells you what kind of molecule a pocket wants. <strong>Greasy</strong> (Leu, Ile, Val, Phe, Trp,
+  Met) — a pocket lined with these wants a greasy part of your molecule.
+  <strong>Polar</strong> (Ser, Thr, Asn, Gln, Tyr) — these make hydrogen bonds.
+  <strong>Charged</strong> (Asp, Glu negative; Lys, Arg positive) — these make salt bridges, and they
+  are the strongest single interactions you get. <strong>Special</strong> (Gly, tiny and flexible;
+  Pro, rigid and kinks the chain; Cys, forms bridges; His, which can be charged or not depending on
+  pH — and that ambiguity causes more docking errors than any other residue).</p>
+</div>
+
+<header class="mod" id="l2">
+  <span class="mn">Lesson 02</span>
+  <h2>Where structures come from, and how much to trust them</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:20%">Source</th><th style="width:30%">What it is</th><th>How much to trust it</th></tr></thead>
+  <tbody>
+    <tr><td><strong>X-ray crystallography</strong></td><td>The classic experimental method. The PDB holds roughly 220,000 structures.</td><td>Check the <strong>resolution</strong>. Below 2.0 Å is good; 2.0–2.5 Å is usable; above 3.0 Å, side-chain positions are guesses and you should not dock into it without care.</td></tr>
+    <tr><td><strong>Cryo-EM</strong></td><td>Increasingly common, especially for large complexes and membrane proteins.</td><td>Resolution varies widely across one structure. Check the local resolution at <em>your</em> binding site, not the headline number.</td></tr>
+    <tr><td><strong>NMR</strong></td><td>Solution structures, usually delivered as an ensemble of models.</td><td>Useful for flexibility information. Pick a model deliberately, or use the ensemble.</td></tr>
+    <tr><td><strong>AlphaFold</strong></td><td>Predicted. AlphaFold2 solved single-chain prediction; AlphaFold3 extended it to complexes.</td><td>Depends entirely on <strong>pLDDT</strong> — see below. Transformative for targets with no structure, dangerous when used carelessly.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="wex">
+  <span class="cap">Worked example · deciding whether to dock into an AlphaFold model</span>
+  <div class="body">
+<pre><code>pLDDT is a per-residue confidence score, 0-100, stored in the
+B-factor column of the PDB file.
+
+    &gt; 90     very high — backbone AND side chains reliable
+    70 - 90  confident — backbone good, side chains less so
+    50 - 70  low — treat with caution
+    &lt; 50     very low — usually a disordered region, not a shape
+
+THE CHECK THAT MATTERS
+
+    Do NOT look at the average pLDDT for the whole protein.
+    A protein can average 88 and still have a binding site at 55.
+
+    1. list the residues lining your binding site
+    2. read pLDDT for THOSE residues only
+    3. if the binding-site mean is &lt; 70, do not dock into it
+
+⭐ AND THE LIMITATION NO pLDDT SCORE TELLS YOU
+
+   AlphaFold predicts the APO structure — the protein WITHOUT a
+   ligand. Many binding sites change shape when something binds
+   (induced fit). A perfect 95-pLDDT apo structure can still have
+   a pocket in the wrong conformation for your molecule.
+
+   So: an experimental holo structure (protein WITH a ligand
+   bound) beats a perfect prediction, every time.</code></pre>
+  </div>
+</div>
+
+<header class="mod" id="l3">
+  <span class="mn">Lesson 03</span>
+  <h2>Protein preparation — the step everyone skips</h2>
+</header>
+
+<p>A PDB file is not ready to use. Downloading it and docking straight into it is the most common
+beginner error in this entire volume, and it silently produces plausible, wrong answers.</p>
+
+<pre class="ascii">
+  WHAT IS WRONG WITH A RAW PDB FILE
+
+  1. NO HYDROGENS
+       X-ray crystallography does not see hydrogen atoms. They
+       are simply absent. Hydrogen bonds are THE key interaction,
+       and you cannot detect one without hydrogens.
+       -&gt; you must add them, computationally
+
+  2. PROTONATION STATES UNDECIDED
+       Is that histidine positively charged or neutral? Which of
+       its two nitrogens carries the hydrogen? Is that aspartate
+       ionised?
+       -&gt; at pH 7.4 the answer is usually predictable, but
+          HISTIDINE IS GENUINELY AMBIGUOUS and must be checked
+          BY HAND for binding-site residues
+
+  3. MISSING RESIDUES
+       Flexible loops often do not appear in the density and are
+       simply missing from the file. If one borders your pocket,
+       your pocket has a hole in it that does not exist in reality.
+
+  4. WATERS, IONS, BUFFER JUNK
+       All mixed together. Some waters are structurally important;
+       most are not. Glycerol and sulfate from the crystallisation
+       buffer are not part of the protein.
+
+  5. THE ASYMMETRIC UNIT IS NOT THE BIOLOGICAL MOLECULE
+       ⚠ The file may contain a crystallographic repeating unit,
+       not the real assembly. A "pocket" formed between two
+       symmetry-related copies DOES NOT EXIST IN SOLUTION.
+       -&gt; always use the BIOLOGICAL ASSEMBLY file
+</pre>
+
+<div class="bad">
+  <span class="tag">The crystal-packing trap, concretely</span>
+  <p>A pocket-detection tool reports a beautiful, deep, druggable cavity. You design molecules for it
+  for three months. It turns out the cavity is the gap between two protein copies packed against each
+  other in the crystal — an artefact of how the protein was frozen, not a feature of the protein.
+  <strong>The check is one click: download the biological assembly rather than the asymmetric unit.</strong></p>
+</div>
+
+<header class="part" id="part2">
+  <span class="pn">Part II</span>
+  <h2>Docking</h2>
+</header>
+
+<header class="mod" id="l4">
+  <span class="mn">Lesson 04</span>
+  <h2>What docking actually does</h2>
+</header>
+
+<p>Docking is two things bolted together, and almost every misunderstanding comes from confusing
+them.</p>
+
+<pre class="ascii">
+  DOCKING = SEARCH + SCORE
+
+  1. THE SEARCH (posing)
+       Try to place the ligand in the pocket in many positions,
+       orientations and internal shapes. Millions of candidate
+       poses, explored by a search algorithm.
+
+       Question answered: HOW might it sit?
+
+  2. THE SCORE
+       For each pose, compute a number meant to approximate
+       binding strength, in kcal/mol. More negative = better.
+
+       Question answered: HOW WELL does it sit?
+
+  OUTPUT: a ranked list of poses with scores.
+
+  ⭐ THE TWO ARE INDEPENDENTLY FALLIBLE. The search can miss the
+     right pose entirely. Or it can find the right pose and the
+     score can rank it fourth. When people say "docking failed",
+     they usually have not worked out which half failed.
+</pre>
+
+<div class="note">
+  <span class="tag">The search box — a practical detail that ruins results</span>
+  <p>You tell the docking program where to look with a box. Too small and the correct pose is
+  literally outside the search space and can never be found; the program will confidently return the
+  best of a bad set. <strong>Extend the box at least 5 Å beyond the binding site in every
+  direction.</strong> And avoid "blind docking" across the whole protein when you can — it has far
+  higher false-positive rates. Find candidate pockets first with a detection tool, then dock into each
+  one separately.</p>
+</div>
+
+<header class="mod" id="l5">
+  <span class="mn">Lesson 05</span>
+  <h2>Scoring, and its real error</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">The number you must know</span>
+    <p>Docking scores carry a typical error of <strong>2–3 kcal/mol</strong>. That is not a footnote —
+    it determines everything you are allowed to claim.</p></div>
+  <div class="b"><span class="k">What that error means in practice</span>
+<pre><code>A score of -10.5 kcal/mol, with ±2-3 kcal/mol error,
+is consistent with a real affinity anywhere from
+about 1 nM to about 100 uM.
+
+That is a range of FIVE ORDERS OF MAGNITUDE —
+the difference between a drug and a non-binder.</code></pre></div>
+  <div class="b junior"><span class="k">What juniors say</span>
+    <p>"This compound scores −10.5, so it is a low-nanomolar binder." Or worse: comparing two analogues
+    that differ by 0.4 kcal/mol and drawing an SAR conclusion. <strong>Medicinal-chemistry SAR
+    differences are typically 0.5–1 kcal/mol, well inside the noise. You are reading the error
+    bar.</strong></p></div>
+  <div class="b check"><span class="k">What docking is legitimately for</span>
+    <p><strong>Enrichment</strong> — concentrating actives near the top of a big list so you test
+    2,000 compounds instead of 500,000 — and <strong>binding-mode hypotheses</strong>, which are
+    qualitative and testable. Not affinity prediction. Not SAR.</p></div>
+</div>
+
+<header class="mod" id="l6">
+  <span class="mn">Lesson 06</span>
+  <h2>Validating before you trust</h2>
+</header>
+
+<p>Before a docking setup is used to find new actives, it must be shown to find <em>known</em> ones.
+This is retrospective validation, it takes an afternoon, and skipping it is how three-month screens
+end up meaningless.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · a retrospective validation</span>
+  <div class="body">
+<pre><code>SETUP
+  50 known actives for this target (from ChEMBL)
++ 2,500 decoys — molecules with SIMILAR PHYSICAL PROPERTIES
+  but presumed inactive (DUD-E builds these, or use property-
+  matched randoms)
+  ----------------------------------------------------------
+  ⭐ WHY PROPERTY-MATCHED: if your decoys are all tiny and your
+     actives are all large, you will "enrich" perfectly by
+     measuring molecular weight. The test must be hard.
+
+RUN the whole pipeline. Then:
+
+  ROC-AUC         0.5 = random, 1.0 = perfect
+                  &gt; 0.7 is usable for screening
+                  ⚠ but AUC weights the whole list equally, and
+                    you only ever look at the top
+
+  EF at 1%        enrichment factor in the top 1%
+                  "how many times more actives than chance"
+                  EF = 10 means 10x better than random
+                  ⭐ THIS IS THE ONE THAT MATTERS, because it
+                     describes the only part of the list you
+                     will actually buy and test
+
+IF EF@1% IS NEAR 1
+    your setup cannot find actives it has already been given.
+    It will not find new ones. Fix the setup — protonation,
+    box size, waters, protein conformation — or use a
+    ligand-based method instead (Volume 09).</code></pre>
+  </div>
+</div>
+
+<header class="mod" id="l7">
+  <span class="mn">Lesson 07</span>
+  <h2>Reading a pose</h2>
+</header>
+
+<div class="warn">
+  <span class="tag">The number that calibrates your confidence</span>
+  <p>The top-scoring pose is the experimentally correct binding mode roughly <strong>50–70% of the
+  time</strong>. So treating the top pose as "the answer" is a coin flip dressed as a result. Cluster
+  the poses, look at several, and judge them chemically.</p>
+</div>
+
+<pre class="ascii">
+  HOW TO LOOK AT A POSE — the chemist's eye, in five checks
+
+  1. DO THE HYDROGEN BONDS POINT THE RIGHT WAY?
+       A donor must point AT an acceptor. Two acceptors facing
+       each other is not an interaction, it is a clash — and
+       scoring functions miss this more often than you expect.
+
+  2. IS ANYTHING BURIED THAT SHOULD NOT BE?
+       A charged group buried in a greasy pocket with nothing to
+       pair with costs a large amount of energy. If the pose puts
+       a carboxylate in an all-leucine pocket, the pose is wrong.
+
+  3. IS THE LIGAND IN A SENSIBLE INTERNAL SHAPE?
+       Docking programs can return strained conformations —
+       eclipsed bonds, distorted rings. Compare the pose's
+       internal energy against a relaxed conformer.
+
+  4. DOES IT REPRODUCE THE KNOWN BINDING MODE?
+       If a crystal structure of a related ligand exists, does
+       your pose put the shared substructure in the same place?
+       This is the strongest single check available.
+
+  5. DOES IT AGREE WITH THE SAR?
+       If chemistry says that adding a methyl here kills activity,
+       does the pose explain why? A pose that contradicts known
+       SAR is more likely wrong than the SAR is.
+</pre>
+
+<header class="part" id="part3">
+  <span class="pn">Part III</span>
+  <h2>The interactions</h2>
+</header>
+
+<details class="try">
+  <summary>Try it · A colleague reports "compound X docks at −11.2 kcal/mol, compound Y at −10.4, so X is the better binder — let's make X." What do you say?</summary>
+  <div class="ans">
+    <span class="lbl">Answer</span>
+    <p><strong>That 0.8 kcal/mol difference is a third of the scoring function's own error. There is no
+    information in it.</strong></p>
+<pre><code>THE ARITHMETIC
+   docking score error   ~2-3 kcal/mol
+   the difference quoted  0.8 kcal/mol
+
+   The gap between the two compounds is well inside the noise.
+   Ranking them is reading the error bar.
+
+AND THE SECOND PROBLEM
+   -11.2 is being treated as an affinity. With +/- 2-3
+   kcal/mol it is consistent with anything from roughly 1 nM
+   to 100 uM — five orders of magnitude.</code></pre>
+    <p>What to say, without being obstructive: <strong>"both are in the top tier, and docking cannot
+    separate them. Let's make both if we can, or pick on something docking is actually good at —</strong>
+    do the poses make chemical sense, does either explain the known SAR, and which is easier to
+    synthesise?"</p>
+    <p>And the constructive close: if the project genuinely needs these two ranked, that is the argument
+    for FEP (Lesson 14) — which is what it exists for, on a validated binding mode.</p>
+  </div>
+</details>
+
+<header class="mod" id="l8">
+  <span class="mn">Lesson 08</span>
+  <h2>The forces that hold a drug in place</h2>
+</header>
+
+<div class="terms">
+  <dl>
+    <dt>Hydrogen bond</dt><dd>The most important <em>directional</em> interaction. Donor–acceptor distance <strong>2.5–3.5 Å</strong> (optimal ~2.8), D–H⋯A angle <strong>above 120°</strong> (optimal 160–180°). Worth <strong>1–5 kcal/mol</strong> each. Because it is directional, it provides <em>selectivity</em>, not just affinity.</dd>
+    <dt>Hydrophobic contact</dt><dd>Greasy surfaces packing against greasy surfaces. Individually weak and non-directional, but there are many of them and together they usually supply most of the binding energy.</dd>
+    <dt>Salt bridge</dt><dd>A charged group against an oppositely charged one — a ligand amine against an aspartate, say. The strongest single interaction available, and the reason ligand protonation state matters so much.</dd>
+    <dt>π-stacking</dt><dd>Aromatic rings stacked face-to-face or edge-to-face. Common with Phe, Tyr, Trp and His.</dd>
+    <dt>Halogen bond</dt><dd>A chlorine, bromine or iodine acting as an electron acceptor. Easily missed because it is counter-intuitive, and it is a real medicinal-chemistry tool.</dd>
+  </dl>
+</div>
+
+<div class="bad">
+  <span class="tag">Why ligand protonation is not a detail</span>
+  <p>A basic amine is <strong>protonated and positively charged at pH 7.4</strong>. Protonated, it forms
+  a salt bridge with a nearby aspartate — a powerful interaction. Neutral, it forms a weak hydrogen
+  bond at best. Docking everything in its neutral form, which is the default in many pipelines,
+  therefore <em>throws away the strongest interaction in the site</em> for a large fraction of
+  drug-like molecules. Generate states at pH 7.4 with a tool built for it.</p>
+</div>
+
+<header class="mod" id="l9">
+  <span class="mn">Lesson 09</span>
+  <h2>Interaction fingerprints — turning a pose into features</h2>
+</header>
+
+<p>This is where structure-based work connects back to the machine learning of Volumes 08–10. A pose
+is a 3D object; a model wants a vector. An interaction fingerprint is the bridge.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · what an interaction fingerprint encodes</span>
+  <div class="body">
+<pre><code>A normal fingerprint (Volume 05) describes THE MOLECULE.
+An interaction fingerprint describes THE COMPLEX —
+what the molecule DOES against this specific protein.
+
+For each binding-site residue, record which interaction types
+are present:
+
+                    HBd  HBa  Hydroph  PiStack  Ionic  Halogen
+  ASP189             0    1      0        0       1      0
+  SER190             1    1      0        0       0      0
+  VAL213             0    0      1        0       0      0
+  TRP215             0    0      1        1       0      0
+  GLY216             1    1      0        0       0      0
+  ...
+
+  -&gt; flatten to a bit vector: 010010 110000 001000 001100 ...
+
+WHAT THIS IS GOOD FOR
+
+  · comparing binding modes: two ligands with near-identical
+    interaction fingerprints bind the same way, even if their
+    2D structures look nothing alike
+  · clustering docking poses by MECHANISM rather than geometry
+  · as ML features, when you have a structure and want the model
+    to see the interaction pattern rather than just the ligand
+
+TOOLS: ProLIF (python, works on trajectories too), PLIP (quick,
+       web or command line)
+
+⭐ THE CAVEAT: an interaction fingerprint of a DOCKED pose
+   inherits every error in that pose. Garbage pose, garbage
+   fingerprint — and it will look just as tidy.</code></pre>
+  </div>
+</div>
+
+<header class="mod" id="l10">
+  <span class="mn">Lesson 10</span>
+  <h2>Water</h2>
+</header>
+
+<p>Beginners delete all the water molecules before docking because they look like clutter. Sometimes
+that is right. Sometimes it destroys the result.</p>
+
+<div class="sen">
+  <div class="b knows"><span class="k">What waters are doing</span>
+    <p>Some water molecules sit in the pocket permanently and <strong>mediate</strong> binding — the
+    ligand hydrogen-bonds to the water, and the water hydrogen-bonds to the protein. Delete it and you
+    have opened an artificial hole that your ligand will be docked into.</p></div>
+  <div class="b"><span class="k">How to tell which are which</span>
+    <p><strong>Conserved waters appear in the same place across multiple independent crystal
+    structures of the same protein.</strong> That is the test. A water present in one structure at
+    2.8 Å resolution is probably noise; a water present in nine structures is part of the site.</p></div>
+  <div class="b check"><span class="k">What to do</span>
+    <p>Identify conserved waters, keep them, and — when it matters — <strong>dock both with and
+    without them</strong> and compare. Being able to say "I ran it both ways and the binding mode was
+    unchanged" is a much stronger position than having quietly picked one.</p></div>
+</div>
+
+<header class="part" id="part4">
+  <span class="pn">Part IV</span>
+  <h2>The physics underneath</h2>
+</header>
+
+<header class="mod" id="l11">
+  <span class="mn">Lesson 11</span>
+  <h2>Conformers — the quiet dependency of everything 3D</h2>
+</header>
+
+<p>A molecule is not one shape. Rotatable bonds let it fold into many, and almost every 3D method —
+docking, shape similarity, pharmacophore search, 3D descriptors — silently depends on whether you
+generated the right ones.</p>
+
+<div class="wex">
+  <span class="cap">Worked example · how many conformers is enough</span>
+  <div class="body">
+<pre><code>THE SCALE OF THE PROBLEM
+
+  Roughly 3 energy minima per rotatable bond, so a molecule with
+  N rotatable bonds has on the order of 3^N conformers.
+
+      N = 3   -&gt;      27
+      N = 5   -&gt;     243
+      N = 8   -&gt;   6,561      &lt;- a typical drug
+      N = 12  -&gt; 531,441      &lt;- a floppy molecule
+
+  You cannot enumerate them all, and you do not need to: most
+  are high-energy shapes the molecule never adopts.
+
+THE STANDARD RECIPE (RDKit)
+
+  1. EMBED with ETKDG
+       "Experimental Torsion Distance Geometry with basic
+        Knowledge" — it biases the geometry using torsion angle
+        preferences measured from crystal structures, which is
+        why it beats plain distance geometry.
+
+  2. OPTIMISE with a force field (MMFF94)
+  3. DISCARD anything more than ~10 kcal/mol above the minimum
+  4. DEDUPLICATE by RMSD (~0.5 A threshold)
+  5. RANK by energy
+
+HOW MANY TO ASK FOR
+      rigid molecules        ~50
+      typical drugs          200
+      flexible molecules     200-500
+
+⭐ THE FAILURE MODE THAT IS INVISIBLE
+   If the bioactive conformation — the shape the molecule
+   actually adopts when bound — is not in your generated set,
+   docking CANNOT find the right pose. It will still return a
+   confident score for the best wrong shape. Nothing in the
+   output tells you this happened.
+
+   And note: the bioactive conformer is often NOT the lowest
+   energy one. Binding pays for some internal strain.</code></pre>
+  </div>
+</div>
+
+<header class="mod" id="l12">
+  <span class="mn">Lesson 12</span>
+  <h2>Force fields and quantum mechanics</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:18%"></th><th style="width:34%">Force field (molecular mechanics)</th><th>Quantum mechanics</th></tr></thead>
+  <tbody>
+    <tr><td><strong>The model</strong></td><td>Atoms are balls, bonds are springs. Energy from a parameterised formula — bond stretching, angle bending, torsions, van der Waals, electrostatics.</td><td>Solve an approximation to the electronic structure. Electrons are modelled explicitly.</td></tr>
+    <tr><td><strong>Speed</strong></td><td>Milliseconds. Millions of molecules is routine.</td><td>Seconds to hours per molecule, depending on method and size.</td></tr>
+    <tr><td><strong>Can do</strong></td><td>Geometry optimisation, conformers, MD, docking scoring.</td><td>Reaction energies, bond breaking, accurate charges, spectra, excited states.</td></tr>
+    <tr><td><strong>Cannot do</strong></td><td><strong>Anything involving bonds breaking or forming.</strong> No electrons, no reactions. And it is only as good as its parameters — unusual chemistry is often unparameterised.</td><td>Scale. And it will happily give you a beautifully accurate answer for a gas-phase molecule that has nothing to do with the protein.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="note">
+  <span class="tag">The practical middle: xTB</span>
+  <p>Between the two sits <strong>semi-empirical</strong> quantum chemistry, of which <code>xTB</code>
+  is the current workhorse. It is orders of magnitude faster than proper QM and much more transferable
+  than a force field, which makes it the sensible default for things like conformer refinement,
+  reasonable partial charges and tautomer ranking on thousands of molecules. When someone asks for "QM
+  accuracy" on a screening library, xTB is usually the honest answer.</p>
+</div>
+
+<header class="mod" id="l13">
+  <span class="mn">Lesson 13</span>
+  <h2>Molecular dynamics, in one lesson</h2>
+</header>
+
+<pre class="ascii">
+  WHAT MD DOES
+
+    Docking gives you ONE FROZEN PICTURE.
+    Reality is a MOVIE: protein and ligand both wobbling,
+    water moving, side chains rotating, loops breathing.
+
+    MD computes forces on every atom, moves them a tiny step
+    (1-2 femtoseconds), and repeats — millions of times.
+
+    1 femtosecond step x 100,000,000 steps = 100 nanoseconds
+    ...which is still a very short time in biology.
+
+  WHAT IT IS GENUINELY GOOD FOR
+
+    · is the docked pose STABLE? run 100 ns and see whether the
+      ligand stays put or drifts out. A pose that leaves the
+      pocket in 20 ns was a bad pose.
+    · which interactions PERSIST? an H-bond present in 85% of
+      frames is real; one present in 4% was a lucky snapshot.
+    · where are the conserved waters, dynamically?
+    · does the pocket open, close, or change shape?
+
+  WHAT IT IS NOT
+
+    ⚠ NOT an affinity calculation. Watching a ligand stay bound
+      does not tell you how strongly. That is FEP's job.
+
+  THE COST
+    Setup is fiddly (force field for the ligand, solvation, ions,
+    equilibration) and a single 100 ns run is hours to days on a
+    GPU. This is a tens-of-molecules technique, not thousands.
+</pre>
+
+<header class="mod" id="l14">
+  <span class="mn">Lesson 14</span>
+  <h2>FEP — the gold standard, and when it is worth it</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:22%"></th><th style="width:32%">Docking</th><th>FEP</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Speed</strong></td><td>Seconds per molecule</td><td>Hours to days per molecule</td></tr>
+    <tr><td><strong>Ranking accuracy</strong></td><td>Poor — R² around <strong>0.1–0.3</strong></td><td>Good — R² around <strong>0.5–0.7</strong></td></tr>
+    <tr><td><strong>Scale</strong></td><td>Screening millions</td><td>Optimising tens</td></tr>
+    <tr><td><strong>Needs</strong></td><td>Protein plus a binding site</td><td>Protein plus a <strong>validated</strong> binding mode</td></tr>
+    <tr><td><strong>Output</strong></td><td>Ranked list and poses</td><td>Relative ΔG between similar ligands</td></tr>
+    <tr><td><strong>Cost</strong></td><td>Free (AutoDock Vina)</td><td>Commercial (FEP+) or complex to run (OpenFE)</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="wex">
+  <span class="cap">Worked example · the trick that makes FEP possible</span>
+  <div class="body">
+<pre><code>THE HARD QUESTION
+    "What is the absolute binding free energy of ligand A?"
+    -&gt; extremely difficult, and rarely answered well.
+
+THE TRACTABLE QUESTION
+    "Is ligand B better than ligand A, and by how much?"
+    -&gt; this is what FEP answers.
+
+THE TRICK: ALCHEMY
+
+    Rather than pulling A out of the protein (hard), slowly
+    MORPH A into B while it stays bound — turning atoms on and
+    off gradually in a simulation. Do the same morph in plain
+    water. Then:
+
+      ddG = dG(complex, A-&gt;B) - dG(solvent, A-&gt;B)
+
+    The morph is physically impossible, which does not matter:
+    free energy is a state function, so only the endpoints count.
+
+⭐ WHEN IT IS WORTH IT
+   Lead optimisation, on a series where you already have a
+   confirmed binding mode and are choosing which 20 analogues to
+   synthesise. Getting the ranking right saves months of
+   chemistry, which easily pays for a week of compute.
+
+⭐ WHEN IT IS NOT
+   Early screening. Different chemical series (FEP compares
+   similar molecules; morphing A into something structurally
+   unrelated does not converge). And never on an unvalidated
+   binding mode — FEP applied to the wrong pose gives you a
+   precise, well-converged, entirely wrong number.</code></pre>
+  </div>
+</div>
+
+<header class="part" id="part5">
+  <span class="pn">Part V</span>
+  <h2>Designing with structure</h2>
+</header>
+
+<header class="mod" id="l15">
+  <span class="mn">Lesson 15</span>
+  <h2>Pharmacophores and fragments</h2>
+</header>
+
+<div class="sen">
+  <div class="b knows"><span class="k">Pharmacophore — the abstraction</span>
+    <p>Strip away the chemistry and keep only <strong>the pattern of features in space</strong>: a
+    hydrogen-bond donor here, an aromatic ring 5.2 Å away, a positive charge 7.8 Å from that. Any
+    molecule that can place those features at those distances is a candidate — <em>however different it
+    looks</em>.</p></div>
+  <div class="b"><span class="k">Why that is powerful</span>
+    <p>It is the one method that reliably finds <strong>scaffold hops</strong> — a molecule with a
+    completely different core that binds the same way. Fingerprint similarity (Volume 05) cannot do
+    this by construction, because it compares substructures and there are none in common.</p></div>
+  <div class="b"><span class="k">Fragment-based design — the other direction</span>
+    <p>Start with very small molecules (under ~250 Da). They bind weakly — micromolar to millimolar,
+    which needs sensitive biophysical methods to detect at all — but they bind <em>efficiently</em>,
+    making good contacts per atom. Then grow, merge or link them into a real lead. It explores chemical
+    space far more efficiently than screening whole drug-sized molecules, because small fragments cover
+    far more of it.</p></div>
+  <div class="b check"><span class="k">The metric to know</span>
+    <p><strong>Ligand efficiency</strong> — binding energy divided by heavy-atom count. It is how
+    fragment work is judged, and it exists because raw potency rewards adding mass, which is exactly
+    the habit that produces bloated, undruggable leads.</p></div>
+</div>
+
+<header class="mod" id="lpock">
+  <span class="mn">Lesson 16</span>
+  <h2>Finding the pocket in the first place</h2>
+</header>
+
+<p>Everything above assumed you know where the binding site is. Sometimes you do — a ligand is bound in
+the structure. When you do not, pocket detection comes first, and it is the step that decides whether
+the rest is meaningful.</p>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:22%">Tool</th><th style="width:30%">Method</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><strong>fpocket</strong></td><td>Alpha spheres — packs spheres into surface concavities and clusters them</td><td>Open source, fast, scriptable. The sensible default, and easy to run across many structures.</td></tr>
+    <tr><td><strong>DoGSiteScorer</strong></td><td>Grid-based, using a difference-of-Gaussians filter</td><td>Adds a <strong>druggability</strong> score and <strong>subpocket</strong> segmentation — the latter genuinely useful for fragment work. Web service at proteins.plus; results can be downloaded and parsed.</td></tr>
+    <tr><td><strong>SiteMap</strong></td><td>Commercial, produces <em>site maps</em></td><td>Its lasting contribution is the concept: coloured surfaces showing where a hydrophobic group, a donor or an acceptor would each be favourable — a pharmacophore-like read of an empty pocket.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="sen">
+  <div class="b knows"><span class="k">What "druggable" means here</span>
+    <p>Not "a drug exists for it" but <strong>a geometry claim</strong>: buried enough, hydrophobic
+    enough, and the right size — roughly 300–1,000 Å³ — to hold a small molecule tightly. A shallow
+    polar groove may be a real functional site and still be undruggable by a small molecule.</p></div>
+  <div class="b junior"><span class="k">The two traps</span>
+    <p>The top-ranked pocket is frequently <strong>the active site of some other function</strong>, or a
+    crystal-packing artefact (Lesson 03). Rank several, and check each against what is known about the
+    protein's biology before designing anything for it.</p></div>
+  <div class="b check"><span class="k">The habit</span>
+    <p>If a ligand-bound structure exists anywhere in the PDB for this protein or a close homologue,
+    <strong>use its ligand position rather than a prediction.</strong> Detection is for when you have no
+    such structure, not a substitute for looking.</p></div>
+</div>
+
+<header class="mod" id="mistakes">
+  <span class="mn">Reference</span>
+  <h2>The mistakes that cost most</h2>
+</header>
+
+<div class="tw">
+<table>
+  <thead><tr><th style="width:28%">Mistake</th><th style="width:36%">Why it is wrong</th><th>The fix</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Reading scores as affinities</strong></td><td>Error is 2–3 kcal/mol; −10.5 spans 1 nM to 100 µM.</td><td>Use docking for enrichment and binding-mode hypotheses. Report ranks, not affinities.</td></tr>
+    <tr><td><strong>Using docking scores for SAR</strong></td><td>SAR differences (0.5–1 kcal/mol) are smaller than the error.</td><td>FEP for quantitative comparisons within a series.</td></tr>
+    <tr><td><strong>No retrospective validation</strong></td><td>If it cannot enrich known actives, it will not find new ones.</td><td>Actives plus property-matched decoys; report EF at 1%.</td></tr>
+    <tr><td><strong>Raw PDB, no preparation</strong></td><td>No hydrogens, undecided protonation, missing loops.</td><td>A real preparation pipeline; check histidines by hand.</td></tr>
+    <tr><td><strong>Deleting all waters</strong></td><td>Conserved waters mediate binding; removing one creates a fake cavity.</td><td>Keep conserved waters; dock both ways and compare.</td></tr>
+    <tr><td><strong>AlphaFold without pLDDT</strong></td><td>A protein averaging 88 can have a binding site at 55.</td><td>Read pLDDT for binding-site residues only. Prefer experimental holo structures.</td></tr>
+    <tr><td><strong>Crystal-packing pockets</strong></td><td>The site exists only between symmetry copies, not in solution.</td><td>Use the biological assembly, not the asymmetric unit.</td></tr>
+    <tr><td><strong>Rigid protein, neutral ligands</strong></td><td>Side chains move; basic amines are charged at pH 7.4.</td><td>Ensemble docking; generate protonation states at pH 7.4.</td></tr>
+    <tr><td><strong>Trusting the top pose</strong></td><td>It is right only 50–70% of the time.</td><td>Cluster poses, inspect several, check against known SAR.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<header class="mod" id="drill">
+  <span class="mn">Reference</span>
+  <h2>Rapid drill</h2>
+</header>
+
+<div class="sheet">
+  <div class="cap">One-sentence answers to have ready</div>
+<pre><code>What does docking compute?
+  Two things: a search for plausible poses, and a score for each.
+  They fail independently.
+
+What is a docking score's error?
+  2-3 kcal/mol — which spans about five orders of magnitude in
+  affinity. So: enrichment and binding modes, never affinity.
+
+Why can't I use docking scores for SAR?
+  SAR differences are 0.5-1 kcal/mol, smaller than the error.
+  You would be reading noise.
+
+How do I know my docking setup works?
+  Retrospective validation: known actives plus property-matched
+  decoys, and report enrichment at 1%, not just ROC-AUC.
+
+What is missing from a raw PDB file?
+  Hydrogens, protonation states, sometimes whole loops — and it
+  may be the asymmetric unit rather than the biological assembly.
+
+When can I dock into an AlphaFold structure?
+  When pLDDT in the BINDING SITE residues is above ~70 — not the
+  whole-protein average. And remember it predicts the apo form.
+
+Should I delete the waters?
+  Not the conserved ones. Conserved means present across multiple
+  independent structures. Dock both ways and compare.
+
+How many conformers?
+  ~50 rigid, 200 typical, 200-500 flexible. If the bioactive
+  conformer is not in the set, docking cannot succeed — and
+  nothing in the output will tell you.
+
+Force field or QM?
+  Force field for anything at scale; QM when bonds break or you
+  need real electronic structure. xTB is the practical middle.
+
+Docking or FEP?
+  Docking to screen millions (R2 0.1-0.3). FEP to rank tens
+  (R2 0.5-0.7), and only on a validated binding mode.
+
+What is ligand efficiency for?
+  Binding energy per heavy atom — it stops you rewarding
+  molecules for simply getting bigger.</code></pre>
+</div>
+
+<header class="mod" id="next">
+  <span class="mn">Reference</span>
+  <h2>What next</h2>
+</header>
+
+<div class="grid2">
+  <div class="card"><h4>Volume 13 · Foundation models and the frontiers</h4><p>Pretraining on millions of unlabelled molecules, chemical language models, materials informatics, the automated lab — and the MLOps that keeps any of it running.</p></div>
+  <div class="card"><h4>The source material</h4><p><code>phase-3-advanced-specialization/19-structure-based-drug-design.md</code> (2,533 lines), <code>20-computational-chemistry-essentials.md</code> (2,321) and <code>21-protein-ligand-interaction-analysis.md</code> (2,548), which carry the Vina configurations, the ProLIF and PLIP code, and the xTB and Psi4 recipes.</p></div>
+</div>
+</main>
+</div>
+
+<script>
+(function () {
+  var links = Array.prototype.slice.call(document.querySelectorAll('.rail a'));
+  var map = {}, targets = [];
+  links.forEach(function (a) {
+    var h = a.getAttribute('href');
+    if (!h || h.charAt(0) !== '#') return;
+    var el = document.getElementById(h.slice(1));
+    if (el) { map[el.id] = a; targets.push(el); }
+  });
+  var current = null;
+  function mark(id) {
+    if (id === current) return;
+    current = id;
+    links.forEach(function (a) { a.classList.remove('on'); });
+    if (map[id]) map[id].classList.add('on');
+  }
+  var io = new IntersectionObserver(function (entries) {
+    var vis = entries.filter(function (e) { return e.isIntersecting; });
+    if (vis.length) {
+      vis.sort(function (a, b) { return a.boundingClientRect.top - b.boundingClientRect.top; });
+      mark(vis[0].target.id);
+    }
+  }, { rootMargin: '-8% 0px -72% 0px', threshold: 0 });
+  targets.forEach(function (t) { io.observe(t); });
+})();
+</script>
